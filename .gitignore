@@ -1,0 +1,5 @@
+anchors.parquet
+features.parquet
+crsp_dsf.parquet
+crsp_msf.parquet
+compustat_funda.parquet
