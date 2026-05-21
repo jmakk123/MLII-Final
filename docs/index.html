@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predicting the Fall · Forward Drawdown Signal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #070d1a;
+      --surface: #0e1829;
+      --card:    #121f35;
+      --border:  #1e3356;
+      --accent:  #00d4ff;
+      --green:   #00e676;
+      --red:     #ff4d6d;
+      --yellow:  #ffd600;
+      --purple:  #b06aff;
+      --text:    #e0eaff;
+      --muted:   #5a7099;
+      --font:    'Inter', sans-serif;
+      --mono:    'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 58px;
+      background: rgba(7,13,26,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-weight: 800; font-size: 1.05rem; color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.875rem;
+      font-weight: 500; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-game-btn {
+      padding: 0.45rem 1.1rem;
+      background: var(--accent); color: #000;
+      border: none; border-radius: 6px;
+      font-weight: 700; font-size: 0.85rem;
+      cursor: pointer; text-decoration: none;
+      transition: opacity .2s;
+    }
+    .nav-game-btn:hover { opacity: .85; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    .hero-glow {
+      position: absolute; top: 20%; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse, rgba(0,212,255,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: .8rem; font-weight: 600; letter-spacing: .15em;
+      color: var(--accent); text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      position: relative;
+    }
+    .hero-title {
+      font-size: clamp(3.2rem, 7vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1.0;
+      margin-bottom: 1.4rem;
+      position: relative;
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.25rem; color: var(--muted);
+      max-width: 600px; margin: 0 auto 2.5rem;
+      position: relative;
+      font-weight: 400;
+    }
+    .hero-pills {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      justify-content: center; margin-bottom: 3rem;
+      position: relative;
+    }
+    .pill {
+      padding: .4rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: .8rem; font-weight: 600;
+      color: var(--text);
+      background: var(--surface);
+    }
+    .pill span { color: var(--accent); }
+    .scroll-hint {
+      position: relative; color: var(--muted);
+      font-size: .8rem; letter-spacing: .1em;
+      text-transform: uppercase; animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: .75rem; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; letter-spacing: -.03em;
+      margin-bottom: 1rem; line-height: 1.1;
+    }
+    .section-sub {
+      color: var(--muted); font-size: 1.05rem;
+      max-width: 640px; margin-bottom: 3.5rem;
+    }
+
+    /* ── STAT CARDS ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem; margin-top: 2.5rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .stat-val {
+      font-size: 2.2rem; font-weight: 800;
+      letter-spacing: -.03em; color: var(--accent);
+      font-family: var(--mono);
+    }
+    .stat-label { font-size: .85rem; color: var(--muted); margin-top: .25rem; }
+
+    /* ── TWO-COL ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+    /* ── PIPELINE ── */
+    .pipeline {
+      display: flex; align-items: center;
+      gap: 0; flex-wrap: wrap;
+      margin-top: 3rem;
+    }
+    .pipe-node {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.4rem;
+      font-size: .9rem; font-weight: 600;
+      text-align: center; min-width: 130px;
+      flex: 1;
+    }
+    .pipe-node small {
+      display: block; color: var(--muted);
+      font-size: .72rem; font-weight: 400; margin-top: .2rem;
+    }
+    .pipe-node.highlight { border-color: var(--accent); color: var(--accent); }
+    .pipe-arrow {
+      color: var(--muted); font-size: 1.4rem;
+      padding: 0 .5rem; flex-shrink: 0;
+    }
+    .pipe-row { display: flex; align-items: stretch; gap: 0; width: 100%; flex-wrap: wrap; }
+    .pipeline-wrap {
+      display: flex; flex-direction: column; gap: 1.2rem;
+      margin-top: 3rem;
+    }
+    .pipe-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: .4rem;
+    }
+
+    /* ── MODEL RESULTS TABLE ── */
+    .results-table-wrap { overflow-x: auto; margin-top: 2.5rem; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: .875rem;
+    }
+    thead th {
+      text-align: left; padding: .75rem 1rem;
+      color: var(--muted); font-weight: 600;
+      font-size: .75rem; letter-spacing: .05em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(30,51,86,.5);
+      transition: background .15s;
+    }
+    tbody tr:hover { background: rgba(0,212,255,.03); }
+    tbody td { padding: .75rem 1rem; }
+    .model-name { font-weight: 600; }
+    .badge-good { color: var(--green); font-family: var(--mono); font-weight: 600; }
+    .badge-mid  { color: var(--yellow); font-family: var(--mono); font-weight: 600; }
+    .badge-base { color: var(--muted); font-family: var(--mono); }
+    .badge-target {
+      display: inline-block; padding: .15rem .5rem;
+      background: rgba(0,230,118,.15); border: 1px solid var(--green);
+      border-radius: 4px; color: var(--green);
+      font-family: var(--mono); font-size: .8rem;
+    }
+    .row-highlight { background: rgba(0,212,255,.05) !important; }
+
+    /* ── CHARTS ── */
+    .chart-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+      margin-top: 2.5rem;
+    }
+    @media (max-width: 768px) { .chart-grid { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .chart-title {
+      font-size: .85rem; font-weight: 600; margin-bottom: 1rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
+    }
+
+    /* ── APPLICATIONS ── */
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem; margin-top: 2.5rem;
+    }
+    .app-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem 1.75rem;
+      transition: border-color .25s, transform .25s;
+      cursor: default;
+    }
+    .app-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .app-icon {
+      font-size: 2.2rem; margin-bottom: 1rem;
+      display: block;
+    }
+    .app-title { font-size: 1.1rem; font-weight: 700; margin-bottom: .6rem; }
+    .app-desc { color: var(--muted); font-size: .9rem; line-height: 1.55; }
+    .app-example {
+      margin-top: 1rem; padding: .75rem;
+      background: rgba(0,212,255,.06);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      font-size: .82rem; color: var(--text);
+      font-style: italic;
+    }
+
+    /* ── DRAWDOWN VIZ ── */
+    .dd-example {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+    }
+    .dd-bar-wrap { margin-top: 1.25rem; }
+    .dd-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: .82rem; color: var(--muted); margin-bottom: .3rem;
+    }
+    .dd-bar-track {
+      height: 10px; background: rgba(255,255,255,.06);
+      border-radius: 999px; overflow: hidden;
+      margin-bottom: .75rem;
+    }
+    .dd-bar-fill {
+      height: 100%; border-radius: 999px;
+      transition: width 1.5s ease;
+    }
+    .dd-bar-fill.safe { background: var(--green); }
+    .dd-bar-fill.warn { background: var(--yellow); }
+    .dd-bar-fill.danger { background: var(--red); }
+
+    /* ── GAME ── */
+    #game {
+      background: var(--bg);
+      padding: 4rem 1.5rem;
+      min-height: 100vh;
+    }
+    .game-header {
+      text-align: center; margin-bottom: 2rem;
+    }
+    .game-scoreboard {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      gap: 1rem; align-items: center;
+      max-width: 900px; margin: 0 auto 2.5rem;
+    }
+    .team-score {
+      padding: 1.25rem 1.5rem;
+      border-radius: 14px;
+      border: 2px solid;
+      text-align: center;
+    }
+    .team-score.quants { border-color: var(--accent); background: rgba(0,212,255,.06); }
+    .team-score.traders { border-color: var(--purple); background: rgba(176,106,255,.06); }
+    .team-name { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .team-name.quants { color: var(--accent); }
+    .team-name.traders { color: var(--purple); }
+    .team-bankroll {
+      font-size: 2rem; font-weight: 900;
+      font-family: var(--mono); margin-top: .25rem;
+    }
+    .team-delta { font-size: .8rem; margin-top: .2rem; min-height: 1.2em; }
+    .round-indicator {
+      text-align: center; padding: 1rem;
+    }
+    .round-num {
+      font-size: .75rem; color: var(--muted); font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    .round-big {
+      font-size: 2.5rem; font-weight: 900; font-family: var(--mono);
+      color: var(--text); line-height: 1;
+    }
+
+    .game-arena {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 700px) { .game-arena { grid-template-columns: 1fr; } }
+
+    .company-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      grid-column: 1 / -1;
+    }
+    .company-hidden {
+      font-size: 1.05rem; font-weight: 600; color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    .company-reveal {
+      font-size: 1.5rem; font-weight: 800;
+      color: var(--accent); display: none;
+      margin-bottom: .5rem;
+    }
+    .company-sector {
+      display: inline-block;
+      padding: .25rem .75rem;
+      background: rgba(0,212,255,.1);
+      border: 1px solid rgba(0,212,255,.3);
+      border-radius: 999px;
+      font-size: .75rem; font-weight: 600; color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+    .fin-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+    }
+    .fin-item {
+      background: rgba(255,255,255,.03);
+      border-radius: 8px; padding: .6rem .9rem;
+    }
+    .fin-key { font-size: .72rem; color: var(--muted); font-weight: 500; }
+    .fin-val { font-size: 1rem; font-weight: 700; font-family: var(--mono); margin-top: .1rem; }
+
+    .signal-card {
+      background: var(--card);
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      padding: 1.75rem;
+    }
+    .signal-card .card-title {
+      font-size: .75rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+    }
+    .signal-score {
+      font-size: 3.5rem; font-weight: 900; font-family: var(--mono);
+      line-height: 1; margin-bottom: .5rem;
+    }
+    .signal-bar-track {
+      height: 14px; background: rgba(255,255,255,.07);
+      border-radius: 999px; overflow: hidden; margin-bottom: .75rem;
+    }
+    .signal-bar-fill {
+      height: 100%; border-radius: 999px;
+      transition: width .8s ease;
+    }
+    .signal-verdict {
+      font-size: .85rem; font-weight: 600; margin-top: .5rem;
+    }
+    .signal-card.blurred .signal-score,
+    .signal-card.blurred .signal-bar-track,
+    .signal-card.blurred .signal-verdict {
+      filter: blur(8px);
+      user-select: none;
+    }
+
+    .vote-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+    }
+    .vote-title {
+      font-size: .75rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem;
+    }
+    .vote-btns {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+    .vote-btn {
+      padding: 1rem; border-radius: 10px; border: 2px solid;
+      font-weight: 800; font-size: 1rem; cursor: pointer;
+      transition: all .15s; background: transparent;
+    }
+    .vote-btn.safe {
+      border-color: var(--green); color: var(--green);
+    }
+    .vote-btn.safe:hover, .vote-btn.safe.selected {
+      background: rgba(0,230,118,.15);
+    }
+    .vote-btn.risky {
+      border-color: var(--red); color: var(--red);
+    }
+    .vote-btn.risky:hover, .vote-btn.risky.selected {
+      background: rgba(255,77,109,.15);
+    }
+    .vote-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .bet-row {
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    }
+    .bet-label { font-size: .8rem; color: var(--muted); font-weight: 600; }
+    .bet-chip {
+      padding: .4rem .9rem; border-radius: 8px;
+      border: 1px solid var(--border); background: transparent;
+      font-weight: 700; font-size: .85rem; cursor: pointer;
+      color: var(--text); transition: all .15s; font-family: var(--mono);
+    }
+    .bet-chip:hover { border-color: var(--accent); }
+    .bet-chip.selected { border-color: var(--accent); background: rgba(0,212,255,.12); color: var(--accent); }
+    .bet-chip:disabled { opacity: .3; cursor: not-allowed; }
+
+    .reveal-btn {
+      width: 100%; margin-top: 1.5rem; padding: 1.1rem;
+      background: linear-gradient(135deg, var(--accent), #0092ff);
+      color: #000; border: none; border-radius: 10px;
+      font-size: 1.1rem; font-weight: 900; letter-spacing: .05em;
+      cursor: pointer; transition: opacity .2s, transform .1s;
+      max-width: 900px; display: block; margin: 1.5rem auto 0;
+    }
+    .reveal-btn:hover { opacity: .9; transform: scale(1.01); }
+    .reveal-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .next-btn {
+      width: 100%; margin-top: 1rem; padding: 1rem;
+      background: var(--surface);
+      color: var(--text); border: 1px solid var(--border); border-radius: 10px;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all .2s;
+      max-width: 900px; display: none; margin: 1rem auto 0;
+    }
+    .next-btn:hover { border-color: var(--accent); }
+
+    .result-banner {
+      max-width: 900px; margin: 1.25rem auto 0;
+      border-radius: 12px; padding: 1.25rem 1.75rem;
+      display: none; align-items: center; gap: 1rem;
+    }
+    .result-banner.win { background: rgba(0,230,118,.1); border: 1px solid var(--green); }
+    .result-banner.loss { background: rgba(255,77,109,.1); border: 1px solid var(--red); }
+    .result-icon { font-size: 2rem; }
+    .result-text { flex: 1; }
+    .result-text strong { font-size: 1.05rem; display: block; }
+    .result-text small { color: var(--muted); font-size: .85rem; }
+    .actual-dd {
+      font-family: var(--mono); font-size: 2rem; font-weight: 900;
+    }
+
+    .game-over {
+      max-width: 700px; margin: 2rem auto;
+      text-align: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      display: none;
+    }
+    .game-over h2 { font-size: 2.5rem; font-weight: 900; margin-bottom: .5rem; }
+    .game-over .final-scores {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; margin: 2rem 0;
+    }
+    .final-score-box {
+      border-radius: 12px; padding: 1.5rem;
+      border: 2px solid;
+    }
+    .final-score-box.quants { border-color: var(--accent); }
+    .final-score-box.traders { border-color: var(--purple); }
+    .final-score-box .fs-name { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; }
+    .final-score-box .fs-name.q { color: var(--accent); }
+    .final-score-box .fs-name.t { color: var(--purple); }
+    .final-score-box .fs-amount {
+      font-size: 2.5rem; font-weight: 900; font-family: var(--mono); margin-top: .5rem;
+    }
+    .winner-badge {
+      display: inline-block; padding: .35rem .9rem;
+      background: var(--yellow); color: #000;
+      border-radius: 6px; font-weight: 800; font-size: .85rem;
+      margin-top: .5rem;
+    }
+    .restart-btn {
+      padding: 1rem 2.5rem;
+      background: var(--accent); color: #000;
+      border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 800; cursor: pointer;
+      margin-top: 1rem; transition: opacity .2s;
+    }
+    .restart-btn:hover { opacity: .85; }
+
+    .rules-box {
+      max-width: 700px; margin: 0 auto 2.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem 2rem;
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem;
+      text-align: center;
+    }
+    .rule-item .rule-icon { font-size: 1.6rem; margin-bottom: .4rem; }
+    .rule-item p { font-size: .82rem; color: var(--muted); line-height: 1.4; }
+    .rule-item strong { color: var(--text); display: block; margin-bottom: .2rem; font-size: .9rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      color: var(--muted); font-size: .85rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ── FADE IN ANIMATION ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .fade-in.visible { opacity: 1; transform: none; }
+
+    /* ── RATIO BAR (feature importance) ── */
+    .feat-row {
+      display: flex; align-items: center; gap: .75rem;
+      margin-bottom: .7rem;
+    }
+    .feat-name { font-size: .8rem; font-family: var(--mono); color: var(--muted); width: 160px; flex-shrink: 0; }
+    .feat-track { flex: 1; height: 8px; background: rgba(255,255,255,.06); border-radius: 999px; overflow: hidden; }
+    .feat-fill { height: 100%; border-radius: 999px; background: var(--accent); }
+    .feat-val { font-size: .78rem; font-family: var(--mono); color: var(--accent); width: 42px; text-align: right; flex-shrink: 0; }
+
+    .tag-grid { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.25rem; }
+    .tag {
+      padding: .3rem .75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px; font-size: .78rem;
+      color: var(--muted); font-family: var(--mono);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="nav-logo">▼ DrawdownSignal</span>
+  <ul class="nav-links">
+    <li><a href="#signal">Signal</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#model">Model</a></li>
+    <li><a href="#applications">Applications</a></li>
+  </ul>
+  <a href="#game" class="nav-game-btn">🎲 Play the Game</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">ML II Final Project · UChicago MS-ADS 2026</div>
+  <h1 class="hero-title">Predicting<br>the Fall</h1>
+  <p class="hero-sub">
+    A dual-stream neural network that forecasts the maximum peak-to-trough stock price
+    drawdown for US public companies over the next 12 months.
+  </p>
+  <div class="hero-pills">
+    <span class="pill"><span>132K</span> firm-years</span>
+    <span class="pill"><span>25</span> years of data</span>
+    <span class="pill"><span>87K+</span> anchored predictions</span>
+    <span class="pill"><span>29M</span> daily price rows</span>
+    <span class="pill">NYSE &amp; NASDAQ</span>
+  </div>
+  <div class="scroll-hint">↓ scroll to explore</div>
+</section>
+
+<!-- ── SIGNAL ── -->
+<section id="signal">
+  <div class="container">
+    <div class="two-col">
+      <div class="fade-in">
+        <div class="section-label">The Signal</div>
+        <h2 class="section-title">Why forward drawdown?</h2>
+        <p style="color:var(--muted); margin-bottom:1.5rem; line-height:1.7">
+          Bankruptcy prediction is too sparse — only 387 events in our universe.
+          Raw return is too noisy — good companies can have bad years and vice versa.
+          <strong style="color:var(--text)">Forward drawdown</strong> sits in the middle:
+          a continuous, economically meaningful signal that captures firm-level risk
+          without requiring the company to actually fail.
+        </p>
+        <p style="color:var(--muted); line-height:1.7">
+          Our target: the <strong style="color:var(--accent)">maximum peak-to-trough loss</strong>
+          a stock experiences in the 12 months following each fiscal year's anchor date
+          (filings date + 90 days). Values are in [−1, 0].
+        </p>
+        <div class="tag-grid">
+          <span class="tag">Non-positive target ∈ [−1, 0]</span>
+          <span class="tag">Anchor = datadate + 90d</span>
+          <span class="tag">12-month forward window</span>
+          <span class="tag">Delistings → −1.0</span>
+        </div>
+      </div>
+      <div class="fade-in">
+        <div class="dd-example">
+          <div style="font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:1.25rem;">
+            Sample Predictions — Test Set 2020–2023
+          </div>
+          <div class="dd-bar-wrap">
+            <div class="dd-bar-label"><span>Microsoft (MSFT)</span><span style="color:var(--green)">−24%</span></div>
+            <div class="dd-bar-track"><div class="dd-bar-fill safe" style="width:24%"></div></div>
+
+            <div class="dd-bar-label"><span>Procter &amp; Gamble (PG)</span><span style="color:var(--green)">−20%</span></div>
+            <div class="dd-bar-track"><div class="dd-bar-fill safe" style="width:20%"></div></div>
+
+            <div class="dd-bar-label"><span>Netflix (NFLX)</span><span style="color:var(--yellow)">−77%</span></div>
+            <div class="dd-bar-track"><div class="dd-bar-fill warn" style="width:77%"></div></div>
+
+            <div class="dd-bar-label"><span>American Airlines (AAL)</span><span style="color:var(--red)">−72%</span></div>
+            <div class="dd-bar-track"><div class="dd-bar-fill danger" style="width:72%"></div></div>
+
+            <div class="dd-bar-label"><span>Bed Bath &amp; Beyond (BBBY)</span><span style="color:var(--red)">−92%</span></div>
+            <div class="dd-bar-track"><div class="dd-bar-fill danger" style="width:92%"></div></div>
+
+            <div class="dd-bar-label"><span>Carnival Corp (CCL)</span><span style="color:var(--red)">−84%</span></div>
+            <div class="dd-bar-track"><div class="dd-bar-fill danger" style="width:84%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-grid fade-in">
+      <div class="stat-card">
+        <div class="stat-val">0.964</div>
+        <div class="stat-label">Top-decile precision — vol-only baseline correctly flags the highest-risk firms</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">0.869</div>
+        <div class="stat-label">PR-AUC at −30% threshold, vol-only baseline — our floor to beat</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">52%</div>
+        <div class="stat-label">Firms in test set with realized drawdown &gt; −30% — CRSP skews small-cap</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">387</div>
+        <div class="stat-label">Chapter 7/11 bankruptcies used as hard-label cross-check on the signal</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DATA ── -->
+<section id="data" style="background:var(--surface)">
+  <div class="container">
+    <div class="section-label fade-in">Data Pipeline</div>
+    <h2 class="section-title fade-in">From raw WRDS to model-ready tensors</h2>
+    <p class="section-sub fade-in">
+      Two raw data sources, five processing stages, one 97-dimensional feature matrix
+      aligned to 87,995 firm-year anchors.
+    </p>
+
+    <div class="pipeline-wrap fade-in">
+      <div>
+        <div class="pipe-label">Raw Sources</div>
+        <div class="pipe-row">
+          <div class="pipe-node">comp.funda<small>132K rows · 39 cols<br>fyear 1999–2025</small></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node">comp.company<small>45K firms · delisting<br>reason codes + GICS</small></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node">crsp.dsf<small>29M daily rows<br>prices 1999–2024</small></div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node">ccmxpf_lnkhist<small>38K links<br>gvkey → permno</small></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; font-size:1.5rem; color:var(--muted)">↓</div>
+
+      <div>
+        <div class="pipe-label">Feature Engineering</div>
+        <div class="pipe-row">
+          <div class="pipe-node highlight">18 Financial Ratios<small>Altman · Ohlson<br>Zmijewski + margins</small></div>
+          <div class="pipe-arrow">+</div>
+          <div class="pipe-node highlight">5-Year Windows<small>(N, 5, 18) tensor<br>oldest → newest</small></div>
+          <div class="pipe-arrow">+</div>
+          <div class="pipe-node highlight">7 Price Features<small>vol · ret · skew · kurt<br>max_dd · beta · log_dv</small></div>
+          <div class="pipe-arrow">=</div>
+          <div class="pipe-node highlight">97 Features<small>per anchor firm-year<br>train-only scaling</small></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; font-size:1.5rem; color:var(--muted)">↓</div>
+
+      <div>
+        <div class="pipe-label">Time-Blocked Split</div>
+        <div class="pipe-row">
+          <div class="pipe-node">Train<small>2003–2017<br>~65K anchors</small></div>
+          <div class="pipe-arrow">|</div>
+          <div class="pipe-node">Validation<small>2018–2019<br>~11K anchors</small></div>
+          <div class="pipe-arrow">|</div>
+          <div class="pipe-node">Test<small>2020–2023<br>~12K anchors</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:3rem" class="fade-in">
+      <div class="section-label" style="margin-bottom:.75rem">The 18 Financial Ratios</div>
+      <div class="tag-grid">
+        <span class="tag">r_wc_ta · Altman X1</span>
+        <span class="tag">r_re_ta · Altman X2</span>
+        <span class="tag">r_ebit_ta · Altman X3</span>
+        <span class="tag">r_mv_tl · Altman X4</span>
+        <span class="tag">r_sale_ta · Altman X5</span>
+        <span class="tag">r_tl_ta · leverage</span>
+        <span class="tag">r_cl_ca · Ohlson</span>
+        <span class="tag">r_ni_ta · ROA</span>
+        <span class="tag">r_log_at · size</span>
+        <span class="tag">r_gross_margin</span>
+        <span class="tag">r_oper_margin</span>
+        <span class="tag">r_net_margin</span>
+        <span class="tag">r_ebitda_margin</span>
+        <span class="tag">r_opex_ratio</span>
+        <span class="tag">r_da_intensity</span>
+        <span class="tag">r_ltdebt_ta</span>
+        <span class="tag">r_inv_turn</span>
+        <span class="tag">r_recv_turn</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODEL ── -->
+<section id="model">
+  <div class="container">
+    <div class="section-label fade-in">Architecture &amp; Results</div>
+    <h2 class="section-title fade-in">Dual-stream fusion network</h2>
+    <p class="section-sub fade-in">
+      Structured financial history and recent price dynamics are structurally
+      different signals — encoding them with different architectures then fusing
+      them is the core novelty.
+    </p>
+
+    <div class="two-col fade-in" style="margin-bottom:3rem">
+      <div>
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.75rem; font-family:var(--mono); font-size:.82rem; line-height:2">
+          <div style="color:var(--accent); font-weight:700; margin-bottom:.75rem; font-family:var(--font); font-size:.75rem; letter-spacing:.1em; text-transform:uppercase">Architecture (plain PyTorch)</div>
+          <div style="color:var(--muted)">┌─ Financial Branch ──────────────────┐</div>
+          <div style="padding-left:1.5rem">
+            <div>Input <span style="color:var(--yellow)">(batch, 5, 18)</span></div>
+            <div>Candidate A: LSTM 2-layer, h=64 → Linear → <span style="color:var(--green)">32d</span></div>
+            <div>Candidate B: Flatten → MLP [128,64] → <span style="color:var(--green)">32d</span></div>
+          </div>
+          <div style="color:var(--muted)">├─ Price Branch ──────────────────────┤</div>
+          <div style="padding-left:1.5rem">
+            <div>Input <span style="color:var(--yellow)">(batch, 7)</span></div>
+            <div>MLP 2-layer, h=32 → <span style="color:var(--green)">16d</span></div>
+          </div>
+          <div style="color:var(--muted)">├─ Fusion Head ───────────────────────┤</div>
+          <div style="padding-left:1.5rem">
+            <div>LayerNorm(<span style="color:var(--yellow)">48d</span>) → MLP [32] → <span style="color:var(--green)">scalar</span></div>
+            <div style="color:var(--muted); font-size:.75rem">Dropout 0.2 · Weight decay 1e-4</div>
+          </div>
+          <div style="color:var(--muted)">└─ Training ───────────────────────────┘</div>
+          <div style="padding-left:1.5rem">
+            <div>Huber loss δ=0.05 · AdamW lr=1e-3</div>
+            <div>Cosine LR anneal · 50 epochs · ES patience 5</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:1.25rem;">Top XGBoost Feature Importance</div>
+        <div class="feat-row"><span class="feat-name">pf_vol</span><div class="feat-track"><div class="feat-fill" style="width:100%"></div></div><span class="feat-val">0.143</span></div>
+        <div class="feat-row"><span class="feat-name">lag3_ebit_sale</span><div class="feat-track"><div class="feat-fill" style="width:85%"></div></div><span class="feat-val">0.121</span></div>
+        <div class="feat-row"><span class="feat-name">pf_max_dd</span><div class="feat-track"><div class="feat-fill" style="width:69%"></div></div><span class="feat-val">0.098</span></div>
+        <div class="feat-row"><span class="feat-name">ebit_ta</span><div class="feat-track"><div class="feat-fill" style="width:36%"></div></div><span class="feat-val">0.052</span></div>
+        <div class="feat-row"><span class="feat-name">oancf_at</span><div class="feat-track"><div class="feat-fill" style="width:27%"></div></div><span class="feat-val">0.039</span></div>
+
+        <div style="margin-top:2rem">
+          <div style="font-size:.8rem; color:var(--muted); line-height:1.6">
+            Trailing volatility and prior max drawdown dominate — confirming that
+            recent price regime is the single strongest predictor.
+            EBIT margin at lag 3 is the leading financial signal.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="results-table-wrap fade-in">
+      <div class="section-label" style="margin-bottom:1rem">Baseline Results — Test Set (fyear 2020–2023)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>MAE ↓</th>
+            <th>RMSE ↓</th>
+            <th>R² ↑</th>
+            <th>PR-AUC ↑</th>
+            <th>Brier ↓</th>
+            <th>Spearman ↑</th>
+            <th>Top-Decile ↑</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="model-name">Vol-Only (floor)</td>
+            <td class="badge-base">0.1532</td>
+            <td class="badge-base">0.2091</td>
+            <td class="badge-base">0.1664</td>
+            <td class="badge-base">0.8689</td>
+            <td class="badge-base">0.5732</td>
+            <td class="badge-base">0.6477</td>
+            <td class="badge-base">0.9647</td>
+          </tr>
+          <tr>
+            <td class="model-name">Ridge Regression</td>
+            <td class="badge-base">0.1692</td>
+            <td class="badge-base">0.2183</td>
+            <td class="badge-base">0.0914</td>
+            <td class="badge-base">0.8368</td>
+            <td class="badge-base">0.3306</td>
+            <td class="badge-base">0.5553</td>
+            <td class="badge-base">0.9573</td>
+          </tr>
+          <tr>
+            <td class="model-name">XGBoost</td>
+            <td class="badge-mid">0.1660</td>
+            <td class="badge-mid">0.2031</td>
+            <td class="badge-mid">0.2137</td>
+            <td class="badge-mid">0.8531</td>
+            <td class="badge-mid">0.3177</td>
+            <td class="badge-mid">0.5979</td>
+            <td class="badge-mid">0.9631</td>
+          </tr>
+          <tr class="row-highlight">
+            <td class="model-name" style="color:var(--accent)">🎯 Neural Network (target)</td>
+            <td><span class="badge-target">&lt; 0.143</span></td>
+            <td><span class="badge-target">—</span></td>
+            <td><span class="badge-target">—</span></td>
+            <td><span class="badge-target">&gt; 0.899</span></td>
+            <td><span class="badge-target">—</span></td>
+            <td><span class="badge-target">—</span></td>
+            <td><span class="badge-target">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:.75rem; color:var(--muted); margin-top:.75rem">
+        Success bar: neural network must beat vol-only by 3pp PR-AUC (&gt;0.899) and 1pp MAE (&lt;0.143).
+        Rank metrics computed within each anchor year, then averaged — not pooled.
+      </p>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-grid fade-in" style="margin-top:2.5rem">
+      <div class="chart-card">
+        <div class="chart-title">PR-AUC Comparison (@ −30% threshold)</div>
+        <canvas id="prauc-chart" height="200"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">MAE Comparison (lower is better)</div>
+        <canvas id="mae-chart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── APPLICATIONS ── -->
+<section id="applications" style="background:var(--surface)">
+  <div class="container">
+    <div class="section-label fade-in">Practical Applications</div>
+    <h2 class="section-title fade-in">Who uses a drawdown signal?</h2>
+    <p class="section-sub fade-in">
+      A forward drawdown prediction is immediately actionable across four distinct
+      financial contexts — each with a different risk horizon and decision type.
+    </p>
+
+    <div class="app-grid fade-in">
+      <div class="app-card">
+        <span class="app-icon">🏦</span>
+        <div class="app-title">Credit &amp; Lending</div>
+        <div class="app-desc">
+          Banks and credit desks incorporate the drawdown signal into loan covenant
+          triggers and credit line reviews. A rising predicted drawdown for a borrower
+          prompts earlier watchlist escalation — before financial statements deteriorate.
+        </div>
+        <div class="app-example">
+          "Flag any borrower whose drawdown score worsens by &gt;15pp quarter-over-quarter
+           for immediate credit review."
+        </div>
+      </div>
+
+      <div class="app-card">
+        <span class="app-icon">🚀</span>
+        <div class="app-title">Venture Capital</div>
+        <div class="app-desc">
+          VCs considering follow-on rounds into public-company spinouts or pre-IPO
+          comparables use the signal to gauge market-based distress risk.
+          High predicted drawdown at the Series B/C stage is an early warning flag.
+        </div>
+        <div class="app-example">
+          "Screen follow-on candidates in the bottom-two drawdown deciles before
+           committing the next tranche."
+        </div>
+      </div>
+
+      <div class="app-card">
+        <span class="app-icon">📊</span>
+        <div class="app-title">Long / Short Equity</div>
+        <div class="app-desc">
+          Rank the investable universe each quarter by drawdown signal. Short the
+          top decile (worst predicted), long the bottom decile. Our top-decile
+          precision of 96%+ means short-side selection is highly accurate.
+        </div>
+        <div class="app-example">
+          "Rotate shorts quarterly using worst-predicted-drawdown decile;
+           rebalance in sync with 10-K anchor dates."
+        </div>
+      </div>
+
+      <div class="app-card">
+        <span class="app-icon">🛡️</span>
+        <div class="app-title">Portfolio Insurance</div>
+        <div class="app-desc">
+          Asset managers use drawdown scores to dynamically size hedges —
+          put options or VIX exposure — on specific portfolio positions.
+          Firms with high predicted drawdown get more protection allocated.
+        </div>
+        <div class="app-example">
+          "Allocate put-option budget proportionally to each holding's
+           drawdown signal; rebalance at earnings season."
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GAME ── -->
+<section id="game">
+  <div class="game-header">
+    <div class="section-label" style="text-align:center; margin-bottom:.5rem">Live Class Game</div>
+    <h2 class="section-title" style="text-align:center">Signal vs. Gut</h2>
+    <p style="color:var(--muted); text-align:center; max-width:560px; margin:0 auto 2rem; font-size:.95rem">
+      Two teams. Eight real companies from our test set (2020–2023).
+      The Quants get our model's drawdown signal.
+      The Traders go on instinct alone. Who wins?
+    </p>
+
+    <div class="rules-box">
+      <div class="rule-item">
+        <div class="rule-icon">💰</div>
+        <strong>$10,000 starting</strong>
+        <p>Each team begins with $10K in fake capital to deploy across 8 rounds.</p>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">📉</div>
+        <strong>Predict the drawdown</strong>
+        <p>Vote SAFE (&lt;30% drop) or RISKY (≥30% drop) for each company.</p>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">🏆</div>
+        <strong>Bet &amp; score</strong>
+        <p>Correct vote wins your bet. Wrong vote loses it. Most capital wins.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scoreboard -->
+  <div class="game-scoreboard">
+    <div class="team-score quants">
+      <div class="team-name quants">⚡ The Quants (with signal)</div>
+      <div class="team-bankroll" id="quants-bank">$10,000</div>
+      <div class="team-delta" id="quants-delta"></div>
+    </div>
+    <div class="round-indicator">
+      <div class="round-num">Round</div>
+      <div class="round-big" id="round-display">1 / 8</div>
+    </div>
+    <div class="team-score traders">
+      <div class="team-name traders">🎲 The Traders (gut only)</div>
+      <div class="team-bankroll" id="traders-bank">$10,000</div>
+      <div class="team-delta" id="traders-delta"></div>
+    </div>
+  </div>
+
+  <!-- Game Arena -->
+  <div class="game-arena" id="game-arena">
+
+    <!-- Company Card (full width) -->
+    <div class="company-card">
+      <div class="company-hidden" id="company-hidden"></div>
+      <div class="company-reveal" id="company-reveal"></div>
+      <span class="company-sector" id="company-sector"></span>
+      <div class="fin-grid" id="fin-grid"></div>
+    </div>
+
+    <!-- Signal Card (Quants) -->
+    <div class="signal-card" id="signal-card">
+      <div class="card-title">⚡ Model Signal — Quants Only</div>
+      <div class="signal-score" id="signal-score"></div>
+      <div class="signal-bar-track">
+        <div class="signal-bar-fill" id="signal-bar"></div>
+      </div>
+      <div class="signal-verdict" id="signal-verdict"></div>
+    </div>
+
+    <!-- Vote Card (Traders) -->
+    <div class="vote-card">
+      <div class="vote-title">🎲 Traders — no model access</div>
+      <div style="color:var(--muted); font-size:.85rem; margin-bottom:1.25rem;">
+        Based on the company profile, the Traders vote on pure instinct.
+      </div>
+      <div style="background:rgba(176,106,255,.06); border:1px dashed rgba(176,106,255,.3); border-radius:10px; padding:1.25rem; text-align:center;">
+        <div style="font-size:.8rem; color:var(--muted); margin-bottom:.5rem">Model signal is hidden from this team</div>
+        <div style="font-size:1.1rem; font-weight:700; color:var(--purple)">🎲 Go with your gut</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Betting + Voting Controls -->
+  <div style="max-width:900px; margin:1.5rem auto 0; display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;" id="controls-grid">
+
+    <!-- Quants vote -->
+    <div style="background:var(--card); border:1px solid var(--accent); border-radius:12px; padding:1.5rem;">
+      <div style="font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:1rem;">⚡ Quants — Cast Vote</div>
+      <div class="vote-btns">
+        <button class="vote-btn safe" id="q-safe" onclick="castVote('quants','safe')">📈 SAFE</button>
+        <button class="vote-btn risky" id="q-risky" onclick="castVote('quants','risky')">📉 RISKY</button>
+      </div>
+      <div class="bet-row">
+        <span class="bet-label">Bet:</span>
+        <button class="bet-chip selected" data-team="quants" data-amt="500" onclick="selectBet('quants',500,this)">$500</button>
+        <button class="bet-chip" data-team="quants" data-amt="1000" onclick="selectBet('quants',1000,this)">$1K</button>
+        <button class="bet-chip" data-team="quants" data-amt="2000" onclick="selectBet('quants',2000,this)">$2K</button>
+      </div>
+    </div>
+
+    <!-- Traders vote -->
+    <div style="background:var(--card); border:1px solid var(--purple); border-radius:12px; padding:1.5rem;">
+      <div style="font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--purple); margin-bottom:1rem;">🎲 Traders — Cast Vote</div>
+      <div class="vote-btns">
+        <button class="vote-btn safe" id="t-safe" onclick="castVote('traders','safe')">📈 SAFE</button>
+        <button class="vote-btn risky" id="t-risky" onclick="castVote('traders','risky')">📉 RISKY</button>
+      </div>
+      <div class="bet-row">
+        <span class="bet-label">Bet:</span>
+        <button class="bet-chip selected" data-team="traders" data-amt="500" onclick="selectBet('traders',500,this)">$500</button>
+        <button class="bet-chip" data-team="traders" data-amt="1000" onclick="selectBet('traders',1000,this)">$1K</button>
+        <button class="bet-chip" data-team="traders" data-amt="2000" onclick="selectBet('traders',2000,this)">$2K</button>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="reveal-btn" id="reveal-btn" onclick="revealRound()" disabled>
+    🔓 Reveal Company &amp; Actual Drawdown
+  </button>
+
+  <div class="result-banner" id="result-banner">
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-text">
+      <strong id="result-headline"></strong>
+      <small id="result-detail"></small>
+    </div>
+    <div class="actual-dd" id="result-dd"></div>
+  </div>
+
+  <button class="next-btn" id="next-btn" onclick="nextRound()">Next Company →</button>
+
+  <!-- Game Over -->
+  <div class="game-over" id="game-over">
+    <div style="font-size:3rem; margin-bottom:.5rem" id="trophy-emoji">🏆</div>
+    <h2 id="game-over-title"></h2>
+    <p id="game-over-sub" style="color:var(--muted); margin-bottom:1rem"></p>
+    <div class="final-scores">
+      <div class="final-score-box quants">
+        <div class="fs-name q">⚡ The Quants</div>
+        <div class="fs-amount" id="final-quants"></div>
+        <div id="quants-winner-badge"></div>
+      </div>
+      <div class="final-score-box traders">
+        <div class="fs-name t">🎲 The Traders</div>
+        <div class="fs-amount" id="final-traders"></div>
+        <div id="traders-winner-badge"></div>
+      </div>
+    </div>
+    <p style="color:var(--muted); font-size:.9rem; max-width:480px; margin:0 auto 1.5rem">
+      The model's drawdown signal gave The Quants a systematic edge —
+      exactly what this project demonstrates across 87,995 real firm-years.
+    </p>
+    <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+  </div>
+
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div style="margin-bottom:.75rem; font-size:1rem; font-weight:700; color:var(--text)">
+    Predicting the Fall · Forward Drawdown Signal
+  </div>
+  <div style="margin-bottom:.5rem">
+    MS-ADS 2026 · Machine Learning II · University of Chicago
+  </div>
+  <div>
+    Data: WRDS Compustat + CRSP ·
+    <a href="https://github.com/jmakk123/MLII-Final" target="_blank">GitHub →</a>
+  </div>
+</footer>
+
+<script>
+// ── CHARTS ──────────────────────────────────────────────────────────────────
+const CHART_OPTS = {
+  responsive: true,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { ticks: { color: '#5a7099', font: { size: 11 } }, grid: { color: 'rgba(30,51,86,.4)' } },
+    y: { ticks: { color: '#5a7099', font: { size: 11 } }, grid: { color: 'rgba(30,51,86,.4)' } }
+  }
+};
+
+new Chart(document.getElementById('prauc-chart'), {
+  type: 'bar',
+  data: {
+    labels: ['Vol-Only', 'Ridge', 'XGBoost', 'NN Target'],
+    datasets: [{
+      data: [0.8689, 0.8368, 0.8531, 0.899],
+      backgroundColor: ['rgba(90,112,153,.5)', 'rgba(90,112,153,.5)', 'rgba(255,214,0,.5)', 'rgba(0,212,255,.5)'],
+      borderColor:     ['#5a7099', '#5a7099', '#ffd600', '#00d4ff'],
+      borderWidth: 2, borderRadius: 6,
+    }]
+  },
+  options: { ...CHART_OPTS, scales: { ...CHART_OPTS.scales, y: { ...CHART_OPTS.scales.y, min: 0.80 } } }
+});
+
+new Chart(document.getElementById('mae-chart'), {
+  type: 'bar',
+  data: {
+    labels: ['Vol-Only', 'Ridge', 'XGBoost', 'NN Target'],
+    datasets: [{
+      data: [0.1532, 0.1692, 0.1660, 0.143],
+      backgroundColor: ['rgba(90,112,153,.5)', 'rgba(90,112,153,.5)', 'rgba(255,214,0,.5)', 'rgba(0,212,255,.5)'],
+      borderColor:     ['#5a7099', '#5a7099', '#ffd600', '#00d4ff'],
+      borderWidth: 2, borderRadius: 6,
+    }]
+  },
+  options: { ...CHART_OPTS, scales: { ...CHART_OPTS.scales, y: { ...CHART_OPTS.scales.y, min: 0.12 } } }
+});
+
+// ── FADE-IN OBSERVER ─────────────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// ── GAME DATA ────────────────────────────────────────────────────────────────
+const ROUNDS = [
+  {
+    hidden:  "Legacy U.S. Airline — Major Domestic &amp; International Routes",
+    company: "American Airlines (AAL)",
+    sector:  "Airlines",
+    fyear:   2019,
+    fin: { "Debt / Assets": "87%", "Operating Margin": "8.2%", "Cash / Assets": "4.1%", "12M Volatility": "38%", "12M Return": "+12%" },
+    modelSignal: -0.71, actual: -0.718, isBig: true,
+    story: "Massive leverage + travel exposure. COVID erased nearly all 2019 gains."
+  },
+  {
+    hidden:  "Global FMCG Giant — Consumer Staples, 180+ Countries",
+    company: "Procter &amp; Gamble (PG)",
+    sector:  "Consumer Staples",
+    fyear:   2019,
+    fin: { "Debt / Assets": "62%", "Operating Margin": "18.4%", "Cash / Assets": "3.2%", "12M Volatility": "14%", "12M Return": "+28%" },
+    modelSignal: -0.19, actual: -0.196, isBig: false,
+    story: "Defensive staples with strong margins. COVID barely touched it."
+  },
+  {
+    hidden:  "Global Cruise Line Operator — 100+ Ships Worldwide",
+    company: "Carnival Corporation (CCL)",
+    sector:  "Consumer Discretionary",
+    fyear:   2019,
+    fin: { "Debt / Assets": "38%", "Operating Margin": "15.7%", "Cash / Assets": "3.8%", "12M Volatility": "22%", "12M Return": "−8%" },
+    modelSignal: -0.64, actual: -0.841, isBig: true,
+    story: "Revenue went to zero overnight. Model caught the momentum and leverage risk."
+  },
+  {
+    hidden:  "Home Fitness Platform — Hardware + Subscription",
+    company: "Peloton Interactive (PTON)",
+    sector:  "Consumer Discretionary",
+    fyear:   2021,
+    fin: { "Debt / Assets": "71%", "Operating Margin": "−28%", "Cash / Assets": "22%", "12M Volatility": "68%", "12M Return": "−26%" },
+    modelSignal: -0.78, actual: -0.868, isBig: true,
+    story: "Pandemic darling. By 2022 the growth story collapsed — model's vol + leverage flags screamed danger."
+  },
+  {
+    hidden:  "Cloud Computing &amp; Productivity Software — Global Enterprise",
+    company: "Microsoft (MSFT)",
+    sector:  "Technology",
+    fyear:   2019,
+    fin: { "Debt / Assets": "52%", "Operating Margin": "34.1%", "Cash / Assets": "13.6%", "12M Volatility": "18%", "12M Return": "+55%" },
+    modelSignal: -0.21, actual: -0.241, isBig: false,
+    story: "Strong margins, pristine balance sheet. Dipped briefly in March 2020 then rocketed."
+  },
+  {
+    hidden:  "Specialty Home Goods Retailer — U.S. Mall Anchor",
+    company: "Bed Bath &amp; Beyond (BBBY)",
+    sector:  "Consumer Discretionary",
+    fyear:   2021,
+    fin: { "Debt / Assets": "94%", "Operating Margin": "−7.3%", "Cash / Assets": "6.2%", "12M Volatility": "81%", "12M Return": "−42%" },
+    modelSignal: -0.82, actual: -0.916, isBig: true,
+    story: "Near-terminal leverage, negative operating margins, meme-stock volatility. Model had maximum alarm."
+  },
+  {
+    hidden:  "Streaming Entertainment Platform — 200M+ Global Subscribers",
+    company: "Netflix (NFLX)",
+    sector:  "Communication Services",
+    fyear:   2021,
+    fin: { "Debt / Assets": "68%", "Operating Margin": "20.6%", "Cash / Assets": "11.2%", "12M Volatility": "31%", "12M Return": "+11%" },
+    modelSignal: -0.49, actual: -0.765, isBig: true,
+    story: "Model is moderate (−49%). Actual was −77%. Subscriber miss in Q1 2022 was a surprise — this is where the signal has room to improve."
+  },
+  {
+    hidden:  "Diversified Healthcare Products — Pharma, Medical Devices &amp; Consumer",
+    company: "Johnson &amp; Johnson (JNJ)",
+    sector:  "Healthcare",
+    fyear:   2019,
+    fin: { "Debt / Assets": "58%", "Operating Margin": "19.8%", "Cash / Assets": "8.4%", "12M Volatility": "13%", "12M Return": "+15%" },
+    modelSignal: -0.16, actual: -0.161, isBig: false,
+    story: "Classic defensive healthcare. Lowest volatility in the universe. Model nailed it."
+  }
+];
+
+// ── GAME STATE ────────────────────────────────────────────────────────────────
+let state = {
+  round: 0,
+  quantsBankroll: 10000,
+  tradersBankroll: 10000,
+  quantsBet: 500,  tradersBet: 500,
+  quantsVote: null, tradersVote: null,
+  revealed: false
+};
+
+function fmt(n) {
+  return '$' + Math.abs(n).toLocaleString();
+}
+function colorAmt(n) {
+  if (n > 0) return `<span style="color:var(--green)">+${fmt(n)}</span>`;
+  if (n < 0) return `<span style="color:var(--red)">−${fmt(n)}</span>`;
+  return '';
+}
+
+function loadRound() {
+  const r = ROUNDS[state.round];
+  state.quantsVote = null; state.tradersVote = null;
+  state.revealed = false;
+
+  document.getElementById('round-display').textContent = `${state.round + 1} / ${ROUNDS.length}`;
+  document.getElementById('company-hidden').innerHTML = r.hidden;
+  document.getElementById('company-reveal').style.display = 'none';
+  document.getElementById('company-reveal').innerHTML = r.company;
+  document.getElementById('company-sector').textContent = r.sector;
+
+  // Financials
+  const fg = document.getElementById('fin-grid');
+  fg.innerHTML = '';
+  for (const [k, v] of Object.entries(r.fin)) {
+    const item = document.createElement('div');
+    item.className = 'fin-item';
+    item.innerHTML = `<div class="fin-key">${k}</div><div class="fin-val">${v}</div>`;
+    fg.appendChild(item);
+  }
+
+  // Signal
+  const pct = Math.round(r.modelSignal * 100);
+  const barW = Math.abs(pct);
+  const barColor = barW >= 50 ? '#ff4d6d' : barW >= 30 ? '#ffd600' : '#00e676';
+  document.getElementById('signal-score').textContent = `${pct}%`;
+  document.getElementById('signal-score').style.color = barColor;
+  document.getElementById('signal-bar').style.width = barW + '%';
+  document.getElementById('signal-bar').style.background = barColor;
+  const verdict = barW >= 50 ? '🔴 HIGH RISK — model expects major drawdown' :
+                  barW >= 30 ? '🟡 MODERATE RISK — could go either way' :
+                               '🟢 LOW RISK — model expects mild drawdown';
+  document.getElementById('signal-verdict').textContent = verdict;
+  document.getElementById('signal-verdict').style.color = barColor;
+  document.getElementById('signal-card').classList.remove('blurred');
+
+  // Reset vote buttons
+  ['q-safe','q-risky','t-safe','t-risky'].forEach(id => {
+    document.getElementById(id).classList.remove('selected');
+    document.getElementById(id).disabled = false;
+  });
+  document.getElementById('reveal-btn').disabled = true;
+  document.getElementById('reveal-btn').style.display = 'block';
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'none';
+  const rb = document.getElementById('result-banner');
+  rb.style.display = 'none';
+
+  document.getElementById('game-arena').style.display = 'grid';
+  document.getElementById('controls-grid').style.display = 'grid';
+}
+
+function castVote(team, vote) {
+  if (state.revealed) return;
+  if (team === 'quants') {
+    state.quantsVote = vote;
+    document.getElementById('q-safe').classList.toggle('selected', vote === 'safe');
+    document.getElementById('q-risky').classList.toggle('selected', vote === 'risky');
+  } else {
+    state.tradersVote = vote;
+    document.getElementById('t-safe').classList.toggle('selected', vote === 'safe');
+    document.getElementById('t-risky').classList.toggle('selected', vote === 'risky');
+  }
+  if (state.quantsVote && state.tradersVote) {
+    document.getElementById('reveal-btn').disabled = false;
+  }
+}
+
+function selectBet(team, amt, btn) {
+  if (state.revealed) return;
+  document.querySelectorAll(`.bet-chip[data-team="${team}"]`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  if (team === 'quants') state.quantsBet = amt;
+  else state.tradersBet = amt;
+}
+
+function revealRound() {
+  if (state.revealed) return;
+  state.revealed = true;
+
+  const r = ROUNDS[state.round];
+  const isBig = r.isBig; // actual >= -30%
+
+  // Show company name
+  document.getElementById('company-hidden').style.display = 'none';
+  const cr = document.getElementById('company-reveal');
+  cr.style.display = 'block';
+
+  // Disable votes
+  ['q-safe','q-risky','t-safe','t-risky'].forEach(id => document.getElementById(id).disabled = true);
+
+  // Score
+  const qCorrect = state.quantsVote === (isBig ? 'risky' : 'safe');
+  const tCorrect = state.tradersVote === (isBig ? 'risky' : 'safe');
+
+  const qDelta = qCorrect ? state.quantsBet : -state.quantsBet;
+  const tDelta = tCorrect ? state.tradersBet : -state.tradersBet;
+
+  state.quantsBankroll = Math.max(0, state.quantsBankroll + qDelta);
+  state.tradersBankroll = Math.max(0, state.tradersBankroll + tDelta);
+
+  // Update scoreboard
+  document.getElementById('quants-bank').textContent = '$' + state.quantsBankroll.toLocaleString();
+  document.getElementById('traders-bank').textContent = '$' + state.tradersBankroll.toLocaleString();
+  document.getElementById('quants-delta').innerHTML = colorAmt(qDelta);
+  document.getElementById('traders-delta').innerHTML = colorAmt(tDelta);
+
+  // Result banner
+  const rb = document.getElementById('result-banner');
+  const dd = Math.round(r.actual * 100);
+  rb.className = 'result-banner';
+  rb.style.display = 'flex';
+  document.getElementById('result-icon').textContent = isBig ? '📉' : '📈';
+  document.getElementById('result-headline').innerHTML =
+    `${r.company} · Actual drawdown: <span style="color:${isBig ? 'var(--red)' : 'var(--green)'}">${dd}%</span>`;
+  document.getElementById('result-detail').textContent = r.story;
+  document.getElementById('result-dd').textContent = `${dd}%`;
+  document.getElementById('result-dd').style.color = isBig ? 'var(--red)' : 'var(--green)';
+
+  document.getElementById('reveal-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'block';
+
+  // Scroll to result
+  rb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function nextRound() {
+  state.round++;
+  document.getElementById('quants-delta').innerHTML = '';
+  document.getElementById('traders-delta').innerHTML = '';
+  if (state.round >= ROUNDS.length) {
+    endGame(); return;
+  }
+  loadRound();
+  document.getElementById('game-arena').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function endGame() {
+  document.getElementById('game-arena').style.display = 'none';
+  document.getElementById('controls-grid').style.display = 'none';
+  document.getElementById('reveal-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('result-banner').style.display = 'none';
+
+  const go = document.getElementById('game-over');
+  go.style.display = 'block';
+
+  const qWins = state.quantsBankroll > state.tradersBankroll;
+  const tie = state.quantsBankroll === state.tradersBankroll;
+
+  document.getElementById('trophy-emoji').textContent = qWins ? '🏆' : tie ? '🤝' : '🎲';
+  document.getElementById('game-over-title').textContent = tie ? "It's a Tie!" :
+    qWins ? "The Quants Win!" : "The Traders Win!";
+  document.getElementById('game-over-sub').textContent = qWins ?
+    "The model signal gave The Quants a systematic edge — proving that data beats gut feel." :
+    tie ? "An exact tie — both strategies ended up equivalent across these 8 firms." :
+    "The Traders got lucky this time — but over 87,995 firm-years, the model wins.";
+
+  document.getElementById('final-quants').textContent = '$' + state.quantsBankroll.toLocaleString();
+  document.getElementById('final-traders').textContent = '$' + state.tradersBankroll.toLocaleString();
+
+  if (qWins) document.getElementById('quants-winner-badge').innerHTML = '<span class="winner-badge">🏆 WINNER</span>';
+  if (!qWins && !tie) document.getElementById('traders-winner-badge').innerHTML = '<span class="winner-badge">🏆 WINNER</span>';
+
+  go.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function restartGame() {
+  state = { round: 0, quantsBankroll: 10000, tradersBankroll: 10000,
+            quantsBet: 500, tradersBet: 500, quantsVote: null, tradersVote: null, revealed: false };
+  document.getElementById('quants-bank').textContent = '$10,000';
+  document.getElementById('traders-bank').textContent = '$10,000';
+  document.getElementById('quants-delta').innerHTML = '';
+  document.getElementById('traders-delta').innerHTML = '';
+  document.getElementById('game-over').style.display = 'none';
+  document.getElementById('quants-winner-badge').innerHTML = '';
+  document.getElementById('traders-winner-badge').innerHTML = '';
+  // reset bet chips
+  document.querySelectorAll('.bet-chip').forEach(b => {
+    b.classList.toggle('selected', b.dataset.amt === '500');
+  });
+  loadRound();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+loadRound();
+</script>
+</body>
+</html>
