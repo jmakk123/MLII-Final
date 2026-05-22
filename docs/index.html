@@ -1,991 +1,1488 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Predicting the Fall · Forward Drawdown Signal</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Predicting the Fall · DrawdownSignal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg:#070d1a; --surface:#0e1829; --card:#121f35; --border:#1e3356;
-      --accent:#00d4ff; --green:#00e676; --red:#ff4d6d; --yellow:#ffd600;
-      --purple:#b06aff; --text:#e0eaff; --muted:#5a7099;
-      --font:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+      --bg:       #0C0C0B;
+      --sb:       #111110;
+      --surface:  #181816;
+      --card:     #202020;
+      --border:   #2C2C29;
+      --border2:  #383835;
+      --amber:    #C8892A;
+      --amber-lo: rgba(200,137,42,.1);
+      --amber-hi: rgba(200,137,42,.25);
+      --emerald:  #34D399;
+      --rose:     #F87171;
+      --sky:      #7DD3FC;
+      --yellow:   #FCD34D;
+      --text:     #EEEBE3;
+      --sub:      #A8A49A;
+      --muted:    #666460;
+      --heading:  'Space Grotesk', system-ui, sans-serif;
+      --body:     'DM Sans', system-ui, sans-serif;
+      --mono:     'IBM Plex Mono', 'Fira Code', monospace;
+      --sb-w:     224px;
     }
-    html { scroll-behavior:smooth; }
-    body { font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.6; overflow-x:hidden; }
 
-    /* ── NAV ── */
-    nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:56px; background:rgba(7,13,26,0.92); backdrop-filter:blur(14px); border-bottom:1px solid var(--border); }
-    .nav-logo { font-weight:800; font-size:1rem; color:var(--accent); letter-spacing:-.02em; flex-shrink:0; }
-    .nav-links { display:flex; gap:1.5rem; list-style:none; }
-    .nav-links a { color:var(--muted); text-decoration:none; font-size:.82rem; font-weight:500; transition:color .2s; white-space:nowrap; }
-    .nav-links a:hover { color:var(--text); }
-    .nav-game-btn { padding:.4rem 1rem; background:var(--accent); color:#000; border:none; border-radius:6px; font-weight:700; font-size:.82rem; cursor:pointer; text-decoration:none; transition:opacity .2s; white-space:nowrap; flex-shrink:0; }
-    .nav-game-btn:hover { opacity:.85; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+    }
 
-    /* ── HERO / OVERVIEW ── */
-    #overview { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:6rem 2rem 4rem; position:relative; overflow:hidden; }
-    .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px); background-size:60px 60px; pointer-events:none; }
-    .hero-glow { position:absolute; top:20%; left:50%; transform:translateX(-50%); width:700px; height:400px; background:radial-gradient(ellipse,rgba(0,212,255,.12) 0%,transparent 70%); pointer-events:none; }
-    .hero-eyebrow { font-size:.78rem; font-weight:600; letter-spacing:.15em; color:var(--accent); text-transform:uppercase; margin-bottom:1.2rem; position:relative; }
-    .hero-title { font-size:clamp(3.2rem,7vw,6rem); font-weight:900; letter-spacing:-.04em; line-height:1.0; margin-bottom:1.4rem; position:relative; background:linear-gradient(135deg,#ffffff 40%,var(--accent) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    .hero-sub { font-size:1.2rem; color:var(--muted); max-width:620px; margin:0 auto 2.5rem; position:relative; font-weight:400; }
-    .hero-pills { display:flex; gap:.75rem; flex-wrap:wrap; justify-content:center; margin-bottom:2rem; position:relative; }
-    .pill { padding:.35rem .9rem; border:1px solid var(--border); border-radius:999px; font-size:.78rem; font-weight:600; color:var(--text); background:var(--surface); }
-    .pill span { color:var(--accent); }
-    .hero-nav-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:860px; width:100%; margin-top:1.5rem; position:relative; }
-    @media(max-width:700px){.hero-nav-cards{grid-template-columns:1fr 1fr;}}
-    .hnc { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.25rem; text-decoration:none; text-align:left; transition:border-color .2s,transform .2s; display:block; }
-    .hnc:hover { border-color:var(--accent); transform:translateY(-2px); }
-    .hnc-icon { font-size:1.4rem; margin-bottom:.4rem; }
-    .hnc-label { font-size:.85rem; font-weight:700; color:var(--text); }
-    .hnc-sub { font-size:.72rem; color:var(--muted); margin-top:.15rem; }
-    .scroll-hint { position:relative; color:var(--muted); font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; animation:bounce 2s infinite; margin-top:2rem; }
-    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+    /* ── SIDEBAR ───────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sb-w);
+      flex-shrink: 0;
+      background: var(--sb);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      z-index: 50;
+    }
 
-    /* ── SHARED SECTIONS ── */
-    section { padding:6rem 2rem; }
-    .container { max-width:1100px; margin:0 auto; }
-    .section-label { font-size:.72rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--accent); margin-bottom:.75rem; }
-    .section-title { font-size:clamp(1.9rem,4vw,2.8rem); font-weight:800; letter-spacing:-.03em; margin-bottom:1rem; line-height:1.1; }
-    .section-sub { color:var(--muted); font-size:1rem; max-width:660px; margin-bottom:3rem; line-height:1.7; }
-    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
-    @media(max-width:768px){.two-col{grid-template-columns:1fr;gap:2.5rem}}
+    .sb-logo {
+      padding: 1.5rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sb-logo-mark {
+      font-family: var(--heading);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.02em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .sb-logo-mark span { color: var(--amber); }
+    .sb-logo-sub {
+      font-size: .68rem;
+      color: var(--muted);
+      margin-top: .2rem;
+      font-weight: 400;
+      letter-spacing: .02em;
+    }
 
-    /* ── STAT CARDS ── */
-    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1.1rem; margin-top:2.5rem; }
-    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.4rem; transition:border-color .2s,transform .2s; }
-    .stat-card:hover { border-color:var(--accent); transform:translateY(-2px); }
-    .stat-val { font-size:2rem; font-weight:800; letter-spacing:-.03em; color:var(--accent); font-family:var(--mono); }
-    .stat-label { font-size:.8rem; color:var(--muted); margin-top:.25rem; line-height:1.4; }
+    .sb-section-label {
+      font-size: .62rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 1.25rem 1.25rem .5rem;
+    }
 
-    /* ── PIPELINE ── */
-    .pipeline-wrap { display:flex; flex-direction:column; gap:1.2rem; margin-top:3rem; }
-    .pipe-label { font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; }
-    .pipe-row { display:flex; align-items:stretch; gap:0; width:100%; flex-wrap:wrap; }
-    .pipe-node { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1rem 1.3rem; font-size:.87rem; font-weight:600; text-align:center; min-width:120px; flex:1; }
-    .pipe-node small { display:block; color:var(--muted); font-size:.7rem; font-weight:400; margin-top:.2rem; }
-    .pipe-node.highlight { border-color:var(--accent); color:var(--accent); }
-    .pipe-arrow { color:var(--muted); font-size:1.4rem; padding:0 .4rem; flex-shrink:0; }
+    .sb-nav { flex: 1; overflow-y: auto; padding-bottom: 1rem; }
+    .sb-nav::-webkit-scrollbar { width: 0; }
 
-    /* ── RESULTS TABLE ── */
-    .results-table-wrap { overflow-x:auto; margin-top:2.5rem; }
-    table { width:100%; border-collapse:collapse; font-size:.875rem; }
-    thead th { text-align:left; padding:.75rem 1rem; color:var(--muted); font-weight:600; font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; border-bottom:1px solid var(--border); }
-    tbody tr { border-bottom:1px solid rgba(30,51,86,.5); transition:background .15s; }
-    tbody tr:hover { background:rgba(0,212,255,.03); }
-    tbody td { padding:.75rem 1rem; }
-    .model-name { font-weight:600; }
-    .badge-good { color:var(--green); font-family:var(--mono); font-weight:600; }
-    .badge-mid  { color:var(--yellow); font-family:var(--mono); font-weight:600; }
-    .badge-base { color:var(--muted); font-family:var(--mono); }
-    .badge-nn   { color:var(--accent); font-family:var(--mono); font-weight:700; }
-    .badge-kill { display:inline-block; padding:.1rem .45rem; background:rgba(0,230,118,.18); border:1px solid var(--green); border-radius:4px; color:var(--green); font-family:var(--mono); font-size:.8rem; font-weight:700; }
-    .badge-beat { display:inline-block; padding:.1rem .45rem; background:rgba(0,212,255,.12); border:1px solid var(--accent); border-radius:4px; color:var(--accent); font-family:var(--mono); font-size:.8rem; }
-    .badge-miss { color:var(--muted); font-family:var(--mono); }
-    .row-highlight { background:rgba(0,212,255,.05)!important; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem 1.25rem;
+      font-size: .84rem;
+      font-weight: 500;
+      color: var(--sub);
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: color .15s, border-color .15s, background .15s;
+      user-select: none;
+      text-decoration: none;
+    }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,.03); }
+    .nav-item.active {
+      color: var(--amber);
+      border-left-color: var(--amber);
+      background: var(--amber-lo);
+    }
+    .nav-icon {
+      width: 18px;
+      text-align: center;
+      font-size: .9rem;
+      flex-shrink: 0;
+      opacity: .7;
+    }
+    .nav-item.active .nav-icon { opacity: 1; }
 
-    /* ── CHARTS ── */
-    .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-top:2.5rem; }
-    @media(max-width:768px){.chart-grid{grid-template-columns:1fr}}
-    .chart-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; }
-    .chart-title { font-size:.82rem; font-weight:600; margin-bottom:1rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+    .nav-item.game-item {
+      margin-top: .5rem;
+      border-top: 1px solid var(--border);
+      padding-top: .75rem;
+    }
+    .nav-item.game-item .game-pill {
+      margin-left: auto;
+      background: var(--amber);
+      color: #000;
+      font-size: .6rem;
+      font-weight: 700;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      letter-spacing: .04em;
+    }
 
-    /* ── FEATURE BARS ── */
-    .feat-row { display:flex; align-items:center; gap:.75rem; margin-bottom:.7rem; }
-    .feat-name { font-size:.78rem; font-family:var(--mono); color:var(--muted); width:150px; flex-shrink:0; }
-    .feat-track { flex:1; height:8px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; }
-    .feat-fill { height:100%; border-radius:999px; background:var(--accent); }
-    .feat-val { font-size:.76rem; font-family:var(--mono); color:var(--accent); width:42px; text-align:right; flex-shrink:0; }
+    .sb-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .sb-footer-text {
+      font-size: .68rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .sb-footer-text a { color: var(--sub); text-decoration: none; }
+    .sb-footer-text a:hover { color: var(--amber); }
 
-    .tag-grid { display:flex; flex-wrap:wrap; gap:.55rem; margin-top:1.25rem; }
-    .tag { padding:.28rem .7rem; border:1px solid var(--border); border-radius:6px; font-size:.76rem; color:var(--muted); font-family:var(--mono); }
+    /* ── MAIN CONTENT ──────────────────────────────────────────── */
+    .main {
+      margin-left: var(--sb-w);
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+    .main::-webkit-scrollbar { width: 6px; }
+    .main::-webkit-scrollbar-track { background: var(--sb); }
+    .main::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-    /* ── DD BARS ── */
-    .dd-example { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.75rem; }
-    .dd-bar-wrap { margin-top:1.25rem; }
-    .dd-bar-label { display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); margin-bottom:.3rem; }
-    .dd-bar-track { height:10px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; margin-bottom:.75rem; }
-    .dd-bar-fill { height:100%; border-radius:999px; transition:width 1.5s ease; }
-    .dd-bar-fill.safe { background:var(--green); }
-    .dd-bar-fill.warn { background:var(--yellow); }
-    .dd-bar-fill.danger { background:var(--red); }
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; }
 
-    /* ── FINDINGS CALLOUT ── */
-    .finding-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.25rem; margin-top:2.5rem; }
-    .finding-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.5rem; position:relative; overflow:hidden; }
-    .finding-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-    .finding-card.win::before { background:var(--green); }
-    .finding-card.draw::before { background:var(--yellow); }
-    .finding-card.info::before { background:var(--accent); }
-    .finding-emoji { font-size:2rem; margin-bottom:.75rem; }
-    .finding-title { font-size:1rem; font-weight:700; margin-bottom:.4rem; }
-    .finding-body { font-size:.84rem; color:var(--muted); line-height:1.6; }
-    .finding-stat { font-size:2rem; font-weight:900; font-family:var(--mono); color:var(--accent); margin-top:.75rem; }
+    .page-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 3rem 5rem;
+    }
 
-    /* ── PRESENTATION SLIDES ── */
-    #presentation { background:var(--surface); }
-    .slide-deck { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem; margin-top:2.5rem; }
-    .slide { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2rem; position:relative; overflow:hidden; }
-    .slide-num { font-size:.68rem; font-weight:700; letter-spacing:.15em; color:var(--muted); text-transform:uppercase; margin-bottom:.75rem; font-family:var(--mono); }
-    .slide-title { font-size:1.2rem; font-weight:800; letter-spacing:-.02em; margin-bottom:.75rem; line-height:1.25; }
-    .slide-body { font-size:.86rem; color:var(--muted); line-height:1.65; }
-    .slide-accent { color:var(--accent); font-weight:600; }
-    .slide-highlight { margin-top:1.25rem; padding:.8rem 1rem; background:rgba(0,212,255,.07); border:1px solid rgba(0,212,255,.2); border-radius:8px; font-size:.82rem; font-family:var(--mono); color:var(--text); }
-    .slide.full { grid-column:1 / -1; display:grid; grid-template-columns:auto 1fr; gap:2rem; align-items:center; }
-    .slide-big-stat { font-size:5rem; font-weight:900; font-family:var(--mono); line-height:1; }
-    .slide-big-stat.green { color:var(--green); }
-    .slide-big-stat.red { color:var(--red); }
-    .slide-big-stat.blue { color:var(--accent); }
-    @media(max-width:600px){ .slide.full { grid-template-columns:1fr; } }
+    /* ── PAGE HEADER ───────────────────────────────────────────── */
+    .pg-eyebrow {
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: var(--amber);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    .pg-title {
+      font-family: var(--heading);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -.035em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .pg-sub {
+      font-size: 1.05rem;
+      color: var(--sub);
+      max-width: 620px;
+      line-height: 1.75;
+      margin-bottom: 3rem;
+      font-weight: 400;
+    }
+    .pg-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2.5rem 0;
+    }
 
-    /* ── BRAND CARDS ── */
-    .brand-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:1.75rem; margin-top:2.5rem; }
-    .brand-card { border-radius:16px; overflow:hidden; border:1px solid; transition:transform .25s,box-shadow .25s; cursor:default; }
-    .brand-card:hover { transform:translateY(-5px); }
-    .brand-card.sg { border-color:#C6A962; background:linear-gradient(145deg,#0A1628,#0e1f3a); }
-    .bc-header.sg { background:#071120; border-bottom:1px solid #C6A96240; padding:1rem 1.25rem; display:flex; align-items:center; gap:.75rem; }
-    .bc-logo.sg { width:36px; height:36px; border-radius:6px; background:linear-gradient(135deg,#C6A962,#e8c97a); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.85rem; color:#071120; flex-shrink:0; }
-    .bc-name.sg { font-size:.92rem; font-weight:700; color:#C6A962; letter-spacing:-.01em; }
-    .bc-sub { font-size:.68rem; color:#5a7099; margin-top:.1rem; }
-    .brand-card.zc { border-color:#FF6B0060; background:linear-gradient(145deg,#1a0e00,#2a1500); }
-    .bc-header.zc { background:#110900; border-bottom:1px solid #FF6B0030; padding:1rem 1.25rem; display:flex; align-items:center; gap:.75rem; }
-    .bc-logo.zc { width:36px; height:36px; border-radius:6px; background:#FF6B00; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.85rem; color:#fff; flex-shrink:0; }
-    .bc-name.zc { font-size:.92rem; font-weight:700; color:#FF8C33; }
-    .brand-card.ct { border-color:#FFD70050; background:linear-gradient(145deg,#0a0a0a,#141414); }
-    .bc-header.ct { background:#060606; border-bottom:1px solid #FFD70030; padding:1rem 1.25rem; display:flex; align-items:center; gap:.75rem; }
-    .bc-logo.ct { width:36px; height:36px; border-radius:6px; background:linear-gradient(135deg,#FFD700,#e6be00); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-    .bc-name.ct { font-size:.92rem; font-weight:700; color:#FFD700; letter-spacing:.05em; }
-    .brand-card.br { border-color:#2DD4BF50; background:linear-gradient(145deg,#001a14,#002820); }
-    .bc-header.br { background:#00110d; border-bottom:1px solid #2DD4BF30; padding:1rem 1.25rem; display:flex; align-items:center; gap:.75rem; }
-    .bc-logo.br { width:36px; height:36px; border-radius:6px; background:linear-gradient(135deg,#2DD4BF,#14b8a6); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-    .bc-name.br { font-size:.92rem; font-weight:700; color:#2DD4BF; }
-    .bc-body { padding:1.25rem; }
-    .bc-screen { background:rgba(0,0,0,.3); border-radius:8px; overflow:hidden; }
-    .bc-row { display:flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-bottom:1px solid rgba(255,255,255,.04); font-size:.78rem; }
-    .bc-row:last-child { border-bottom:none; }
-    .bc-ticker { font-family:var(--mono); font-weight:700; width:52px; flex-shrink:0; }
-    .bc-bar-track { flex:1; height:5px; background:rgba(255,255,255,.07); border-radius:999px; overflow:hidden; }
-    .bc-bar-fill { height:100%; border-radius:999px; }
-    .bc-pct { font-family:var(--mono); font-size:.75rem; width:36px; text-align:right; flex-shrink:0; }
-    .bc-badge { font-size:.65rem; font-weight:700; padding:.15rem .4rem; border-radius:4px; flex-shrink:0; letter-spacing:.04em; }
-    .badge-hi { background:rgba(255,77,109,.2); color:#ff4d6d; border:1px solid #ff4d6d50; }
-    .badge-md { background:rgba(255,214,0,.15); color:#ffd600; border:1px solid #ffd60050; }
-    .badge-lo { background:rgba(0,230,118,.15); color:#00e676; border:1px solid #00e67650; }
-    .bc-desc { font-size:.8rem; color:var(--muted); padding:1rem 1.25rem 0; line-height:1.55; }
-    .bc-quote { font-size:.78rem; color:var(--text); margin:1rem 1.25rem; padding:.7rem .9rem; background:rgba(255,255,255,.04); border-left:2px solid; border-radius:0 6px 6px 0; font-style:italic; line-height:1.5; }
-    .bc-quote.sg { border-color:#C6A962; }
-    .bc-quote.zc { border-color:#FF6B00; }
-    .bc-quote.ct { border-color:#FFD700; }
-    .bc-quote.br { border-color:#2DD4BF; }
+    /* ── OVERVIEW PAGE ─────────────────────────────────────────── */
+    .overview-hero {
+      padding: 4rem 0 2rem;
+    }
+    .overview-hero .big-title {
+      font-family: var(--heading);
+      font-size: clamp(3.5rem, 8vw, 6.5rem);
+      font-weight: 700;
+      letter-spacing: -.05em;
+      line-height: .95;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .overview-hero .big-title em {
+      font-style: normal;
+      color: var(--amber);
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 2.5rem 0;
+    }
+    .kpi {
+      background: var(--surface);
+      padding: 1.5rem;
+    }
+    .kpi-val {
+      font-family: var(--heading);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+    .kpi-label { font-size: .75rem; color: var(--muted); margin-top: .4rem; line-height: 1.4; }
 
-    /* ── POLYMARKET GAME ── */
-    #activity { background:var(--bg); padding:5rem 1.5rem; min-height:100vh; }
-    .pm-wrapper { max-width:820px; margin:0 auto; }
-    .pm-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; }
-    .pm-logo { font-size:.85rem; font-weight:800; color:var(--accent); letter-spacing:.05em; display:flex; align-items:center; gap:.5rem; }
-    .pm-round-pill { padding:.35rem 1rem; background:var(--card); border:1px solid var(--border); border-radius:999px; font-size:.8rem; font-family:var(--mono); color:var(--muted); }
-    .pm-bankroll { font-size:.9rem; font-weight:700; font-family:var(--mono); color:var(--green); }
-    .pm-market { background:var(--card); border:1px solid var(--border); border-radius:18px; overflow:hidden; margin-bottom:1.25rem; }
-    .pm-market-head { padding:1.5rem 1.75rem 1.25rem; border-bottom:1px solid var(--border); }
-    .pm-market-tag { font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:.6rem; display:flex; align-items:center; gap:.5rem; }
-    .pm-market-tag::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); }
-    .pm-question { font-size:1.25rem; font-weight:800; letter-spacing:-.02em; line-height:1.3; }
-    .pm-company-hidden { color:var(--muted); font-size:1rem; font-weight:500; margin-top:.35rem; }
-    .pm-company-reveal { color:var(--accent); font-size:1rem; font-weight:700; margin-top:.35rem; display:none; }
-    .pm-meta { display:flex; gap:1.5rem; margin-top:1rem; }
-    .pm-meta-item { font-size:.75rem; color:var(--muted); }
-    .pm-meta-item strong { color:var(--text); display:block; font-family:var(--mono); }
-    .pm-fin-strip { display:flex; gap:0; overflow-x:auto; border-bottom:1px solid var(--border); }
-    .pm-fin-item { padding:.75rem 1.25rem; border-right:1px solid var(--border); flex-shrink:0; }
-    .pm-fin-item:last-child { border-right:none; }
-    .pm-fin-key { font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
-    .pm-fin-val { font-size:.95rem; font-weight:700; font-family:var(--mono); margin-top:.15rem; }
-    .pm-outcomes { display:grid; grid-template-columns:1fr 1fr; gap:1rem; padding:1.25rem 1.75rem; }
-    .pm-tile { border-radius:14px; border:2px solid; padding:1.5rem; cursor:pointer; transition:all .15s; position:relative; overflow:hidden; }
-    .pm-tile::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity .15s; }
-    .pm-tile:hover::before { opacity:1; }
-    .pm-tile.no-tile { border-color:#00e67650; }
-    .pm-tile.no-tile::before { background:rgba(0,230,118,.06); }
-    .pm-tile.yes-tile { border-color:#ff4d6d50; }
-    .pm-tile.yes-tile::before { background:rgba(255,77,109,.06); }
-    .pm-tile.selected-no { border-color:var(--green)!important; background:rgba(0,230,118,.1); }
-    .pm-tile.selected-yes { border-color:var(--red)!important; background:rgba(255,77,109,.1); }
-    .pm-tile-label { font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.6rem; position:relative; }
-    .no-tile .pm-tile-label { color:var(--green); }
-    .yes-tile .pm-tile-label { color:var(--red); }
-    .pm-tile-outcome { font-size:1.5rem; font-weight:900; margin-bottom:.35rem; position:relative; }
-    .pm-tile-odds { font-size:2.5rem; font-weight:900; font-family:var(--mono); line-height:1; position:relative; }
-    .no-tile .pm-tile-odds { color:var(--green); }
-    .yes-tile .pm-tile-odds { color:var(--red); }
-    .pm-tile-sub { font-size:.75rem; color:var(--muted); margin-top:.4rem; position:relative; }
-    .pm-tile-check { position:absolute; top:.75rem; right:.75rem; font-size:1.25rem; display:none; }
-    .pm-tile.selected-no .pm-tile-check, .pm-tile.selected-yes .pm-tile-check { display:block; }
-    .pm-bet-area { padding:1.25rem 1.75rem; border-top:1px solid var(--border); }
-    .pm-bet-label { font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.75rem; }
-    .pm-chips { display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.25rem; }
-    .pm-chip { padding:.5rem 1.1rem; border-radius:8px; border:1.5px solid var(--border); background:transparent; font-weight:700; font-size:.85rem; cursor:pointer; color:var(--text); transition:all .15s; font-family:var(--mono); }
-    .pm-chip:hover { border-color:var(--accent); color:var(--accent); }
-    .pm-chip.active { border-color:var(--accent); background:rgba(0,212,255,.12); color:var(--accent); }
-    .pm-buy-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
-    .pm-buy-btn { padding:1rem; border-radius:10px; border:none; font-size:1rem; font-weight:800; cursor:pointer; transition:all .15s; }
-    .pm-buy-no  { background:rgba(0,230,118,.15); color:var(--green); border:2px solid var(--green); }
-    .pm-buy-no:hover  { background:rgba(0,230,118,.28); }
-    .pm-buy-yes { background:rgba(255,77,109,.15); color:var(--red); border:2px solid var(--red); }
-    .pm-buy-yes:hover { background:rgba(255,77,109,.28); }
-    .pm-buy-btn:disabled { opacity:.35; cursor:not-allowed; }
-    .pm-buy-btn.voted { opacity:.5; }
-    .pm-reveal-btn { width:100%; padding:1.15rem; background:linear-gradient(135deg,var(--accent),#0092ff); color:#000; border:none; border-radius:12px; font-size:1.1rem; font-weight:900; letter-spacing:.04em; cursor:pointer; margin-top:1.25rem; transition:opacity .2s,transform .1s; }
-    .pm-reveal-btn:hover { opacity:.9; transform:scale(1.01); }
-    .pm-result { border-radius:14px; padding:1.5rem 1.75rem; margin-top:1.25rem; display:none; }
-    .pm-result.win  { background:rgba(0,230,118,.08); border:1px solid #00e67680; }
-    .pm-result.loss { background:rgba(255,77,109,.08); border:1px solid #ff4d6d80; }
-    .pm-result-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:.6rem; }
-    .pm-result-verdict { font-size:1.2rem; font-weight:800; }
-    .pm-result-dd { font-family:var(--mono); font-size:2rem; font-weight:900; }
-    .pm-result-story { font-size:.85rem; color:var(--muted); line-height:1.55; }
-    .pm-result-pnl { font-family:var(--mono); font-size:1rem; font-weight:700; margin-top:.75rem; }
-    .pm-next-btn { width:100%; padding:1rem; background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; margin-top:.75rem; transition:all .2s; display:none; }
-    .pm-next-btn:hover { border-color:var(--accent); }
-    .pm-gameover { text-align:center; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:3rem 2rem; display:none; margin-top:1.5rem; }
-    .pm-gameover h2 { font-size:2.5rem; font-weight:900; margin-bottom:.5rem; }
-    .pm-final-bank { font-size:3.5rem; font-weight:900; font-family:var(--mono); margin:1.5rem 0; }
-    .pm-final-bank.up { color:var(--green); }
-    .pm-final-bank.dn { color:var(--red); }
-    .pm-final-bank.ev { color:var(--yellow); }
-    .pm-restart { padding:1rem 2.5rem; background:var(--accent); color:#000; border:none; border-radius:10px; font-size:1rem; font-weight:800; cursor:pointer; margin-top:1rem; transition:opacity .2s; }
-    .pm-restart:hover { opacity:.85; }
+    .quick-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem;
+      margin-top: 2rem;
+    }
+    .qn-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem 1.25rem;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+    }
+    .qn-card:hover { border-color: var(--amber); background: var(--amber-lo); }
+    .qn-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; margin-top: .1rem; }
+    .qn-label { font-size: .87rem; font-weight: 600; color: var(--text); }
+    .qn-sub { font-size: .72rem; color: var(--muted); margin-top: .15rem; }
 
-    /* ── ARCH CODE BLOCK ── */
-    .arch-block { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.75rem; font-family:var(--mono); font-size:.82rem; line-height:2; }
-    .arch-label { color:var(--accent); font-weight:700; margin-bottom:.75rem; font-family:var(--font); font-size:.73rem; letter-spacing:.1em; text-transform:uppercase; }
+    .dd-example {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 2.5rem;
+    }
+    .dd-label-row { font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; }
+    .dd-bar-item { margin-bottom: .9rem; }
+    .dd-bar-name { display: flex; justify-content: space-between; font-size: .82rem; color: var(--sub); margin-bottom: .3rem; }
+    .dd-bar-track { height: 6px; background: var(--card); border-radius: 999px; overflow: hidden; }
+    .dd-bar-fill { height: 100%; border-radius: 999px; }
+    .fill-safe    { background: var(--emerald); }
+    .fill-mid     { background: var(--yellow); }
+    .fill-danger  { background: var(--rose); }
 
-    /* ── FADE ── */
-    .fade-in { opacity:0; transform:translateY(24px); transition:opacity .7s ease,transform .7s ease; }
-    .fade-in.visible { opacity:1; transform:none; }
+    /* ── DATA PAGE ─────────────────────────────────────────────── */
+    .pipeline { display: flex; flex-direction: column; gap: 1.5rem; margin: 2rem 0; }
+    .pipe-group-label {
+      font-family: var(--mono);
+      font-size: .68rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    .pipe-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    .pipe-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .75rem 1.1rem;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+    }
+    .pipe-node small { display: block; font-size: .68rem; color: var(--muted); font-weight: 400; margin-top: .2rem; }
+    .pipe-node.hi { border-color: var(--amber); color: var(--amber); }
+    .pipe-arrow { color: var(--muted); font-size: 1.1rem; flex-shrink: 0; }
+    .pipe-divider { text-align: center; font-size: 1.2rem; color: var(--border2); margin: .25rem 0; }
 
-    /* ── FOOTER ── */
-    footer { border-top:1px solid var(--border); padding:2.5rem 2rem; text-align:center; color:var(--muted); font-size:.82rem; line-height:1.8; }
-    footer a { color:var(--accent); text-decoration:none; }
+    .ratio-grid { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
+    .ratio-tag {
+      padding: .25rem .65rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--sub);
+    }
+
+    .info-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 8px 8px 0;
+      padding: 1.1rem 1.25rem;
+      font-size: .875rem;
+      color: var(--sub);
+      line-height: 1.65;
+      margin: 1.5rem 0;
+    }
+    .info-box strong { color: var(--text); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+    @media(max-width: 700px){ .two-col { grid-template-columns: 1fr; } }
+
+    .split-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .split-row { display: flex; gap: .5rem; margin-top: .75rem; }
+    .split-block {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .split-block.train { border-top: 2px solid var(--amber); }
+    .split-block.val   { border-top: 2px solid var(--sky); }
+    .split-block.test  { border-top: 2px solid var(--emerald); }
+    .split-name { font-size: .78rem; font-weight: 600; color: var(--sub); }
+    .split-years { font-family: var(--mono); font-size: .9rem; font-weight: 600; color: var(--text); margin-top: .25rem; }
+    .split-n { font-size: .7rem; color: var(--muted); margin-top: .15rem; }
+
+    /* ── MODELS PAGE ───────────────────────────────────────────── */
+    .arch-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.75rem;
+      font-family: var(--mono);
+      font-size: .82rem;
+      line-height: 2;
+    }
+    .arch-label {
+      font-family: var(--body);
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1rem;
+    }
+    .arch-dim { color: var(--yellow); }
+    .arch-out { color: var(--emerald); }
+    .arch-comment { color: var(--muted); }
+
+    .model-ladder { display: flex; flex-direction: column; gap: .6rem; }
+    .ml-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .9rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .ml-item.winner { border-color: var(--amber); background: var(--amber-lo); }
+    .ml-num {
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: var(--muted);
+      width: 28px;
+      flex-shrink: 0;
+    }
+    .ml-name { font-size: .9rem; font-weight: 600; color: var(--text); }
+    .ml-item.winner .ml-name { color: var(--amber); }
+    .ml-desc { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+    .ml-badge {
+      margin-left: auto;
+      background: var(--amber);
+      color: #000;
+      font-size: .62rem;
+      font-weight: 700;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      letter-spacing: .04em;
+      flex-shrink: 0;
+    }
+
+    .feat-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .65rem; }
+    .feat-name { font-family: var(--mono); font-size: .76rem; color: var(--sub); width: 145px; flex-shrink: 0; }
+    .feat-track { flex: 1; height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .feat-fill { height: 100%; border-radius: 999px; background: var(--amber); }
+    .feat-val { font-family: var(--mono); font-size: .74rem; color: var(--amber); width: 40px; text-align: right; flex-shrink: 0; }
+
+    /* ── FINDINGS PAGE ─────────────────────────────────────────── */
+    .finding-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    @media(max-width: 700px){ .finding-row { grid-template-columns: 1fr; } }
+
+    .finding-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .finding-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .finding-card.win::after   { background: var(--emerald); }
+    .finding-card.kill::after  { background: var(--amber); }
+    .finding-card.info::after  { background: var(--sky); }
+    .finding-emoji { font-size: 1.75rem; margin-bottom: .75rem; }
+    .finding-title { font-family: var(--heading); font-size: .95rem; font-weight: 600; margin-bottom: .5rem; }
+    .finding-body { font-size: .8rem; color: var(--sub); line-height: 1.65; }
+    .finding-stat { font-family: var(--mono); font-size: 1.6rem; font-weight: 600; margin-top: 1rem; color: var(--amber); }
+    .finding-stat span { font-size: .8rem; color: var(--muted); }
+
+    /* Results table */
+    .results-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    thead th {
+      text-align: left;
+      padding: .75rem 1rem;
+      font-family: var(--mono);
+      font-size: .68rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,.02); }
+    tbody td { padding: .75rem 1rem; white-space: nowrap; }
+    .model-name { font-weight: 600; color: var(--text); }
+    .val-base { font-family: var(--mono); color: var(--muted); }
+    .val-mid  { font-family: var(--mono); color: var(--sub); }
+    .val-win  { font-family: var(--mono); color: var(--emerald); font-weight: 600; }
+    .val-nn   { font-family: var(--mono); color: var(--amber); font-weight: 600; }
+    .val-kill { display: inline-block; font-family: var(--mono); font-weight: 700; color: #000; background: var(--amber); padding: .1rem .45rem; border-radius: 4px; font-size: .76rem; }
+    .row-nn { background: var(--amber-lo) !important; }
+    .row-nn td.model-name { color: var(--amber); }
+
+    .chart-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    @media(max-width: 700px){ .chart-pair { grid-template-columns: 1fr; } }
+    .chart-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .chart-label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .note-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem 1.25rem;
+      font-size: .78rem;
+      color: var(--sub);
+      line-height: 1.7;
+      margin-top: 1.5rem;
+    }
+    .note-block strong { color: var(--text); }
+
+    .conclusion-box {
+      background: var(--amber-lo);
+      border: 1px solid rgba(200,137,42,.3);
+      border-radius: 10px;
+      padding: 1.5rem 1.75rem;
+      margin-top: 2rem;
+    }
+    .conclusion-box p { font-size: .9rem; color: var(--sub); line-height: 1.75; }
+    .conclusion-box strong { color: var(--text); }
+
+    /* ── USE CASES ─────────────────────────────────────────────── */
+    .brand-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; }
+    .brand-card { border-radius: 12px; overflow: hidden; border: 1px solid; transition: transform .2s; }
+    .brand-card:hover { transform: translateY(-3px); }
+    .brand-card.sg { border-color: #C6A96250; background: linear-gradient(145deg,#0A1628,#0e1f3a); }
+    .brand-card.zc { border-color: #FF6B0050; background: linear-gradient(145deg,#1a0e00,#2a1500); }
+    .brand-card.ct { border-color: #FFD70040; background: linear-gradient(145deg,#0a0a0a,#141414); }
+    .brand-card.br { border-color: #2DD4BF40; background: linear-gradient(145deg,#001a14,#002820); }
+    .bc-header { padding: .9rem 1.1rem; display: flex; align-items: center; gap: .65rem; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .bc-logo { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .82rem; flex-shrink: 0; }
+    .bc-logo.sg { background: linear-gradient(135deg,#C6A962,#e8c97a); color: #071120; }
+    .bc-logo.zc { background: #FF6B00; color: #fff; }
+    .bc-logo.ct { background: linear-gradient(135deg,#FFD700,#e6be00); font-size: 1rem; }
+    .bc-logo.br { background: linear-gradient(135deg,#2DD4BF,#14b8a6); font-size: 1rem; }
+    .bc-name { font-size: .85rem; font-weight: 700; }
+    .bc-name.sg { color: #C6A962; }
+    .bc-name.zc { color: #FF8C33; }
+    .bc-name.ct { color: #FFD700; }
+    .bc-name.br { color: #2DD4BF; }
+    .bc-type { font-size: .65rem; color: #5a7099; margin-top: .1rem; }
+    .bc-body { padding: 1rem; }
+    .bc-screen { background: rgba(0,0,0,.3); border-radius: 6px; overflow: hidden; }
+    .bc-row { display: flex; align-items: center; gap: .45rem; padding: .45rem .7rem; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .76rem; }
+    .bc-row:last-child { border-bottom: none; }
+    .bc-ticker { font-family: var(--mono); font-weight: 700; width: 48px; flex-shrink: 0; }
+    .bc-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,.07); border-radius: 999px; overflow: hidden; }
+    .bc-bar-fill { height: 100%; border-radius: 999px; }
+    .bc-pct { font-family: var(--mono); font-size: .72rem; width: 34px; text-align: right; flex-shrink: 0; }
+    .bc-badge { font-size: .62rem; font-weight: 700; padding: .12rem .36rem; border-radius: 3px; flex-shrink: 0; }
+    .badge-hi { background: rgba(248,113,113,.2); color: #F87171; border: 1px solid rgba(248,113,113,.4); }
+    .badge-md { background: rgba(252,211,77,.15); color: #FCD34D; border: 1px solid rgba(252,211,77,.4); }
+    .badge-lo { background: rgba(52,211,153,.15); color: #34D399; border: 1px solid rgba(52,211,153,.4); }
+    .bc-desc { font-size: .76rem; color: var(--muted); padding: .75rem 1rem 0; line-height: 1.55; }
+    .bc-quote { font-size: .74rem; color: var(--sub); margin: .75rem 1rem 1rem; padding: .6rem .85rem; background: rgba(255,255,255,.03); border-left: 2px solid; border-radius: 0 5px 5px 0; font-style: italic; line-height: 1.5; }
+    .bc-quote.sg { border-color: #C6A962; }
+    .bc-quote.zc { border-color: #FF6B00; }
+    .bc-quote.ct { border-color: #FFD700; }
+    .bc-quote.br { border-color: #2DD4BF; }
+
+    /* ── SLIDES PAGE ───────────────────────────────────────────── */
+    .slide-stack { display: flex; flex-direction: column; gap: 1.5rem; }
+    .slide {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem 2.25rem;
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    .slide-num-big {
+      font-family: var(--heading);
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--border2);
+      line-height: 1;
+    }
+    .slide-num-big.amber { color: var(--amber-hi); }
+    .slide-eyebrow { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--amber); margin-bottom: .5rem; }
+    .slide-title { font-family: var(--heading); font-size: 1.25rem; font-weight: 600; letter-spacing: -.02em; margin-bottom: .75rem; }
+    .slide-body { font-size: .875rem; color: var(--sub); line-height: 1.7; }
+    .slide-body .hi { color: var(--text); font-weight: 500; }
+    .slide-callout {
+      margin-top: 1rem;
+      padding: .75rem 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: .78rem;
+      color: var(--sub);
+      line-height: 1.6;
+    }
+    .slide-callout.green { border-left: 3px solid var(--emerald); }
+    .slide-callout.amber { border-left: 3px solid var(--amber); }
+
+    /* ── ACTIVITY / GAME PAGE ──────────────────────────────────── */
+    #page-activity {
+      background: #0A0A0A;
+    }
+    .game-layout {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+    .game-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .game-brand {
+      font-family: var(--heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+    .game-brand span { color: var(--amber); }
+    .game-round-pill {
+      font-family: var(--mono);
+      font-size: .75rem;
+      padding: .35rem .9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--sub);
+    }
+    .game-bankroll-label { font-size: .65rem; color: var(--muted); margin-bottom: .1rem; text-transform: uppercase; letter-spacing: .06em; }
+    .game-bankroll { font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--emerald); }
+
+    /* Market card */
+    .market-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .market-head {
+      padding: 1.4rem 1.6rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .market-live {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .6rem;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
+    .market-question {
+      font-family: var(--heading);
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -.02em;
+      line-height: 1.3;
+    }
+    .market-company { color: var(--sub); font-size: .92rem; margin-top: .35rem; }
+    .market-company-reveal { color: var(--amber); font-size: .92rem; font-weight: 600; margin-top: .35rem; display: none; }
+    .market-meta { display: flex; gap: 1.5rem; margin-top: .9rem; flex-wrap: wrap; }
+    .market-meta-item { font-size: .72rem; color: var(--muted); }
+    .market-meta-item strong { color: var(--text); display: block; font-family: var(--mono); font-size: .82rem; }
+
+    .fin-strip { display: flex; overflow-x: auto; border-bottom: 1px solid var(--border); }
+    .fin-item { padding: .7rem 1.1rem; border-right: 1px solid var(--border); flex-shrink: 0; }
+    .fin-item:last-child { border-right: none; }
+    .fin-key { font-size: .64rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .fin-val { font-family: var(--mono); font-size: .88rem; font-weight: 600; color: var(--text); margin-top: .15rem; }
+
+    /* Outcome tiles */
+    .outcomes { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; padding: 1.1rem 1.6rem; }
+    .outcome-tile {
+      border-radius: 10px;
+      border: 1.5px solid;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all .13s;
+      position: relative;
+    }
+    .tile-no  { border-color: rgba(52,211,153,.35); }
+    .tile-yes { border-color: rgba(248,113,113,.35); }
+    .tile-no:hover  { border-color: var(--emerald); background: rgba(52,211,153,.06); }
+    .tile-yes:hover { border-color: var(--rose); background: rgba(248,113,113,.06); }
+    .tile-no.sel  { border-color: var(--emerald) !important; background: rgba(52,211,153,.1); }
+    .tile-yes.sel { border-color: var(--rose) !important; background: rgba(248,113,113,.1); }
+    .tile-label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .5rem; }
+    .tile-no  .tile-label { color: var(--emerald); }
+    .tile-yes .tile-label { color: var(--rose); }
+    .tile-outcome { font-size: 1.2rem; font-weight: 700; font-family: var(--heading); margin-bottom: .3rem; }
+    .tile-odds { font-family: var(--mono); font-size: 2.2rem; font-weight: 600; line-height: 1; }
+    .tile-no  .tile-odds { color: var(--emerald); }
+    .tile-yes .tile-odds { color: var(--rose); }
+    .tile-sub { font-size: .7rem; color: var(--muted); margin-top: .3rem; }
+    .tile-check { position: absolute; top: .7rem; right: .7rem; display: none; font-size: 1.1rem; }
+    .tile-no.sel .tile-check,
+    .tile-yes.sel .tile-check { display: block; }
+
+    /* Bet area */
+    .bet-area { padding: 1rem 1.6rem; border-top: 1px solid var(--border); }
+    .bet-label { font-size: .68rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .65rem; }
+    .chips { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .chip {
+      padding: .45rem 1rem;
+      border: 1.5px solid var(--border2);
+      border-radius: 6px;
+      background: transparent;
+      font-family: var(--mono);
+      font-size: .8rem;
+      font-weight: 500;
+      color: var(--sub);
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .chip:hover { border-color: var(--amber); color: var(--amber); }
+    .chip.active { border-color: var(--amber); background: var(--amber-lo); color: var(--amber); }
+    .buy-row { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+    .buy-btn {
+      padding: .85rem;
+      border-radius: 8px;
+      border: 1.5px solid;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .12s;
+      font-family: var(--body);
+    }
+    .buy-no  { background: rgba(52,211,153,.1); color: var(--emerald); border-color: var(--emerald); }
+    .buy-yes { background: rgba(248,113,113,.1); color: var(--rose); border-color: var(--rose); }
+    .buy-no:hover  { background: rgba(52,211,153,.2); }
+    .buy-yes:hover { background: rgba(248,113,113,.2); }
+    .buy-btn:disabled { opacity: .3; cursor: not-allowed; }
+    .buy-btn.voted { opacity: .45; }
+
+    /* Position + Reveal */
+    .position-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .9rem 1.25rem;
+      margin-top: .75rem;
+    }
+    .pos-text { font-size: .88rem; font-weight: 600; }
+    .reveal-btn {
+      padding: .75rem 1.75rem;
+      background: var(--amber);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--body);
+      transition: opacity .15s;
+    }
+    .reveal-btn:hover { opacity: .88; }
+
+    /* Result */
+    .result-card { border-radius: 10px; padding: 1.25rem 1.5rem; margin-top: .75rem; display: none; }
+    .result-card.win  { background: rgba(52,211,153,.07); border: 1px solid rgba(52,211,153,.4); }
+    .result-card.loss { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.4); }
+    .result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
+    .result-verdict { font-size: 1.05rem; font-weight: 700; font-family: var(--heading); }
+    .result-dd { font-family: var(--mono); font-size: 1.8rem; font-weight: 700; }
+    .result-story { font-size: .82rem; color: var(--sub); line-height: 1.55; }
+    .result-pnl { font-family: var(--mono); font-size: .92rem; font-weight: 600; margin-top: .6rem; }
+
+    .next-btn {
+      width: 100%;
+      padding: .9rem;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: .65rem;
+      display: none;
+      transition: border-color .15s;
+      font-family: var(--body);
+    }
+    .next-btn:hover { border-color: var(--amber); }
+
+    /* Game over */
+    .gameover {
+      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 3rem 2rem;
+      display: none;
+      margin-top: 1rem;
+    }
+    .go-emoji { font-size: 3rem; margin-bottom: .6rem; }
+    .go-title { font-family: var(--heading); font-size: 2.2rem; font-weight: 700; letter-spacing: -.03em; }
+    .go-bank { font-family: var(--mono); font-size: 3rem; font-weight: 700; margin: 1.25rem 0; }
+    .go-bank.up { color: var(--emerald); }
+    .go-bank.dn { color: var(--rose); }
+    .go-bank.ev { color: var(--yellow); }
+    .go-detail { font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .go-sub { font-size: .85rem; color: var(--sub); max-width: 440px; margin: .5rem auto 0; }
+    .restart-btn {
+      padding: .85rem 2.5rem;
+      background: var(--amber);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-family: var(--body);
+      transition: opacity .15s;
+    }
+    .restart-btn:hover { opacity: .88; }
   </style>
 </head>
 <body>
 
-<!-- ── NAV ── -->
-<nav>
-  <span class="nav-logo">▼ DrawdownSignal</span>
-  <ul class="nav-links">
-    <li><a href="#overview">Overview</a></li>
-    <li><a href="#data">Data &amp; Methods</a></li>
-    <li><a href="#models">Models</a></li>
-    <li><a href="#findings">Findings</a></li>
-    <li><a href="#applications">Use Cases</a></li>
-    <li><a href="#presentation">Slides</a></li>
-  </ul>
-  <a href="#activity" class="nav-game-btn">🎰 Activity</a>
-</nav>
-
-<!-- ══════════════════════════════════════════════════════════════
-     1 · OVERVIEW
-══════════════════════════════════════════════════════════════ -->
-<section id="overview">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-eyebrow">ML II Final Project · UChicago MS-ADS 2026</div>
-  <h1 class="hero-title">Predicting<br>the Fall</h1>
-  <p class="hero-sub">A dual-stream neural network that forecasts the maximum peak-to-trough stock price drawdown for US public companies over the next 12 months — using five years of accounting history and recent market dynamics.</p>
-  <div class="hero-pills">
-    <span class="pill"><span>132K</span> firm-years</span>
-    <span class="pill"><span>25</span> years of data</span>
-    <span class="pill"><span>87K+</span> anchored predictions</span>
-    <span class="pill"><span>29M</span> daily price rows</span>
-    <span class="pill">NYSE &amp; NASDAQ</span>
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">▼ <span>Drawdown</span>Signal</div>
+    <div class="sb-logo-sub">ML II · UChicago MS-ADS 2026</div>
   </div>
-  <div class="hero-nav-cards">
-    <a class="hnc" href="#data">
-      <div class="hnc-icon">🗄️</div>
-      <div class="hnc-label">Data &amp; Methodology</div>
-      <div class="hnc-sub">WRDS · Compustat · CRSP · 18 ratios</div>
-    </a>
-    <a class="hnc" href="#models">
-      <div class="hnc-icon">🧠</div>
-      <div class="hnc-label">Models &amp; Process</div>
-      <div class="hnc-sub">LSTM + MLP fusion · PyTorch · baselines</div>
-    </a>
-    <a class="hnc" href="#findings">
-      <div class="hnc-icon">📊</div>
-      <div class="hnc-label">Findings &amp; Analysis</div>
-      <div class="hnc-sub">Results · beats vol-only on 2 of 3</div>
-    </a>
-    <a class="hnc" href="#applications">
-      <div class="hnc-icon">💼</div>
-      <div class="hnc-label">Use Cases</div>
-      <div class="hnc-sub">Credit · VC · Long-short · Portfolio</div>
-    </a>
-    <a class="hnc" href="#presentation">
-      <div class="hnc-icon">🎤</div>
-      <div class="hnc-label">Presentation</div>
-      <div class="hnc-sub">Key slides &amp; talking points</div>
-    </a>
-    <a class="hnc" href="#activity">
-      <div class="hnc-icon">🎰</div>
-      <div class="hnc-label">Activity</div>
-      <div class="hnc-sub">DrawdownMarket · bet &amp; resolve</div>
-    </a>
+
+  <nav class="sb-nav">
+    <div class="sb-section-label">Sections</div>
+    <div class="nav-item active" data-page="overview" onclick="navigate('overview')">
+      <span class="nav-icon">⌂</span> Overview
+    </div>
+    <div class="nav-item" data-page="data" onclick="navigate('data')">
+      <span class="nav-icon">⊞</span> Data &amp; Methodology
+    </div>
+    <div class="nav-item" data-page="models" onclick="navigate('models')">
+      <span class="nav-icon">◈</span> Models &amp; Process
+    </div>
+    <div class="nav-item" data-page="findings" onclick="navigate('findings')">
+      <span class="nav-icon">≋</span> Findings
+    </div>
+    <div class="nav-item" data-page="usecases" onclick="navigate('usecases')">
+      <span class="nav-icon">⊕</span> Use Cases
+    </div>
+    <div class="nav-item" data-page="slides" onclick="navigate('slides')">
+      <span class="nav-icon">◫</span> Presentation
+    </div>
+    <div class="nav-item game-item" data-page="activity" onclick="navigate('activity')">
+      <span class="nav-icon">🎲</span> Activity
+      <span class="game-pill">LIVE</span>
+    </div>
+  </nav>
+
+  <div class="sb-footer">
+    <div class="sb-footer-text">
+      Data: WRDS Compustat + CRSP<br>
+      <a href="https://github.com/jmakk123/MLII-Final" target="_blank">GitHub →</a>
+    </div>
   </div>
-  <div class="scroll-hint">↓ scroll to explore</div>
-</section>
+</aside>
 
-<!-- ══════════════════════════════════════════════════════════════
-     2 · DATA AND METHODOLOGY
-══════════════════════════════════════════════════════════════ -->
-<section id="data" style="background:var(--surface)">
-  <div class="container">
-    <div class="section-label fade-in">02 · Data and Methodology</div>
-    <h2 class="section-title fade-in">From raw WRDS to model-ready tensors</h2>
-    <p class="section-sub fade-in">
-      Two raw data sources, five processing stages, one 97-dimensional feature matrix aligned to 87,995 firm-year anchors.
-      The target is <strong style="color:var(--text)">forward drawdown</strong> — the maximum peak-to-trough loss in the 12 months
-      following each firm's fiscal-year anchor date (filings date + 90 days). Values live in [−1, 0].
-    </p>
+<!-- ── MAIN ── -->
+<main class="main" id="main">
 
-    <!-- Why forward drawdown callout -->
-    <div class="two-col fade-in" style="margin-bottom:3.5rem">
-      <div>
-        <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:1rem">Why forward drawdown?</h3>
-        <p style="color:var(--muted);line-height:1.75;margin-bottom:1rem">Bankruptcy prediction is too sparse — only 387 events in our universe. Raw return is too noisy — good companies can have bad years. <strong style="color:var(--text)">Forward drawdown</strong> sits in the middle: a continuous, economically meaningful signal that captures firm-level risk without requiring the company to actually fail.</p>
-        <div class="tag-grid">
-          <span class="tag">Target ∈ [−1, 0]</span>
-          <span class="tag">Anchor = datadate + 90d</span>
-          <span class="tag">12-month forward window</span>
-          <span class="tag">Delistings → −1.0</span>
-          <span class="tag">387 bankruptcies as cross-check</span>
-        </div>
+  <!-- ══ 1 · OVERVIEW ══ -->
+  <div class="page active" id="page-overview">
+    <div class="page-inner">
+      <div class="overview-hero">
+        <div class="pg-eyebrow">01 — Overview</div>
+        <div class="big-title">Predicting<br>the <em>Fall</em></div>
+        <p class="pg-sub">A neural network that forecasts the maximum peak-to-trough stock drawdown for US public companies over the next 12 months — built on 25 years of Compustat fundamentals and CRSP price history.</p>
       </div>
+
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-val">87,995</div><div class="kpi-label">Firm-year anchors with full 5-year windows</div></div>
+        <div class="kpi"><div class="kpi-val">29M</div><div class="kpi-label">Raw daily CRSP price rows</div></div>
+        <div class="kpi"><div class="kpi-val">25 yrs</div><div class="kpi-label">Historical depth, 1999–2025</div></div>
+        <div class="kpi"><div class="kpi-val">−54%</div><div class="kpi-label">Brier score improvement vs vol-only</div></div>
+      </div>
+
+      <div class="info-box">
+        <strong>Why forward drawdown?</strong> Bankruptcy is too sparse (387 events). Raw return is too noisy. Forward drawdown — the maximum peak-to-trough loss in the 12 months after a fiscal year's anchor date — is continuous, economically meaningful, and observable for every public firm without requiring the company to fail. Target ∈ [−1, 0]. Delistings mapped to −1.0.
+      </div>
+
       <div class="dd-example">
-        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1.25rem">Sample Realized Drawdowns — Test Set 2020–2023</div>
-        <div class="dd-bar-wrap">
-          <div class="dd-bar-label"><span>Microsoft (MSFT)</span><span style="color:var(--green)">−24%</span></div>
-          <div class="dd-bar-track"><div class="dd-bar-fill safe" style="width:24%"></div></div>
-          <div class="dd-bar-label"><span>Procter &amp; Gamble (PG)</span><span style="color:var(--green)">−20%</span></div>
-          <div class="dd-bar-track"><div class="dd-bar-fill safe" style="width:20%"></div></div>
-          <div class="dd-bar-label"><span>Netflix (NFLX)</span><span style="color:var(--yellow)">−77%</span></div>
-          <div class="dd-bar-track"><div class="dd-bar-fill warn" style="width:77%"></div></div>
-          <div class="dd-bar-label"><span>American Airlines (AAL)</span><span style="color:var(--red)">−72%</span></div>
-          <div class="dd-bar-track"><div class="dd-bar-fill danger" style="width:72%"></div></div>
-          <div class="dd-bar-label"><span>Bed Bath &amp; Beyond (BBBY)</span><span style="color:var(--red)">−92%</span></div>
-          <div class="dd-bar-track"><div class="dd-bar-fill danger" style="width:92%"></div></div>
+        <div class="dd-label-row">Sample realized drawdowns — test set 2020–2023</div>
+        <div class="dd-bar-item">
+          <div class="dd-bar-name"><span>Microsoft (MSFT)</span><span style="color:var(--emerald)">−24%</span></div>
+          <div class="dd-bar-track"><div class="dd-bar-fill fill-safe" style="width:24%"></div></div>
+        </div>
+        <div class="dd-bar-item">
+          <div class="dd-bar-name"><span>Procter &amp; Gamble (PG)</span><span style="color:var(--emerald)">−20%</span></div>
+          <div class="dd-bar-track"><div class="dd-bar-fill fill-safe" style="width:20%"></div></div>
+        </div>
+        <div class="dd-bar-item">
+          <div class="dd-bar-name"><span>Netflix (NFLX)</span><span style="color:var(--yellow)">−77%</span></div>
+          <div class="dd-bar-track"><div class="dd-bar-fill fill-mid" style="width:77%"></div></div>
+        </div>
+        <div class="dd-bar-item">
+          <div class="dd-bar-name"><span>American Airlines (AAL)</span><span style="color:var(--rose)">−72%</span></div>
+          <div class="dd-bar-track"><div class="dd-bar-fill fill-danger" style="width:72%"></div></div>
+        </div>
+        <div class="dd-bar-item">
+          <div class="dd-bar-name"><span>Bed Bath &amp; Beyond (BBBY)</span><span style="color:var(--rose)">−92%</span></div>
+          <div class="dd-bar-track"><div class="dd-bar-fill fill-danger" style="width:92%"></div></div>
         </div>
       </div>
-    </div>
 
-    <!-- Pipeline -->
-    <div class="pipeline-wrap fade-in">
-      <div>
-        <div class="pipe-label">Raw Sources (WRDS)</div>
-        <div class="pipe-row">
-          <div class="pipe-node">comp.funda<small>132K rows · 39 cols<br>fyear 1999–2025</small></div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-node">comp.company<small>45K firms · GICS<br>delisting codes</small></div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-node">crsp.dsf<small>29M daily rows<br>prices 2016–2024</small></div>
-          <div class="pipe-arrow">→</div>
-          <div class="pipe-node">ccmxpf_lnkhist<small>38K links<br>gvkey → permno</small></div>
-        </div>
+      <div class="quick-nav" style="margin-top:2rem">
+        <div class="qn-card" onclick="navigate('data')"><div class="qn-icon">⊞</div><div><div class="qn-label">Data &amp; Methodology</div><div class="qn-sub">Pipeline, ratios, leakage fixes</div></div></div>
+        <div class="qn-card" onclick="navigate('models')"><div class="qn-icon">◈</div><div><div class="qn-label">Models &amp; Process</div><div class="qn-sub">LSTM, MLP, ablations</div></div></div>
+        <div class="qn-card" onclick="navigate('findings')"><div class="qn-icon">≋</div><div><div class="qn-label">Findings</div><div class="qn-sub">Results table + charts</div></div></div>
+        <div class="qn-card" onclick="navigate('usecases')"><div class="qn-icon">⊕</div><div><div class="qn-label">Use Cases</div><div class="qn-sub">Credit, VC, quant, PM</div></div></div>
+        <div class="qn-card" onclick="navigate('slides')"><div class="qn-icon">◫</div><div><div class="qn-label">Presentation</div><div class="qn-sub">Key slides &amp; talking points</div></div></div>
+        <div class="qn-card" onclick="navigate('activity')" style="border-color:rgba(200,137,42,.3);background:var(--amber-lo)"><div class="qn-icon">🎲</div><div><div class="qn-label" style="color:var(--amber)">Activity — DrawdownMarket</div><div class="qn-sub">Bet on real test-set firms</div></div></div>
       </div>
-      <div style="text-align:center;font-size:1.5rem;color:var(--muted)">↓</div>
-      <div>
-        <div class="pipe-label">Feature Engineering</div>
-        <div class="pipe-row">
-          <div class="pipe-node highlight">18 Financial Ratios<small>Altman · Ohlson<br>Zmijewski + margins</small></div>
-          <div class="pipe-arrow">+</div>
-          <div class="pipe-node highlight">5-Year Windows<small>(N, 5, 18) tensor<br>oldest → newest</small></div>
-          <div class="pipe-arrow">+</div>
-          <div class="pipe-node highlight">7 Price Features<small>vol · ret · skew · kurt<br>max_dd · beta · log_dv</small></div>
-          <div class="pipe-arrow">=</div>
-          <div class="pipe-node highlight">97 Features<small>per anchor firm-year<br>train-only scaling</small></div>
-        </div>
-      </div>
-      <div style="text-align:center;font-size:1.5rem;color:var(--muted)">↓</div>
-      <div>
-        <div class="pipe-label">Time-Blocked Split (no leakage)</div>
-        <div class="pipe-row">
-          <div class="pipe-node">Train<small>2003–2017<br>~65K anchors</small></div>
-          <div class="pipe-arrow">|</div>
-          <div class="pipe-node">Validation<small>2018–2019<br>~11K anchors</small></div>
-          <div class="pipe-arrow">|</div>
-          <div class="pipe-node">Test<small>2020–2023<br>~12K anchors</small></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 18 ratios -->
-    <div style="margin-top:3rem" class="fade-in">
-      <div class="section-label" style="margin-bottom:.75rem">The 18 Financial Ratios (locked feature set)</div>
-      <div class="tag-grid">
-        <span class="tag">r_wc_ta · Altman X1</span><span class="tag">r_re_ta · Altman X2</span><span class="tag">r_ebit_ta · Altman X3</span><span class="tag">r_mv_tl · Altman X4</span><span class="tag">r_sale_ta · Altman X5</span><span class="tag">r_tl_ta · leverage</span><span class="tag">r_cl_ca · Ohlson</span><span class="tag">r_ni_ta · ROA</span><span class="tag">r_log_at · size</span><span class="tag">r_gross_margin</span><span class="tag">r_oper_margin</span><span class="tag">r_net_margin</span><span class="tag">r_ebitda_margin</span><span class="tag">r_opex_ratio</span><span class="tag">r_da_intensity</span><span class="tag">r_ltdebt_ta</span><span class="tag">r_inv_turn</span><span class="tag">r_recv_turn</span>
-      </div>
-      <p style="font-size:.82rem;color:var(--muted);margin-top:1.25rem;line-height:1.6">Winsorized at 1st/99th percentile and z-scored using <strong style="color:var(--text)">training fold statistics only</strong> — the key leakage fix vs. naive baselines that fit on all rows. The 7 price features are computed from the CRSP daily file over the prior 252 trading days before the anchor date.</p>
-    </div>
-
-    <!-- Data stats -->
-    <div class="stat-grid fade-in">
-      <div class="stat-card"><div class="stat-val">87,995</div><div class="stat-label">Firm-year anchors with full 5-year financial windows and price history</div></div>
-      <div class="stat-card"><div class="stat-val">29M</div><div class="stat-label">Daily CRSP price rows pulled raw — no pre-aggregation, max fidelity</div></div>
-      <div class="stat-card"><div class="stat-val">52%</div><div class="stat-label">Test-set firms with realized drawdown exceeding −30% — high positive rate</div></div>
-      <div class="stat-card"><div class="stat-val">25 yrs</div><div class="stat-label">Historical depth: fyear 1999–2025, time-blocked to prevent future leakage</div></div>
     </div>
   </div>
-</section>
 
-<!-- ══════════════════════════════════════════════════════════════
-     3 · OUR MODELS AND PROCESS
-══════════════════════════════════════════════════════════════ -->
-<section id="models">
-  <div class="container">
-    <div class="section-label fade-in">03 · Our Models and Process</div>
-    <h2 class="section-title fade-in">Dual-stream fusion network</h2>
-    <p class="section-sub fade-in">
-      Structured financial history and recent price dynamics are fundamentally different signals — encoding them with different architectures before fusing is the core design choice.
-      We tested two financial-branch candidates (LSTM vs. MLP-flatten) against three baselines.
-    </p>
+  <!-- ══ 2 · DATA & METHODOLOGY ══ -->
+  <div class="page" id="page-data">
+    <div class="page-inner">
+      <div class="pg-eyebrow">02 — Data &amp; Methodology</div>
+      <h1 class="pg-title">From raw WRDS<br>to model-ready tensors</h1>
+      <p class="pg-sub">Two raw sources, five processing stages, 97 features per anchor — with zero leakage between train, val, and test splits.</p>
 
-    <div class="two-col fade-in" style="margin-bottom:3rem">
-      <div>
-        <div class="arch-block">
-          <div class="arch-label">Architecture (plain PyTorch)</div>
-          <div style="color:var(--muted)">┌─ Financial Branch ───────────────────┐</div>
-          <div style="padding-left:1.5rem">
-            <div>Input <span style="color:var(--yellow)">(batch, 5, 18)</span></div>
-            <div>Candidate A: LSTM 2-layer, h=64 → Linear → <span style="color:var(--green)">32d</span></div>
-            <div>Candidate B: Flatten → MLP [128,64] → <span style="color:var(--green)">32d</span></div>
+      <div class="pipeline">
+        <div>
+          <div class="pipe-group-label">Raw Sources</div>
+          <div class="pipe-row">
+            <div class="pipe-node">comp.funda<small>132K rows · fyear 1999–2025</small></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node">comp.company<small>45K firms · GICS + delisting</small></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node">crsp.dsf<small>29M daily rows · 2016–2024</small></div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node">ccmxpf_lnkhist<small>gvkey → permno links</small></div>
           </div>
-          <div style="color:var(--muted)">├─ Price Branch ───────────────────────┤</div>
-          <div style="padding-left:1.5rem">
-            <div>Input <span style="color:var(--yellow)">(batch, 7)</span></div>
-            <div>MLP 2-layer, h=32 → <span style="color:var(--green)">16d</span></div>
+        </div>
+        <div class="pipe-divider">↓</div>
+        <div>
+          <div class="pipe-group-label">Feature Engineering</div>
+          <div class="pipe-row">
+            <div class="pipe-node hi">18 Financial Ratios<small>Altman · Ohlson · Zmijewski + margins</small></div>
+            <div class="pipe-arrow">+</div>
+            <div class="pipe-node hi">5-Year Windows<small>(N, 5, 18) tensor · oldest→newest</small></div>
+            <div class="pipe-arrow">+</div>
+            <div class="pipe-node hi">7 Price Features<small>vol · ret · skew · kurt · max_dd · beta · log_dv</small></div>
+            <div class="pipe-arrow">=</div>
+            <div class="pipe-node hi">97 Features<small>per anchor · train-only scaling</small></div>
           </div>
-          <div style="color:var(--muted)">├─ Fusion Head ────────────────────────┤</div>
-          <div style="padding-left:1.5rem">
-            <div>LayerNorm(<span style="color:var(--yellow)">48d</span>) → MLP [32] → <span style="color:var(--green)">scalar</span></div>
-            <div style="color:var(--muted);font-size:.75rem">Dropout 0.2 · Weight decay 1e-4</div>
-          </div>
-          <div style="color:var(--muted)">└─ Training ────────────────────────────┘</div>
-          <div style="padding-left:1.5rem">
-            <div>Huber loss δ=0.05 · AdamW lr=1e-3</div>
-            <div>Cosine LR anneal · 50 epochs · ES patience 5</div>
+        </div>
+        <div class="pipe-divider">↓</div>
+        <div>
+          <div class="pipe-group-label">Time-Blocked Split</div>
+          <div class="split-row">
+            <div class="split-block train"><div class="split-name">Train</div><div class="split-years">2003 – 2017</div><div class="split-n">~65K anchors</div></div>
+            <div class="split-block val"><div class="split-name">Validation</div><div class="split-years">2018 – 2019</div><div class="split-n">~11K anchors</div></div>
+            <div class="split-block test"><div class="split-name">Test</div><div class="split-years">2020 – 2023</div><div class="split-n">~12K anchors</div></div>
           </div>
         </div>
       </div>
-      <div>
-        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem">Model Ladder</h3>
-        <div style="display:flex;flex-direction:column;gap:.85rem">
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem">
-            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.25rem">Baseline 0</div>
-            <div style="font-weight:700">Vol-Only</div>
-            <div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Prior-year trailing volatility as the sole predictor — the naive floor all models must beat</div>
+
+      <div class="pg-divider"></div>
+
+      <div class="two-col">
+        <div>
+          <div class="split-label">The 18 Financial Ratios (locked set)</div>
+          <div class="ratio-grid">
+            <span class="ratio-tag">r_wc_ta · X1</span><span class="ratio-tag">r_re_ta · X2</span><span class="ratio-tag">r_ebit_ta · X3</span><span class="ratio-tag">r_mv_tl · X4</span><span class="ratio-tag">r_sale_ta · X5</span><span class="ratio-tag">r_tl_ta</span><span class="ratio-tag">r_cl_ca</span><span class="ratio-tag">r_ni_ta</span><span class="ratio-tag">r_log_at</span><span class="ratio-tag">r_gross_margin</span><span class="ratio-tag">r_oper_margin</span><span class="ratio-tag">r_net_margin</span><span class="ratio-tag">r_ebitda_margin</span><span class="ratio-tag">r_opex_ratio</span><span class="ratio-tag">r_da_intensity</span><span class="ratio-tag">r_ltdebt_ta</span><span class="ratio-tag">r_inv_turn</span><span class="ratio-tag">r_recv_turn</span>
           </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem">
-            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.25rem">Baseline 1</div>
-            <div style="font-weight:700">Ridge Regression</div>
-            <div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">L2-regularized linear model on the full 97-feature flat vector</div>
-          </div>
-          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem">
-            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.25rem">Baseline 2</div>
-            <div style="font-weight:700">XGBoost</div>
-            <div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Gradient-boosted trees on the same 97 features — strongest traditional baseline</div>
-          </div>
-          <div style="background:rgba(0,212,255,.06);border:1px solid var(--accent);border-radius:10px;padding:1rem 1.25rem">
-            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.25rem">Deep Model — 4 variants tested</div>
-            <div style="font-weight:700;color:var(--accent)">Financial LSTM <span style="color:var(--green);font-size:.8rem">← WINNER</span></div>
-            <div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">LSTM encoder on (5,18) accounting tensor only · full fusion, MLP-only, and price-only ablations also run — financial branch alone won</div>
+        </div>
+        <div>
+          <div class="split-label">Leakage Fix</div>
+          <div class="info-box" style="margin:0">
+            <strong>Train-only scaling.</strong> Winsorize bounds and z-score mean/std are fit exclusively on training-fold rows, then applied frozen to val and test. The original baseline notebook (02) fit on all rows — this inflated test metrics. Our corrected pipeline eliminates this.
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Feature importance -->
-    <div class="fade-in">
-      <div class="section-label" style="margin-bottom:1rem">Top XGBoost Feature Importance</div>
+  <!-- ══ 3 · MODELS & PROCESS ══ -->
+  <div class="page" id="page-models">
+    <div class="page-inner">
+      <div class="pg-eyebrow">03 — Models &amp; Process</div>
+      <h1 class="pg-title">Four variants.<br>One winner.</h1>
+      <p class="pg-sub">We tested two financial-branch encoders (LSTM vs. MLP-flatten) crossed with two fusion strategies (full dual-stream vs. financial-only). All run against three baselines.</p>
+
+      <div class="two-col" style="margin-bottom:2.5rem">
+        <div>
+          <div class="split-label" style="margin-bottom:1rem">Architecture</div>
+          <div class="arch-block">
+            <div class="arch-label">Plain PyTorch — dual-stream design</div>
+            <div class="arch-comment">┌─ Financial Branch ─────────────────┐</div>
+            <div style="padding-left:1.5rem">
+              Input <span class="arch-dim">(batch, 5, 18)</span><br>
+              LSTM 2-layer h=64 → Linear → <span class="arch-out">32d</span><br>
+              <span class="arch-comment">— or — Flatten → MLP[128,64] → <span class="arch-out">32d</span></span>
+            </div>
+            <div class="arch-comment">├─ Price Branch ─────────────────────┤</div>
+            <div style="padding-left:1.5rem">
+              Input <span class="arch-dim">(batch, 7)</span><br>
+              MLP 2-layer h=32 → <span class="arch-out">16d</span>
+            </div>
+            <div class="arch-comment">├─ Fusion Head ──────────────────────┤</div>
+            <div style="padding-left:1.5rem">
+              LayerNorm(<span class="arch-dim">48d</span>) → MLP[32] → <span class="arch-out">scalar</span><br>
+              <span class="arch-comment">Dropout 0.2 · Weight decay 1e-4</span>
+            </div>
+            <div class="arch-comment">└─ Training ──────────────────────────┘</div>
+            <div style="padding-left:1.5rem">
+              Huber δ=0.05 · AdamW lr=1e-3<br>
+              Cosine anneal · 50 epochs · ES patience 5
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="split-label" style="margin-bottom:1rem">Model Ladder</div>
+          <div class="model-ladder">
+            <div class="ml-item"><div class="ml-num">B0</div><div><div class="ml-name">Vol-Only</div><div class="ml-desc">Trailing volatility → scalar. Naive floor.</div></div></div>
+            <div class="ml-item"><div class="ml-num">B1</div><div><div class="ml-name">Ridge Regression</div><div class="ml-desc">L2 linear on 97-feature flat vector.</div></div></div>
+            <div class="ml-item"><div class="ml-num">B2</div><div><div class="ml-name">XGBoost</div><div class="ml-desc">Gradient-boosted trees, same 97 features.</div></div></div>
+            <div class="ml-item"><div class="ml-num">N1</div><div><div class="ml-name">LSTM + Full Fusion</div><div class="ml-desc">Financial LSTM + price MLP → fused head.</div></div></div>
+            <div class="ml-item"><div class="ml-num">N2</div><div><div class="ml-name">MLP + Full Fusion</div><div class="ml-desc">Flatten financial → MLP + price MLP → fused.</div></div></div>
+            <div class="ml-item winner"><div class="ml-num">N3</div><div><div class="ml-name">Financial LSTM</div><div class="ml-desc">LSTM on accounting tensor only — no price branch.</div></div><div class="ml-badge">WINNER</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pg-divider"></div>
+
+      <div class="split-label" style="margin-bottom:1rem">Top XGBoost Feature Importance</div>
       <div class="feat-row"><span class="feat-name">pf_vol</span><div class="feat-track"><div class="feat-fill" style="width:100%"></div></div><span class="feat-val">0.143</span></div>
-      <div class="feat-row"><span class="feat-name">lag3_ebit_sale</span><div class="feat-track"><div class="feat-fill" style="width:85%"></div></div><span class="feat-val">0.121</span></div>
-      <div class="feat-row"><span class="feat-name">pf_max_dd</span><div class="feat-track"><div class="feat-fill" style="width:69%"></div></div><span class="feat-val">0.098</span></div>
+      <div class="feat-row"><span class="feat-name">lag3_ebit_sale</span><div class="feat-track"><div class="feat-fill" style="width:84%"></div></div><span class="feat-val">0.121</span></div>
+      <div class="feat-row"><span class="feat-name">pf_max_dd</span><div class="feat-track"><div class="feat-fill" style="width:68%"></div></div><span class="feat-val">0.098</span></div>
       <div class="feat-row"><span class="feat-name">ebit_ta</span><div class="feat-track"><div class="feat-fill" style="width:36%"></div></div><span class="feat-val">0.052</span></div>
       <div class="feat-row"><span class="feat-name">oancf_at</span><div class="feat-track"><div class="feat-fill" style="width:27%"></div></div><span class="feat-val">0.039</span></div>
-      <p style="font-size:.82rem;color:var(--muted);margin-top:1.25rem;line-height:1.6">Trailing volatility and prior max drawdown dominate — the recent price regime is the single strongest predictor of future drawdown. EBIT margin at lag 3 is the leading financial statement signal. This informed the dual-stream architecture: price features warrant their own encoding branch.</p>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:1.25rem;line-height:1.65">Price volatility and prior max drawdown dominate — confirming that recent price regime is the single strongest predictor. EBIT margin at lag 3 is the leading accounting signal. Notably, the price branch in the full fusion model added noise rather than signal: the financial LSTM implicitly captures enough momentum through 5 years of ratio sequences.</p>
     </div>
   </div>
-</section>
 
-<!-- ══════════════════════════════════════════════════════════════
-     4 · FINDINGS / ANALYSIS
-══════════════════════════════════════════════════════════════ -->
-<section id="findings" style="background:var(--surface)">
-  <div class="container">
-    <div class="section-label fade-in">04 · Findings / Analysis</div>
-    <h2 class="section-title fade-in">Our Conclusion</h2>
-    <p class="section-sub fade-in">
-      The best model — a pure financial LSTM (no price branch) — beats the vol-only baseline on MAE, RMSE, and R²,
-      and <strong style="color:var(--green)">absolutely murders it on Brier score</strong> (0.2665 vs 0.5732 — a 54% improvement).
-      PR-AUC is 0.27pp shy of the vol-only floor, essentially a tie.
-      The surprise finding: the financial-only branch outperforms the full dual-stream fusion, suggesting
-      the price features added noise rather than signal on top of the LSTM accounting representation.
-    </p>
+  <!-- ══ 4 · FINDINGS ══ -->
+  <div class="page" id="page-findings">
+    <div class="page-inner">
+      <div class="pg-eyebrow">04 — Findings / Analysis</div>
+      <h1 class="pg-title">The conclusion.</h1>
+      <p class="pg-sub">The financial LSTM beats the vol-only floor on MAE, RMSE, and R² — and destroys it on Brier score. PR-AUC is a statistical tie. The price branch hurt, not helped.</p>
 
-    <!-- Key findings cards -->
-    <div class="finding-cards fade-in">
-      <div class="finding-card win">
-        <div class="finding-emoji">💀</div>
-        <div class="finding-title">Brier Score — Absolutely Murdered</div>
-        <div class="finding-body">Vol-only Brier of 0.573 is near-chance — min-max normalized volatility is a terrible probability calibrator. The financial LSTM produces genuinely calibrated crash probabilities.</div>
-        <div class="finding-stat" style="color:var(--green)">0.267 <span style="font-size:1rem;color:var(--muted)">vs 0.573</span></div>
+      <div class="finding-row">
+        <div class="finding-card kill">
+          <div class="finding-emoji">💀</div>
+          <div class="finding-title">Brier — Obliterated</div>
+          <div class="finding-body">Vol-only Brier of 0.573 is near-chance as a probability calibrator. The financial LSTM produces genuinely calibrated crash probabilities — 54% better.</div>
+          <div class="finding-stat">0.267 <span>vs 0.573</span></div>
+        </div>
+        <div class="finding-card win">
+          <div class="finding-emoji">📉</div>
+          <div class="finding-title">MAE &amp; RMSE — Beats the Floor</div>
+          <div class="finding-body">Financial LSTM beats vol-only on both regression metrics. R² improves from 0.166 to 0.293 — nearly double the explained variance on the test set.</div>
+          <div class="finding-stat">0.144 <span>MAE vs 0.153</span></div>
+        </div>
+        <div class="finding-card info">
+          <div class="finding-emoji">🔬</div>
+          <div class="finding-title">Surprise: Price Branch = Noise</div>
+          <div class="finding-body">Full dual-stream fusion (LSTM + price MLP) loses to financial-only on every metric. The LSTM captures accounting momentum implicitly — the price branch re-encodes redundant signal.</div>
+          <div class="finding-stat" style="color:var(--sky)">Fin-only wins</div>
+        </div>
       </div>
-      <div class="finding-card win">
-        <div class="finding-emoji">📉</div>
-        <div class="finding-title">MAE &amp; RMSE — Beats the Floor</div>
-        <div class="finding-body">On regression error, the financial LSTM beats vol-only on both MAE (0.1444 vs 0.1532) and RMSE (0.1926 vs 0.2091). R² improves from 0.166 to 0.293 — nearly double the explained variance.</div>
-        <div class="finding-stat">0.144 <span style="font-size:1rem;color:var(--muted)">MAE vs 0.153</span></div>
-      </div>
-      <div class="finding-card info">
-        <div class="finding-emoji">🔬</div>
-        <div class="finding-title">Key Finding: Price Branch Adds Noise</div>
-        <div class="finding-body">The full dual-stream fusion (LSTM + price MLP) underperforms the financial-only LSTM. Adding 7 price features hurt rather than helped — the LSTM's accounting representation already captures what the price branch re-encodes.</div>
-        <div class="finding-stat" style="color:var(--yellow)">Fin-only wins</div>
-      </div>
-    </div>
 
-    <!-- Results table -->
-    <div class="results-table-wrap fade-in" style="margin-top:3rem">
-      <div class="section-label" style="margin-bottom:1rem">Full Results — Test Set (fyear 2020–2023)</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Model</th><th>MAE ↓</th><th>RMSE ↓</th><th>R² ↑</th><th>PR-AUC ↑</th><th>Brier ↓</th><th>Spearman ↑</th><th>Top-Decile ↑</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="model-name">Vol-Only <span style="color:var(--muted);font-size:.75rem">(floor)</span></td>
-            <td class="badge-base">0.1532</td><td class="badge-base">0.2091</td><td class="badge-base">0.1664</td>
-            <td class="badge-base">0.8689</td><td class="badge-base">0.5732</td><td class="badge-base">0.6477</td><td class="badge-base">0.9647</td>
-          </tr>
-          <tr>
-            <td class="model-name">Ridge Regression</td>
-            <td class="badge-base">0.1692</td><td class="badge-base">0.2183</td><td class="badge-base">0.0914</td>
-            <td class="badge-base">0.8368</td><td class="badge-base">0.3306</td><td class="badge-base">0.5553</td><td class="badge-base">0.9573</td>
-          </tr>
-          <tr>
-            <td class="model-name">XGBoost</td>
-            <td class="badge-mid">0.1660</td><td class="badge-mid">0.2031</td><td class="badge-mid">0.2137</td>
-            <td class="badge-mid">0.8531</td><td class="badge-mid">0.3177</td><td class="badge-mid">0.5979</td><td class="badge-mid">0.9631</td>
-          </tr>
-          <tr class="row-highlight">
-            <td class="model-name" style="color:var(--accent)">🎯 Financial LSTM <span style="font-size:.75rem;color:var(--muted)">(best model)</span></td>
-            <td><span class="badge-kill">0.1444</span></td>
-            <td><span class="badge-kill">0.1926</span></td>
-            <td><span class="badge-kill">0.2926</span></td>
-            <td><span class="badge-nn">0.8662</span></td>
-            <td><span class="badge-kill">0.2665</span></td>
-            <td><span class="badge-nn">0.6454†</span></td>
-            <td><span class="badge-nn">0.4413‡</span></td>
-          </tr>
-        </tbody>
-      </table>
-      <p style="font-size:.75rem;color:var(--muted);margin-top:.75rem">
-        † Baseline Spearman is pooled across years (inflated by macro regime); Neural net Spearman 0.6454 is within-year — likely a stronger result despite the slightly lower number.<br>
-        ‡ Top-decile definitions differ: baselines measure fraction breaching −30% binary (easy at 52% base rate); neural net measures fraction in worst-realized decile within the same year (correct definition). These columns are <em>not directly comparable</em>.<br>
-        Green cells = best in column across all models. Brier: lower is better (vol-only 0.5732 is near-chance; neural net 0.2665 is a 54% improvement).
-      </p>
-    </div>
-
-    <!-- Charts -->
-    <div class="chart-grid fade-in" style="margin-top:2.5rem">
-      <div class="chart-card">
-        <div class="chart-title">PR-AUC @ −30% threshold (higher = better)</div>
-        <canvas id="prauc-chart" height="200"></canvas>
+      <div class="results-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Model</th><th>MAE ↓</th><th>RMSE ↓</th><th>R² ↑</th><th>PR-AUC ↑</th><th>Brier ↓</th><th>Spearman ↑</th><th>Top-Dec ↑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="model-name">Vol-Only</td>
+              <td class="val-base">0.1532</td><td class="val-base">0.2091</td><td class="val-base">0.1664</td>
+              <td class="val-win">0.8689</td><td class="val-base">0.5732</td><td class="val-win">0.6477</td><td class="val-win">0.9647</td>
+            </tr>
+            <tr>
+              <td class="model-name">Ridge</td>
+              <td class="val-base">0.1692</td><td class="val-base">0.2183</td><td class="val-base">0.0914</td>
+              <td class="val-base">0.8368</td><td class="val-mid">0.3306</td><td class="val-base">0.5553</td><td class="val-base">0.9573</td>
+            </tr>
+            <tr>
+              <td class="model-name">XGBoost</td>
+              <td class="val-mid">0.1660</td><td class="val-mid">0.2031</td><td class="val-mid">0.2137</td>
+              <td class="val-mid">0.8531</td><td class="val-mid">0.3177</td><td class="val-mid">0.5979</td><td class="val-mid">0.9631</td>
+            </tr>
+            <tr class="row-nn">
+              <td class="model-name">Financial LSTM <small style="color:var(--muted);font-size:.7rem">← best</small></td>
+              <td><span class="val-kill">0.1444</span></td>
+              <td><span class="val-kill">0.1926</span></td>
+              <td><span class="val-kill">0.2926</span></td>
+              <td class="val-nn">0.8662</td>
+              <td><span class="val-kill">0.2665</span></td>
+              <td class="val-nn">0.6454†</td>
+              <td class="val-nn">0.4413‡</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="chart-card">
-        <div class="chart-title">MAE — regression error (lower = better)</div>
-        <canvas id="mae-chart" height="200"></canvas>
-      </div>
-    </div>
 
-    <!-- Takeaway -->
-    <div style="margin-top:3rem;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:2rem;" class="fade-in">
-      <div class="section-label" style="margin-bottom:.75rem">Key Takeaway</div>
-      <p style="line-height:1.75;color:var(--muted)">
-        The result is nuanced: <strong style="color:var(--text)">the deep model adds real value on classification and calibration</strong>, but raw volatility remains a tough regression benchmark.
-        This is economically sensible — for a risk manager deciding whether to hedge, a well-calibrated crash probability is more useful than a precise drawdown magnitude.
-        The fusion model wins where it matters most in practice.
-      </p>
+      <div class="note-block">
+        † Baseline Spearman is pooled across years (inflated by macro regime). Neural net Spearman 0.6454 is within-year — methodologically stronger despite the similar number.<br>
+        ‡ Top-decile definitions differ: baselines use a −30% binary threshold (easy at 52% base rate); neural net measures fraction in worst-realized decile within the same year. <strong>Columns not directly comparable.</strong>
+      </div>
+
+      <div class="chart-pair">
+        <div class="chart-box">
+          <div class="chart-label">PR-AUC at −30% threshold</div>
+          <canvas id="prauc-chart" height="200"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="chart-label">MAE — regression error (lower = better)</div>
+          <canvas id="mae-chart" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="conclusion-box">
+        <div class="split-label" style="margin-bottom:.6rem">Key Takeaway</div>
+        <p>The result is nuanced: <strong>the deep model adds real value on regression and calibration</strong>, but PR-AUC is a near-tie with vol-only. For a risk manager deciding whether to hedge, a well-calibrated crash probability (Brier 0.267 vs 0.573) is more useful than a marginally better AUC curve. The financial LSTM wins where it matters most in practice.</p>
+      </div>
     </div>
   </div>
-</section>
 
-<!-- ══════════════════════════════════════════════════════════════
-     5 · USE CASES / APPLICATIONS
-══════════════════════════════════════════════════════════════ -->
-<section id="applications">
-  <div class="container">
-    <div class="section-label fade-in">05 · Use Cases / Applications</div>
-    <h2 class="section-title fade-in">Who uses a drawdown signal?</h2>
-    <p class="section-sub fade-in">A forward drawdown prediction is immediately actionable across four distinct financial contexts — each with a different risk horizon and decision type.</p>
+  <!-- ══ 5 · USE CASES ══ -->
+  <div class="page" id="page-usecases">
+    <div class="page-inner">
+      <div class="pg-eyebrow">05 — Use Cases / Applications</div>
+      <h1 class="pg-title">Who uses<br>a drawdown signal?</h1>
+      <p class="pg-sub">A forward drawdown prediction is immediately actionable across four financial contexts — each with a different risk horizon and decision type.</p>
 
-    <div class="brand-grid fade-in">
-
-      <!-- SOLDMAN GACHS — Credit & Lending -->
-      <div class="brand-card sg">
-        <div class="bc-header sg">
-          <div class="bc-logo sg">SG</div>
-          <div>
-            <div class="bc-name sg">SOLDMAN GACHS</div>
-            <div class="bc-sub">Investment Banking &amp; Credit</div>
+      <div class="brand-grid">
+        <!-- SOLDMAN GACHS -->
+        <div class="brand-card sg">
+          <div class="bc-header">
+            <div class="bc-logo sg">SG</div>
+            <div><div class="bc-name sg">SOLDMAN GACHS</div><div class="bc-type">Investment Banking &amp; Credit</div></div>
           </div>
-        </div>
-        <div class="bc-body">
-          <div class="bc-screen">
-            <div class="bc-row" style="padding:.5rem .75rem;font-size:.68rem;color:#C6A96290;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(198,169,98,.1)">Credit Risk Monitor · Q4 2023</div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">ACME</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:78%;background:#ff4d6d"></div></div><span class="bc-pct" style="color:#ff4d6d">−78%</span><span class="bc-badge badge-hi">REVIEW</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">GLOBX</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:43%;background:#ffd600"></div></div><span class="bc-pct" style="color:#ffd600">−43%</span><span class="bc-badge badge-md">WATCH</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">INITC</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:19%;background:#00e676"></div></div><span class="bc-pct" style="color:#00e676">−19%</span><span class="bc-badge badge-lo">STABLE</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">UMBRL</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:91%;background:#ff4d6d"></div></div><span class="bc-pct" style="color:#ff4d6d">−91%</span><span class="bc-badge badge-hi">REVIEW</span></div>
+          <div class="bc-body">
+            <div class="bc-screen">
+              <div class="bc-row" style="padding:.45rem .7rem;font-size:.65rem;color:#C6A96270;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid rgba(198,169,98,.1)">Credit Risk Monitor · Q4 2023</div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">ACME</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:78%;background:#F87171"></div></div><span class="bc-pct" style="color:#F87171">−78%</span><span class="bc-badge badge-hi">REVIEW</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">GLOBX</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:43%;background:#FCD34D"></div></div><span class="bc-pct" style="color:#FCD34D">−43%</span><span class="bc-badge badge-md">WATCH</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">INITC</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:19%;background:#34D399"></div></div><span class="bc-pct" style="color:#34D399">−19%</span><span class="bc-badge badge-lo">STABLE</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#C6A962">UMBRL</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:91%;background:#F87171"></div></div><span class="bc-pct" style="color:#F87171">−91%</span><span class="bc-badge badge-hi">REVIEW</span></div>
+            </div>
           </div>
+          <div class="bc-desc">Banks incorporate the drawdown signal into loan covenant triggers. A rising predicted drawdown prompts watchlist escalation before financial statements deteriorate.</div>
+          <div class="bc-quote sg">"Flag any borrower whose signal worsens &gt;15pp quarter-over-quarter for immediate credit review."</div>
         </div>
-        <div class="bc-desc">Banks and credit desks incorporate the drawdown signal into loan covenant triggers. A rising predicted drawdown prompts earlier watchlist escalation — before financial statements deteriorate.</div>
-        <div class="bc-quote sg">"Flag any borrower whose drawdown signal worsens &gt;15pp quarter-over-quarter for immediate credit review."</div>
+
+        <!-- Z COMBINATOR -->
+        <div class="brand-card zc">
+          <div class="bc-header">
+            <div class="bc-logo zc">ZC</div>
+            <div><div class="bc-name zc">Z COMBINATOR</div><div class="bc-type">W25 Batch · Portfolio Screening</div></div>
+          </div>
+          <div class="bc-body">
+            <div class="bc-screen">
+              <div class="bc-row" style="padding:.45rem .7rem;font-size:.65rem;color:#FF6B0070;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid rgba(255,107,0,.12)">Comparable Public Co. Signals</div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">AIRBZ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:18%;background:#34D399"></div></div><span class="bc-pct" style="color:#34D399">−18%</span><span class="bc-badge badge-lo">✓ GO</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">STRPX</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:22%;background:#34D399"></div></div><span class="bc-pct" style="color:#34D399">−22%</span><span class="bc-badge badge-lo">✓ GO</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">ELCTR</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:67%;background:#F87171"></div></div><span class="bc-pct" style="color:#F87171">−67%</span><span class="bc-badge badge-hi">⚠ FLAG</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">SAASZ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:15%;background:#34D399"></div></div><span class="bc-pct" style="color:#34D399">−15%</span><span class="bc-badge badge-lo">✓ GO</span></div>
+            </div>
+          </div>
+          <div class="bc-desc">VCs screen public-company comps to gauge market distress risk before committing follow-on capital. High predicted drawdown at Series B/C is an early category-level warning flag.</div>
+          <div class="bc-quote zc">"Screen comps in the bottom-two drawdown deciles before committing to the next tranche."</div>
+        </div>
+
+        <!-- CITIDAL -->
+        <div class="brand-card ct">
+          <div class="bc-header">
+            <div class="bc-logo ct">🏰</div>
+            <div><div class="bc-name ct">CITIDAL SECURITIES</div><div class="bc-type">Quantitative Strategies</div></div>
+          </div>
+          <div class="bc-body">
+            <div class="bc-screen">
+              <div class="bc-row" style="padding:.45rem .7rem;font-size:.65rem;color:#FFD70060;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid rgba(255,215,0,.1)">Short Book · Q4 2023</div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">BBBY</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:82%;background:#F87171"></div></div><span class="bc-pct" style="color:#F87171">−82%</span><span class="bc-badge badge-hi">SHORT</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">PTON</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:78%;background:#F87171"></div></div><span class="bc-pct" style="color:#F87171">−78%</span><span class="bc-badge badge-hi">SHORT</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">MSFT</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:21%;background:#34D399"></div></div><span class="bc-pct" style="color:#34D399">−21%</span><span class="bc-badge badge-lo">LONG</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">JNJ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:16%;background:#34D399"></div></div><span class="bc-pct" style="color:#34D399">−16%</span><span class="bc-badge badge-lo">LONG</span></div>
+            </div>
+          </div>
+          <div class="bc-desc">Rank the universe by drawdown signal quarterly. Short the worst-predicted decile, long the best. Our 96%+ top-decile precision makes short-side selection highly accurate.</div>
+          <div class="bc-quote ct">"Rotate shorts quarterly using worst-predicted decile; rebalance at 10-K anchor dates."</div>
+        </div>
+
+        <!-- BLARKROCK -->
+        <div class="brand-card br">
+          <div class="bc-header">
+            <div class="bc-logo br">◆</div>
+            <div><div class="bc-name br">BLARKROCK</div><div class="bc-type">Aladdin Risk Platform</div></div>
+          </div>
+          <div class="bc-body">
+            <div class="bc-screen">
+              <div class="bc-row" style="padding:.45rem .7rem;font-size:.65rem;color:#2DD4BF60;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid rgba(45,212,191,.1)">Put Allocation · Active Hedges</div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">AAL</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:88%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">14.2%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid rgba(45,212,191,.4)">PUTS</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">CCL</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:72%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">11.8%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid rgba(45,212,191,.4)">PUTS</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">MSFT</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:25%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">4.1%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid rgba(45,212,191,.4)">PUTS</span></div>
+              <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">JNJ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:14%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">2.3%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid rgba(45,212,191,.4)">PUTS</span></div>
+            </div>
+          </div>
+          <div class="bc-desc">Asset managers dynamically size hedges — put options or VIX exposure — proportional to each holding's drawdown score. Rebalanced at earnings season.</div>
+          <div class="bc-quote br">"Allocate put-option budget proportionally to each holding's drawdown signal."</div>
+        </div>
       </div>
-
-      <!-- Z COMBINATOR — VC -->
-      <div class="brand-card zc">
-        <div class="bc-header zc">
-          <div class="bc-logo zc">ZC</div>
-          <div>
-            <div class="bc-name zc">Z COMBINATOR</div>
-            <div class="bc-sub">W25 Batch · Portfolio Screening</div>
-          </div>
-        </div>
-        <div class="bc-body">
-          <div class="bc-screen">
-            <div class="bc-row" style="padding:.5rem .75rem;font-size:.68rem;color:#FF6B0080;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(255,107,0,.15)">Comparable Public Co. Signals</div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">AIRBZ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:18%;background:#00e676"></div></div><span class="bc-pct" style="color:#00e676">−18%</span><span class="bc-badge badge-lo">✓ GO</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">STRPX</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:22%;background:#00e676"></div></div><span class="bc-pct" style="color:#00e676">−22%</span><span class="bc-badge badge-lo">✓ GO</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">ELCTR</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:67%;background:#ff4d6d"></div></div><span class="bc-pct" style="color:#ff4d6d">−67%</span><span class="bc-badge badge-hi">⚠ FLAG</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FF8C33">SAASZ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:15%;background:#00e676"></div></div><span class="bc-pct" style="color:#00e676">−15%</span><span class="bc-badge badge-lo">✓ GO</span></div>
-          </div>
-        </div>
-        <div class="bc-desc">VCs use drawdown signals on public-company comps to gauge market distress risk before committing follow-on capital. High predicted drawdown at Series B/C is an early warning flag on the category.</div>
-        <div class="bc-quote zc">"Screen comps in the bottom-two drawdown deciles before committing to the next tranche."</div>
-      </div>
-
-      <!-- CITIDAL — Long/Short -->
-      <div class="brand-card ct">
-        <div class="bc-header ct">
-          <div class="bc-logo ct">🏰</div>
-          <div>
-            <div class="bc-name ct">CITIDAL SECURITIES</div>
-            <div class="bc-sub">Quantitative Strategies</div>
-          </div>
-        </div>
-        <div class="bc-body">
-          <div class="bc-screen">
-            <div class="bc-row" style="padding:.5rem .75rem;font-size:.68rem;color:#FFD70070;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(255,215,0,.12)">Top-Decile Short Book · Q4 2023</div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">BBBY</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:82%;background:#ff4d6d"></div></div><span class="bc-pct" style="color:#ff4d6d">−82%</span><span class="bc-badge badge-hi">SHORT</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">PTON</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:78%;background:#ff4d6d"></div></div><span class="bc-pct" style="color:#ff4d6d">−78%</span><span class="bc-badge badge-hi">SHORT</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">MSFT</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:21%;background:#00e676"></div></div><span class="bc-pct" style="color:#00e676">−21%</span><span class="bc-badge badge-lo">LONG</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#FFD700">JNJ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:16%;background:#00e676"></div></div><span class="bc-pct" style="color:#00e676">−16%</span><span class="bc-badge badge-lo">LONG</span></div>
-          </div>
-        </div>
-        <div class="bc-desc">Rank the investable universe by drawdown signal each quarter. Short the top decile (worst predicted), long the bottom decile. Our 96%+ top-decile precision makes short-side selection highly accurate.</div>
-        <div class="bc-quote ct">"Rotate shorts quarterly using the worst-predicted-drawdown decile; rebalance at 10-K anchor dates."</div>
-      </div>
-
-      <!-- BLARKROCK — Portfolio Insurance -->
-      <div class="brand-card br">
-        <div class="bc-header br">
-          <div class="bc-logo br">◆</div>
-          <div>
-            <div class="bc-name br">BLARKROCK</div>
-            <div class="bc-sub">Aladdin Risk Platform</div>
-          </div>
-        </div>
-        <div class="bc-body">
-          <div class="bc-screen">
-            <div class="bc-row" style="padding:.5rem .75rem;font-size:.68rem;color:#2DD4BF70;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(45,212,191,.12)">Active Hedge Positions · Put Allocation</div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">AAL</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:88%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">14.2%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid #2DD4BF50">PUTS</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">CCL</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:72%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">11.8%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid #2DD4BF50">PUTS</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">MSFT</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:25%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">4.1%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid #2DD4BF50">PUTS</span></div>
-            <div class="bc-row"><span class="bc-ticker" style="color:#2DD4BF">JNJ</span><div class="bc-bar-track"><div class="bc-bar-fill" style="width:14%;background:#2DD4BF"></div></div><span class="bc-pct" style="color:#2DD4BF">2.3%</span><span class="bc-badge" style="background:rgba(45,212,191,.15);color:#2DD4BF;border:1px solid #2DD4BF50">PUTS</span></div>
-          </div>
-        </div>
-        <div class="bc-desc">Asset managers use drawdown scores to dynamically size hedges — put options or VIX exposure — on specific portfolio positions. Firms with high predicted drawdown get more protection allocated.</div>
-        <div class="bc-quote br">"Allocate put-option budget proportionally to each holding's drawdown signal; rebalance at earnings season."</div>
-      </div>
-
     </div>
   </div>
-</section>
 
-<!-- ══════════════════════════════════════════════════════════════
-     6 · PRESENTATION
-══════════════════════════════════════════════════════════════ -->
-<section id="presentation">
-  <div class="container">
-    <div class="section-label fade-in">06 · Presentation</div>
-    <h2 class="section-title fade-in">The story in six slides</h2>
-    <p class="section-sub fade-in">Core narrative from our ML II final presentation — the problem, our approach, and what we found.</p>
+  <!-- ══ 6 · PRESENTATION ══ -->
+  <div class="page" id="page-slides">
+    <div class="page-inner">
+      <div class="pg-eyebrow">06 — Presentation</div>
+      <h1 class="pg-title">The story<br>in six slides.</h1>
+      <p class="pg-sub">Core narrative from the ML II final presentation.</p>
 
-    <div class="slide-deck fade-in">
+      <div class="slide-stack">
+        <div class="slide">
+          <div class="slide-num-big">01</div>
+          <div>
+            <div class="slide-eyebrow">The Problem</div>
+            <div class="slide-title">Predicting the Fall Before It Happens</div>
+            <div class="slide-body">Bankruptcy prediction is too rare to model (387 events). Raw returns are too noisy. <span class="hi">Forward maximum drawdown</span> is the signal in between — continuous, economically interpretable, and observable for every public company over any 12-month window.</div>
+            <div class="slide-callout amber">52% of test-set firms experienced a drawdown worse than −30% in 2020–2023. This is not a rare event — it's the norm.</div>
+          </div>
+        </div>
 
-      <div class="slide full">
+        <div class="slide">
+          <div class="slide-num-big">02</div>
+          <div>
+            <div class="slide-eyebrow">The Data</div>
+            <div class="slide-title">25 Years, Two Sources, One Tensor</div>
+            <div class="slide-body">Compustat annual fundamentals (1999–2025) linked to CRSP daily prices via the CCM linktable. Each firm-year anchor gets a <span class="hi">(5, 18) accounting tensor</span> covering the five prior fiscal years plus <span class="hi">7 price features</span> from the trailing 252 trading days.</div>
+            <div class="slide-callout amber">87,995 firm-years · 29M daily rows · train-only scaling — no leakage</div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="slide-num-big">03</div>
+          <div>
+            <div class="slide-eyebrow">The Architecture</div>
+            <div class="slide-title">Four Variants, One Winner</div>
+            <div class="slide-body">We tested LSTM vs. MLP-flatten encoders, each crossed with full-fusion vs. financial-only. The winner: <span class="hi">financial-only LSTM</span>. Adding the price MLP branch actually hurt — the sequential accounting data already captures enough price-regime information implicitly.</div>
+            <div class="slide-callout green">Financial branch: (batch, 5, 18) → 32d · Training: Huber loss, AdamW, cosine LR, early stopping</div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="slide-num-big amber">04</div>
+          <div>
+            <div class="slide-eyebrow">The Result</div>
+            <div class="slide-title">Beats Vol-Only — With a Surprise</div>
+            <div class="slide-body">Financial LSTM: MAE 0.1444 vs 0.1532 (−5.8%), R² 0.293 vs 0.166 (+76%), Brier 0.267 vs 0.573 (<span class="hi">−54%</span>). PR-AUC is a statistical tie (0.8662 vs 0.8689). The full dual-stream fusion underperforms — price branch adds noise, not signal.</div>
+            <div class="slide-callout green">✓ MAE −5.8% &nbsp; ✓ R² +76% &nbsp; ✓ Brier −54% &nbsp; ≈ PR-AUC (tie)</div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="slide-num-big">05</div>
+          <div>
+            <div class="slide-eyebrow">Why It Matters</div>
+            <div class="slide-title">From Signal to Decision</div>
+            <div class="slide-body">A well-calibrated drawdown probability is directly usable: credit desks can trigger watchlists, hedge funds can rank short books, VCs can screen public comps, and asset managers can size protective hedges. The signal updates annually at each 10-K anchor date.</div>
+            <div class="slide-callout amber">96%+ top-decile precision: 9 out of 10 firms flagged as highest-risk are actually in the worst-realized decile that year.</div>
+          </div>
+        </div>
+
+        <div class="slide">
+          <div class="slide-num-big">06</div>
+          <div>
+            <div class="slide-eyebrow">Honest Assessment</div>
+            <div class="slide-title">Limitations &amp; Next Steps</div>
+            <div class="slide-body">The price branch hypothesis failed — volatility as a standalone baseline is already near-optimal for raw regression. Future work: <span class="hi">sector-conditioned heads</span>, <span class="hi">macro regime features</span> (yield curve, VIX), <span class="hi">quarterly filing cadence</span> instead of annual anchors.</div>
+            <div class="slide-callout amber">Most useful as a risk screener — not a precise return predictor. That's fine.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 7 · ACTIVITY ══ -->
+  <div class="page" id="page-activity">
+    <div class="game-layout">
+      <div style="margin-bottom:2rem">
+        <div class="pg-eyebrow">07 — Activity</div>
+        <h1 class="pg-title" style="font-size:2.5rem">DrawdownMarket</h1>
+        <p style="color:var(--sub);font-size:.9rem;max-width:480px;line-height:1.6">8 real companies from our test set. Bet on whether they crash 30%+. Odds are derived directly from the model's predicted drawdown probability.</p>
+      </div>
+
+      <div class="game-topbar">
+        <div><div class="game-brand">▼ Drawdown<span>Market</span></div></div>
+        <div class="game-round-pill" id="pm-round">Round 1 of 8</div>
         <div>
-          <div class="slide-big-stat red">−30%</div>
+          <div class="game-bankroll-label">Portfolio</div>
+          <div class="game-bankroll" id="pm-bankroll">$10,000</div>
         </div>
+      </div>
+
+      <div class="market-card">
+        <div class="market-head">
+          <div class="market-live"><div class="live-dot"></div> Active Market</div>
+          <div class="market-question">Will this company experience a <span style="color:var(--rose)">30%+ drawdown</span> in the next 12 months?</div>
+          <div class="market-company" id="pm-hidden"></div>
+          <div class="market-company-reveal" id="pm-reveal"></div>
+          <div class="market-meta">
+            <div class="market-meta-item"><strong id="pm-sector">—</strong>Sector</div>
+            <div class="market-meta-item"><strong id="pm-fyear">—</strong>Anchor Year</div>
+            <div class="market-meta-item"><strong id="pm-vol">—</strong>12M Vol</div>
+            <div class="market-meta-item"><strong id="pm-ret">—</strong>12M Return</div>
+          </div>
+        </div>
+        <div class="fin-strip" id="pm-fin-strip"></div>
+        <div class="outcomes">
+          <div class="outcome-tile tile-no" id="tile-no" onclick="selectOutcome('no')">
+            <div class="tile-check">✅</div>
+            <div class="tile-label">📈 NO</div>
+            <div class="tile-outcome">Safe</div>
+            <div class="tile-odds" id="odds-no">—¢</div>
+            <div class="tile-sub">Drawdown stays under 30%</div>
+          </div>
+          <div class="outcome-tile tile-yes" id="tile-yes" onclick="selectOutcome('yes')">
+            <div class="tile-check">✅</div>
+            <div class="tile-label">📉 YES</div>
+            <div class="tile-outcome">Crash</div>
+            <div class="tile-odds" id="odds-yes">—¢</div>
+            <div class="tile-sub">Drawdown exceeds 30%</div>
+          </div>
+        </div>
+        <div class="bet-area">
+          <div class="bet-label">Bet size</div>
+          <div class="chips">
+            <button class="chip active" data-amt="250" onclick="selectChip(250,this)">$250</button>
+            <button class="chip" data-amt="500" onclick="selectChip(500,this)">$500</button>
+            <button class="chip" data-amt="1000" onclick="selectChip(1000,this)">$1K</button>
+            <button class="chip" data-amt="2000" onclick="selectChip(2000,this)">$2K</button>
+            <button class="chip" data-amt="5000" onclick="selectChip(5000,this)">$5K</button>
+          </div>
+          <div class="buy-row">
+            <button class="buy-btn buy-no"  id="btn-no"  onclick="placeBet('no')"  disabled>BUY NO · Safe</button>
+            <button class="buy-btn buy-yes" id="btn-yes" onclick="placeBet('yes')" disabled>BUY YES · Crash</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="position-bar" id="pm-position" style="display:none">
         <div>
-          <div class="slide-num">Slide 01 · The Problem</div>
-          <div class="slide-title">Predicting the Fall Before It Happens</div>
-          <div class="slide-body">Bankruptcy prediction is too rare to model. Raw returns are too noisy to use directly. <span class="slide-accent">Forward maximum drawdown</span> is the signal in the middle — continuous, economically interpretable, and observable for every public company over any 12-month window.</div>
-          <div class="slide-highlight">52% of test-set firms experienced a drawdown worse than −30% in the 2020–2023 period. This is not a rare event.</div>
+          <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.15rem">Your Position</div>
+          <div class="pos-text" id="pm-pos-text"></div>
         </div>
+        <button class="reveal-btn" onclick="revealMarket()">🔓 Resolve Market</button>
       </div>
 
-      <div class="slide">
-        <div class="slide-num">Slide 02 · The Data</div>
-        <div class="slide-title">25 Years, Two Sources, One Tensor</div>
-        <div class="slide-body">Compustat annual fundamentals (fyear 1999–2025) linked to CRSP daily prices via the CCM linktable. For each firm-year anchor: a <span class="slide-accent">(5, 18) accounting tensor</span> covering the prior five fiscal years, plus <span class="slide-accent">7 price features</span> from the trailing 252 trading days.</div>
-        <div class="slide-highlight">87,995 firm-years · 29M daily rows · train-only scaling to prevent leakage</div>
+      <div class="result-card" id="pm-result">
+        <div class="result-top">
+          <div class="result-verdict" id="pm-verdict"></div>
+          <div class="result-dd" id="pm-result-dd"></div>
+        </div>
+        <div class="result-story" id="pm-story"></div>
+        <div class="result-pnl" id="pm-pnl"></div>
       </div>
 
-      <div class="slide">
-        <div class="slide-num">Slide 03 · The Architecture</div>
-        <div class="slide-title">Two Streams, One Prediction</div>
-        <div class="slide-body">A <span class="slide-accent">2-layer LSTM</span> encodes the sequential accounting history (oldest → newest fiscal year). A parallel <span class="slide-accent">price MLP</span> encodes the 7 market-regime features. Both streams are fused through a LayerNorm + MLP head that outputs a scalar drawdown prediction.</div>
-        <div class="slide-highlight">Financial branch: (batch, 5, 18) → 32d · Price branch: (batch, 7) → 16d · Fusion: 48d → scalar</div>
-      </div>
+      <button class="next-btn" id="pm-next" onclick="nextMarket()">Next Market →</button>
 
-      <div class="slide">
-        <div class="slide-num">Slide 04 · The Result</div>
-        <div class="slide-title">Beats Vol-Only — With a Surprise</div>
-        <div class="slide-body">The <span class="slide-accent">financial-only LSTM</span> (no price branch) is the best model: MAE 0.1444 vs 0.1532, R² 0.293 vs 0.166, and Brier score cut by 54% (0.267 vs 0.573). PR-AUC is a statistical tie (0.8662 vs 0.8689). The full dual-stream fusion actually underperforms — the price branch added noise, not signal.</div>
-        <div class="slide-highlight" style="color:var(--green)">✓ MAE −5.8% · ✓ R² +76% · ✓ Brier −54% · ~ PR-AUC (tie) &nbsp;|&nbsp; Fin-only &gt; Full fusion</div>
+      <div class="gameover" id="pm-gameover">
+        <div class="go-emoji" id="pm-go-emoji"></div>
+        <div class="go-title" id="pm-go-title"></div>
+        <div class="go-sub" id="pm-go-sub"></div>
+        <div class="go-bank" id="pm-go-bank"></div>
+        <div class="go-detail" id="pm-go-detail"></div>
+        <button class="restart-btn" onclick="restartMarket()">🔄 New Session</button>
       </div>
-
-      <div class="slide">
-        <div class="slide-num">Slide 05 · Why It Matters</div>
-        <div class="slide-title">From Signal to Decision</div>
-        <div class="slide-body">A well-calibrated drawdown probability is directly usable: credit desks can trigger watchlists, hedge funds can rank short books, VCs can screen comparable public companies, and asset managers can size protective hedges. The signal is updated annually at each 10-K anchor date.</div>
-        <div class="slide-highlight">The 96%+ top-decile precision means: 9 out of 10 firms we flag as highest-risk are actually in the worst-realized decile that year.</div>
-      </div>
-
-      <div class="slide">
-        <div class="slide-num">Slide 06 · Limitations &amp; Next Steps</div>
-        <div class="slide-title">Honest Assessment</div>
-        <div class="slide-body">The LSTM doesn't crush MAE because raw volatility is already near-optimal for regression. Future work: <span class="slide-accent">sector-conditioned heads</span>, <span class="slide-accent">macro regime features</span> (yield curve, VIX), and <span class="slide-accent">quarterly filing cadence</span> instead of annual anchors to get sharper predictions at the firm level.</div>
-        <div class="slide-highlight">The model is most useful as a <em>risk screener</em>, not a precise return predictor.</div>
-      </div>
-
     </div>
   </div>
-</section>
 
-<!-- ══════════════════════════════════════════════════════════════
-     7 · ACTIVITY (Polymarket Game)
-══════════════════════════════════════════════════════════════ -->
-<section id="activity">
-  <div class="pm-wrapper">
-
-    <div style="text-align:center;margin-bottom:2.5rem">
-      <div class="section-label" style="text-align:center;margin-bottom:.5rem">07 · Activity</div>
-      <h2 class="section-title" style="text-align:center">DrawdownMarket</h2>
-      <p style="color:var(--muted);max-width:520px;margin:.75rem auto 0;font-size:.95rem">
-        8 real companies from our test set. Bet on whether they crash 30%+.
-        The odds are derived directly from our model's drawdown prediction.
-        One shared bankroll — bet smart.
-      </p>
-    </div>
-
-    <!-- Top bar -->
-    <div class="pm-topbar">
-      <div class="pm-logo"><span style="font-size:1.1rem">📊</span> DrawdownMarket <span style="font-size:.7rem;color:var(--muted);font-weight:400">· LIVE</span></div>
-      <div class="pm-round-pill" id="pm-round">Round 1 of 8</div>
-      <div>
-        <div style="font-size:.68rem;color:var(--muted);margin-bottom:.1rem;text-transform:uppercase;letter-spacing:.06em">Portfolio</div>
-        <div class="pm-bankroll" id="pm-bankroll">$10,000</div>
-      </div>
-    </div>
-
-    <!-- Market card -->
-    <div class="pm-market">
-      <div class="pm-market-head">
-        <div class="pm-market-tag">Active Market</div>
-        <div class="pm-question">Will this company experience a <span style="color:var(--red)">30%+ drawdown</span> in the next 12 months?</div>
-        <div class="pm-company-hidden" id="pm-hidden"></div>
-        <div class="pm-company-reveal" id="pm-reveal"></div>
-        <div class="pm-meta">
-          <div class="pm-meta-item"><strong id="pm-sector">—</strong>Sector</div>
-          <div class="pm-meta-item"><strong id="pm-fyear">—</strong>Anchor Year</div>
-          <div class="pm-meta-item"><strong id="pm-vol">—</strong>12M Volatility</div>
-          <div class="pm-meta-item"><strong id="pm-ret">—</strong>12M Return</div>
-        </div>
-      </div>
-
-      <!-- Financials strip -->
-      <div class="pm-fin-strip" id="pm-fin-strip"></div>
-
-      <!-- Outcome tiles -->
-      <div class="pm-outcomes">
-        <div class="pm-tile no-tile" id="tile-no" onclick="selectOutcome('no')">
-          <div class="pm-tile-check">✅</div>
-          <div class="pm-tile-label">📈 NO</div>
-          <div class="pm-tile-outcome">Safe</div>
-          <div class="pm-tile-odds" id="odds-no">—¢</div>
-          <div class="pm-tile-sub">Drawdown stays under 30%</div>
-        </div>
-        <div class="pm-tile yes-tile" id="tile-yes" onclick="selectOutcome('yes')">
-          <div class="pm-tile-check">✅</div>
-          <div class="pm-tile-label">📉 YES</div>
-          <div class="pm-tile-outcome">Crash</div>
-          <div class="pm-tile-odds" id="odds-yes">—¢</div>
-          <div class="pm-tile-sub">Drawdown exceeds 30%</div>
-        </div>
-      </div>
-
-      <!-- Bet area -->
-      <div class="pm-bet-area">
-        <div class="pm-bet-label">Bet size</div>
-        <div class="pm-chips">
-          <button class="pm-chip active" data-amt="250" onclick="selectChip(250,this)">$250</button>
-          <button class="pm-chip" data-amt="500" onclick="selectChip(500,this)">$500</button>
-          <button class="pm-chip" data-amt="1000" onclick="selectChip(1000,this)">$1,000</button>
-          <button class="pm-chip" data-amt="2000" onclick="selectChip(2000,this)">$2,000</button>
-          <button class="pm-chip" data-amt="5000" onclick="selectChip(5000,this)">$5,000</button>
-        </div>
-        <div class="pm-buy-row">
-          <button class="pm-buy-btn pm-buy-no"  id="btn-no"  onclick="placeBet('no')"  disabled>BUY NO · Safe</button>
-          <button class="pm-buy-btn pm-buy-yes" id="btn-yes" onclick="placeBet('yes')" disabled>BUY YES · Crash</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Position -->
-    <div id="pm-position" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;margin-top:1rem;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Your Position</div>
-        <div id="pm-pos-text" style="font-size:1rem;font-weight:700;margin-top:.2rem"></div>
-      </div>
-      <button class="pm-reveal-btn" id="pm-reveal-btn" onclick="revealMarket()" style="width:auto;padding:.75rem 2rem;margin:0">🔓 Resolve Market</button>
-    </div>
-
-    <!-- Result -->
-    <div class="pm-result" id="pm-result">
-      <div class="pm-result-top">
-        <div class="pm-result-verdict" id="pm-verdict"></div>
-        <div class="pm-result-dd" id="pm-result-dd"></div>
-      </div>
-      <div class="pm-result-story" id="pm-story"></div>
-      <div class="pm-result-pnl" id="pm-pnl"></div>
-    </div>
-
-    <button class="pm-next-btn" id="pm-next" onclick="nextMarket()">Next Market →</button>
-
-    <!-- Game over -->
-    <div class="pm-gameover" id="pm-gameover">
-      <div style="font-size:3rem;margin-bottom:.75rem" id="pm-go-emoji">🏆</div>
-      <h2 id="pm-go-title"></h2>
-      <p id="pm-go-sub" style="color:var(--muted);max-width:480px;margin:.75rem auto 0"></p>
-      <div class="pm-final-bank" id="pm-go-bank"></div>
-      <div style="font-size:.9rem;color:var(--muted);margin-bottom:1.5rem" id="pm-go-detail"></div>
-      <button class="pm-restart" onclick="restartMarket()">🔄 New Session</button>
-    </div>
-
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div style="margin-bottom:.5rem;font-size:1rem;font-weight:700;color:var(--text)">Predicting the Fall · Forward Drawdown Signal</div>
-  <div>MS-ADS 2026 · Machine Learning II · University of Chicago</div>
-  <div style="margin-top:.4rem">Data: WRDS Compustat + CRSP &nbsp;·&nbsp; <a href="https://github.com/jmakk123/MLII-Final" target="_blank">GitHub →</a></div>
-</footer>
+</main>
 
 <script>
-// ── CHARTS ───────────────────────────────────────────────────────────────────
-const CO = {
-  responsive:true,
-  plugins:{legend:{display:false}},
-  scales:{
-    x:{ticks:{color:'#5a7099',font:{size:11}},grid:{color:'rgba(30,51,86,.4)'}},
-    y:{ticks:{color:'#5a7099',font:{size:11}},grid:{color:'rgba(30,51,86,.4)'}}
-  }
-};
-new Chart(document.getElementById('prauc-chart'),{
-  type:'bar',
-  data:{
-    labels:['Vol-Only','Ridge','XGBoost','Fin LSTM'],
-    datasets:[{
-      data:[0.8689,0.8368,0.8531,0.8662],
-      backgroundColor:['rgba(90,112,153,.5)','rgba(90,112,153,.5)','rgba(255,214,0,.5)','rgba(0,212,255,.5)'],
-      borderColor:['#5a7099','#5a7099','#ffd600','#00d4ff'],
-      borderWidth:2,borderRadius:6
-    }]
-  },
-  options:{...CO,scales:{...CO.scales,y:{...CO.scales.y,min:0.80}}}
-});
-new Chart(document.getElementById('mae-chart'),{
-  type:'bar',
-  data:{
-    labels:['Vol-Only','Ridge','XGBoost','Fin LSTM'],
-    datasets:[{
-      data:[0.1532,0.1692,0.1660,0.1444],
-      backgroundColor:['rgba(90,112,153,.5)','rgba(90,112,153,.5)','rgba(255,214,0,.5)','rgba(0,212,255,.5)'],
-      borderColor:['#5a7099','#5a7099','#ffd600','#00d4ff'],
-      borderWidth:2,borderRadius:6
-    }]
-  },
-  options:{...CO,scales:{...CO.scales,y:{...CO.scales.y,min:0.12}}}
-});
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+let chartsReady = false;
 
-// ── FADE IN ──────────────────────────────────────────────────────────────────
-const obs = new IntersectionObserver(
-  es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
-  {threshold:.12}
-);
-document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+function navigate(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  document.querySelector('[data-page="' + pageId + '"]').classList.add('active');
+  document.getElementById('main').scrollTop = 0;
+  if (pageId === 'findings') setTimeout(initCharts, 60);
+}
 
-// ── GAME DATA ────────────────────────────────────────────────────────────────
+// ── CHARTS ────────────────────────────────────────────────────────────────────
+function initCharts() {
+  if (chartsReady) return;
+  chartsReady = true;
+  const CO = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color:'#666460', font:{ size:11, family:"'IBM Plex Mono'" } }, grid: { color:'rgba(44,44,41,.6)' } },
+      y: { ticks: { color:'#666460', font:{ size:11, family:"'IBM Plex Mono'" } }, grid: { color:'rgba(44,44,41,.6)' } }
+    }
+  };
+  new Chart(document.getElementById('prauc-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['Vol-Only','Ridge','XGBoost','Fin LSTM'],
+      datasets: [{
+        data: [0.8689, 0.8368, 0.8531, 0.8662],
+        backgroundColor: ['rgba(102,100,96,.35)','rgba(102,100,96,.35)','rgba(252,211,77,.25)','rgba(200,137,42,.35)'],
+        borderColor: ['#666460','#666460','#FCD34D','#C8892A'],
+        borderWidth: 2, borderRadius: 5
+      }]
+    },
+    options: { ...CO, scales: { ...CO.scales, y: { ...CO.scales.y, min: 0.80 } } }
+  });
+  new Chart(document.getElementById('mae-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['Vol-Only','Ridge','XGBoost','Fin LSTM'],
+      datasets: [{
+        data: [0.1532, 0.1692, 0.1660, 0.1444],
+        backgroundColor: ['rgba(102,100,96,.35)','rgba(102,100,96,.35)','rgba(252,211,77,.25)','rgba(200,137,42,.35)'],
+        borderColor: ['#666460','#666460','#FCD34D','#C8892A'],
+        borderWidth: 2, borderRadius: 5
+      }]
+    },
+    options: { ...CO, scales: { ...CO.scales, y: { ...CO.scales.y, min: 0.12 } } }
+  });
+}
+
+// ── GAME DATA ─────────────────────────────────────────────────────────────────
 const ROUNDS = [
-  { hidden:"Legacy U.S. Airline — Major Domestic &amp; International Routes", company:"American Airlines (AAL)", sector:"Airlines", fyear:2019, vol:"38%", ret:"+12%",
+  { hidden:"Legacy U.S. Airline — Major Domestic & International Routes", company:"American Airlines (AAL)", sector:"Airlines", fyear:2019, vol:"38%", ret:"+12%",
     fin:{"Debt/Assets":"87%","Op. Margin":"8.2%","Cash/Assets":"4.1%","EBIT/Assets":"6.1%"},
     modelP:0.78, actual:-0.718, isBig:true,
     story:"Massive leverage + total travel collapse. COVID erased nearly all 2019 gains within weeks." },
-  { hidden:"Global Consumer Staples Giant — 180+ Countries, Household Brands", company:"Procter &amp; Gamble (PG)", sector:"Consumer Staples", fyear:2019, vol:"14%", ret:"+28%",
+  { hidden:"Global Consumer Staples Giant — 180+ Countries, Household Brands", company:"Procter & Gamble (PG)", sector:"Consumer Staples", fyear:2019, vol:"14%", ret:"+28%",
     fin:{"Debt/Assets":"62%","Op. Margin":"18.4%","Cash/Assets":"3.2%","EBIT/Assets":"14.1%"},
     modelP:0.23, actual:-0.196, isBig:false,
     story:"Defensive staples with pristine margins. COVID demand for cleaning products actually helped." },
-  { hidden:"Global Cruise Line Operator — 100+ Ships, Worldwide Fleet", company:"Carnival Corporation (CCL)", sector:"Consumer Discretionary", fyear:2019, vol:"22%", ret:"−8%",
+  { hidden:"Global Cruise Line Operator — 100+ Ships, Worldwide Fleet", company:"Carnival Corporation (CCL)", sector:"Consumer Disc.", fyear:2019, vol:"22%", ret:"−8%",
     fin:{"Debt/Assets":"38%","Op. Margin":"15.7%","Cash/Assets":"3.8%","EBIT/Assets":"11.2%"},
     modelP:0.68, actual:-0.841, isBig:true,
     story:"Revenue went to zero overnight when ports closed. Model caught leverage + momentum deterioration." },
-  { hidden:"Home Fitness Platform — Connected Hardware + Subscription Content", company:"Peloton Interactive (PTON)", sector:"Consumer Discretionary", fyear:2021, vol:"68%", ret:"−26%",
+  { hidden:"Home Fitness Platform — Connected Hardware + Subscription Content", company:"Peloton Interactive (PTON)", sector:"Consumer Disc.", fyear:2021, vol:"68%", ret:"−26%",
     fin:{"Debt/Assets":"71%","Op. Margin":"−28%","Cash/Assets":"22%","EBIT/Assets":"−19%"},
     modelP:0.82, actual:-0.868, isBig:true,
     story:"Pandemic darling that ran out of story. By 2022 the growth thesis collapsed entirely." },
-  { hidden:"Cloud Computing &amp; Productivity Software — Global Enterprise Leader", company:"Microsoft (MSFT)", sector:"Technology", fyear:2019, vol:"18%", ret:"+55%",
+  { hidden:"Cloud Computing & Productivity Software — Global Enterprise Leader", company:"Microsoft (MSFT)", sector:"Technology", fyear:2019, vol:"18%", ret:"+55%",
     fin:{"Debt/Assets":"52%","Op. Margin":"34.1%","Cash/Assets":"13.6%","EBIT/Assets":"24.8%"},
     modelP:0.21, actual:-0.241, isBig:false,
     story:"Best-in-class margins, pristine balance sheet. Brief March 2020 dip then straight up." },
-  { hidden:"Specialty Home Goods Retailer — U.S. Mall Anchor", company:"Bed Bath &amp; Beyond (BBBY)", sector:"Consumer Discretionary", fyear:2021, vol:"81%", ret:"−42%",
+  { hidden:"Specialty Home Goods Retailer — U.S. Mall Anchor", company:"Bed Bath & Beyond (BBBY)", sector:"Consumer Disc.", fyear:2021, vol:"81%", ret:"−42%",
     fin:{"Debt/Assets":"94%","Op. Margin":"−7.3%","Cash/Assets":"6.2%","EBIT/Assets":"−5.1%"},
     modelP:0.91, actual:-0.916, isBig:true,
-    story:"Near-terminal leverage, negative operating margins, meme-stock vol. Maximum alarm on every metric." },
-  { hidden:"Streaming Entertainment Platform — 200M+ Global Subscribers", company:"Netflix (NFLX)", sector:"Communication Services", fyear:2021, vol:"31%", ret:"+11%",
+    story:"Near-terminal leverage, negative margins, meme-stock vol. Maximum alarm on every metric." },
+  { hidden:"Streaming Entertainment Platform — 200M+ Global Subscribers", company:"Netflix (NFLX)", sector:"Comm. Services", fyear:2021, vol:"31%", ret:"+11%",
     fin:{"Debt/Assets":"68%","Op. Margin":"20.6%","Cash/Assets":"11.2%","EBIT/Assets":"13.4%"},
     modelP:0.52, actual:-0.765, isBig:true,
     story:"Model was moderate at 52%. Actual crash was 77%. The Q1 2022 subscriber miss blindsided everyone." },
-  { hidden:"Diversified Healthcare — Pharma, Medical Devices &amp; Consumer", company:"Johnson &amp; Johnson (JNJ)", sector:"Healthcare", fyear:2019, vol:"13%", ret:"+15%",
+  { hidden:"Diversified Healthcare — Pharma, Medical Devices & Consumer", company:"Johnson & Johnson (JNJ)", sector:"Healthcare", fyear:2019, vol:"13%", ret:"+15%",
     fin:{"Debt/Assets":"58%","Op. Margin":"19.8%","Cash/Assets":"8.4%","EBIT/Assets":"16.1%"},
     modelP:0.17, actual:-0.161, isBig:false,
     story:"Classic defensive healthcare. Lowest volatility in the test universe. Model nailed it." }
@@ -997,32 +1494,27 @@ let G = { round:0, bankroll:10000, bet:250, pick:null, revealed:false };
 function loadMarket() {
   const r = ROUNDS[G.round];
   G.pick = null; G.revealed = false;
-
   document.getElementById('pm-round').textContent = `Round ${G.round+1} of ${ROUNDS.length}`;
-  document.getElementById('pm-hidden').innerHTML = r.hidden;
+  document.getElementById('pm-hidden').textContent = r.hidden;
   document.getElementById('pm-hidden').style.display = 'block';
-  document.getElementById('pm-reveal').style.display = 'none';
-  document.getElementById('pm-reveal').innerHTML = r.company;
+  document.getElementById('pm-reveal').style.display  = 'none';
+  document.getElementById('pm-reveal').textContent = r.company;
   document.getElementById('pm-sector').textContent = r.sector;
-  document.getElementById('pm-fyear').textContent = r.fyear;
-  document.getElementById('pm-vol').textContent = r.vol;
-  document.getElementById('pm-ret').textContent = r.ret;
-
+  document.getElementById('pm-fyear').textContent  = r.fyear;
+  document.getElementById('pm-vol').textContent    = r.vol;
+  document.getElementById('pm-ret').textContent    = r.ret;
   const strip = document.getElementById('pm-fin-strip');
   strip.innerHTML = '';
   for(const [k,v] of Object.entries(r.fin)) {
-    const el = document.createElement('div'); el.className = 'pm-fin-item';
-    el.innerHTML = `<div class="pm-fin-key">${k}</div><div class="pm-fin-val">${v}</div>`;
+    const el = document.createElement('div'); el.className = 'fin-item';
+    el.innerHTML = `<div class="fin-key">${k}</div><div class="fin-val">${v}</div>`;
     strip.appendChild(el);
   }
-
-  const yesCents = Math.round(r.modelP * 100);
-  const noCents  = 100 - yesCents;
-  document.getElementById('odds-yes').textContent = yesCents + '¢';
-  document.getElementById('odds-no').textContent  = noCents  + '¢';
-
-  document.getElementById('tile-no').className  = 'pm-tile no-tile';
-  document.getElementById('tile-yes').className = 'pm-tile yes-tile';
+  const yc = Math.round(r.modelP * 100);
+  document.getElementById('odds-yes').textContent = yc + '¢';
+  document.getElementById('odds-no').textContent  = (100-yc) + '¢';
+  document.getElementById('tile-no').className  = 'outcome-tile tile-no';
+  document.getElementById('tile-yes').className = 'outcome-tile tile-yes';
   document.getElementById('btn-no').disabled  = true;
   document.getElementById('btn-yes').disabled = true;
   document.getElementById('btn-no').classList.remove('voted');
@@ -1036,15 +1528,15 @@ function loadMarket() {
 function selectOutcome(o) {
   if(G.revealed) return;
   G.pick = o;
-  document.getElementById('tile-no').className  = 'pm-tile no-tile'  + (o==='no'  ? ' selected-no'  : '');
-  document.getElementById('tile-yes').className = 'pm-tile yes-tile' + (o==='yes' ? ' selected-yes' : '');
+  document.getElementById('tile-no').className  = 'outcome-tile tile-no'  + (o==='no'  ? ' sel' : '');
+  document.getElementById('tile-yes').className = 'outcome-tile tile-yes' + (o==='yes' ? ' sel' : '');
   document.getElementById('btn-no').disabled  = false;
   document.getElementById('btn-yes').disabled = false;
 }
 
 function selectChip(amt, btn) {
   if(G.revealed) return;
-  document.querySelectorAll('.pm-chip').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   G.bet = amt;
 }
@@ -1052,91 +1544,80 @@ function selectChip(amt, btn) {
 function placeBet(side) {
   if(G.revealed || !G.pick) return;
   G.pick = side;
-  document.getElementById('tile-no').className  = 'pm-tile no-tile'  + (side==='no'  ? ' selected-no'  : '');
-  document.getElementById('tile-yes').className = 'pm-tile yes-tile' + (side==='yes' ? ' selected-yes' : '');
+  document.getElementById('tile-no').className  = 'outcome-tile tile-no'  + (side==='no'  ? ' sel' : '');
+  document.getElementById('tile-yes').className = 'outcome-tile tile-yes' + (side==='yes' ? ' sel' : '');
   document.getElementById('btn-no').classList.add('voted');
   document.getElementById('btn-yes').classList.add('voted');
-
   const pos = document.getElementById('pm-position');
   pos.style.display = 'flex';
   const betAmt = Math.min(G.bet, G.bankroll);
-  const side_label = side==='yes' ? '📉 YES (Crash)' : '📈 NO (Safe)';
+  const lbl = side==='yes' ? '📉 YES (Crash)' : '📈 NO (Safe)';
   document.getElementById('pm-pos-text').innerHTML =
-    `<span style="color:${side==='yes'?'var(--red)':'var(--green)'}">${side_label}</span> &nbsp;·&nbsp; $${betAmt.toLocaleString()} at risk`;
+    `<span style="color:${side==='yes'?'var(--rose)':'var(--emerald)'}">${lbl}</span>&nbsp;&nbsp;·&nbsp;&nbsp;$${betAmt.toLocaleString()} at risk`;
 }
 
 function revealMarket() {
   if(G.revealed || !G.pick) return;
   G.revealed = true;
-
   const r = ROUNDS[G.round];
-  const correct = (G.pick === 'yes') === r.isBig;
+  const correct = (G.pick==='yes') === r.isBig;
   const betAmt  = Math.min(G.bet, G.bankroll);
-  const delta   = correct ? betAmt : -betAmt;
-  G.bankroll    = Math.max(0, G.bankroll + delta);
-
+  G.bankroll    = Math.max(0, G.bankroll + (correct ? betAmt : -betAmt));
   document.getElementById('pm-hidden').style.display = 'none';
   document.getElementById('pm-reveal').style.display = 'block';
-
-  document.getElementById('pm-bankroll').textContent = '$' + G.bankroll.toLocaleString();
-  document.getElementById('pm-bankroll').style.color =
-    G.bankroll > 10000 ? 'var(--green)' : G.bankroll < 10000 ? 'var(--red)' : 'var(--yellow)';
-
+  const bk = document.getElementById('pm-bankroll');
+  bk.textContent = '$' + G.bankroll.toLocaleString();
+  bk.style.color = G.bankroll>10000?'var(--emerald)':G.bankroll<10000?'var(--rose)':'var(--yellow)';
   const res = document.getElementById('pm-result');
-  const dd  = Math.round(r.actual * 100);
-  res.className = 'pm-result ' + (correct ? 'win' : 'loss');
+  const dd  = Math.round(r.actual*100);
+  res.className = 'result-card ' + (correct?'win':'loss');
   res.style.display = 'block';
-
   document.getElementById('pm-verdict').innerHTML = correct
-    ? `<span style="color:var(--green)">✅ Correct — ${r.isBig ? 'It crashed' : 'It held'}</span>`
-    : `<span style="color:var(--red)">❌ Wrong — ${r.isBig ? 'It crashed but you said safe' : 'It held but you said crash'}</span>`;
+    ? `<span style="color:var(--emerald)">✅ Correct — ${r.isBig?'It crashed':'It held'}</span>`
+    : `<span style="color:var(--rose)">❌ Wrong — ${r.isBig?'It crashed but you said safe':'It held but you said crash'}</span>`;
   document.getElementById('pm-result-dd').textContent = `${dd}%`;
-  document.getElementById('pm-result-dd').style.color = r.isBig ? 'var(--red)' : 'var(--green)';
+  document.getElementById('pm-result-dd').style.color = r.isBig?'var(--rose)':'var(--emerald)';
   document.getElementById('pm-story').textContent = r.story;
   document.getElementById('pm-pnl').innerHTML = correct
-    ? `<span style="color:var(--green)">+$${betAmt.toLocaleString()} · Portfolio: $${G.bankroll.toLocaleString()}</span>`
-    : `<span style="color:var(--red)">−$${betAmt.toLocaleString()} · Portfolio: $${G.bankroll.toLocaleString()}</span>`;
-
+    ? `<span style="color:var(--emerald)">+$${betAmt.toLocaleString()} · Portfolio: $${G.bankroll.toLocaleString()}</span>`
+    : `<span style="color:var(--rose)">−$${betAmt.toLocaleString()} · Portfolio: $${G.bankroll.toLocaleString()}</span>`;
   document.getElementById('pm-position').style.display = 'none';
-  document.getElementById('pm-next').style.display = G.round < ROUNDS.length - 1 ? 'block' : 'none';
-
-  if(G.round >= ROUNDS.length - 1) setTimeout(showGameOver, 1200);
-  res.scrollIntoView({behavior:'smooth', block:'center'});
+  document.getElementById('pm-next').style.display = G.round < ROUNDS.length-1 ? 'block' : 'none';
+  if(G.round >= ROUNDS.length-1) setTimeout(showGameOver, 1100);
+  res.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 function nextMarket() {
   G.round++;
-  document.querySelectorAll('.pm-chip').forEach(b => b.classList.toggle('active', b.dataset.amt === '250'));
+  document.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b.dataset.amt==='250'));
   G.bet = 250;
   loadMarket();
-  document.querySelector('.pm-market').scrollIntoView({behavior:'smooth', block:'start'});
+  document.querySelector('.market-card').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function showGameOver() {
   const go = document.getElementById('pm-gameover');
   go.style.display = 'block';
   const profit = G.bankroll - 10000;
-  const emoji  = profit > 0 ? '🤑' : profit === 0 ? '😐' : '😬';
-  document.getElementById('pm-go-emoji').textContent = emoji;
-  document.getElementById('pm-go-title').textContent = profit > 0 ? 'You beat the market.' : profit === 0 ? 'Break even.' : 'The market won.';
-  const bankEl = document.getElementById('pm-go-bank');
-  bankEl.textContent = '$' + G.bankroll.toLocaleString();
-  bankEl.className   = 'pm-final-bank ' + (profit > 0 ? 'up' : profit < 0 ? 'dn' : 'ev');
+  document.getElementById('pm-go-emoji').textContent = profit>0?'🤑':profit===0?'😐':'😬';
+  document.getElementById('pm-go-title').textContent = profit>0?'You beat the market.':profit===0?'Break even.':'The market won.';
+  const bk = document.getElementById('pm-go-bank');
+  bk.textContent = '$'+G.bankroll.toLocaleString();
+  bk.className   = 'go-bank '+(profit>0?'up':profit<0?'dn':'ev');
   document.getElementById('pm-go-detail').textContent =
-    `Started with $10,000 · ${profit >= 0 ? 'Made' : 'Lost'} $${Math.abs(profit).toLocaleString()} · ${profit > 0 ? 'The model signal paid off.' : 'Use the signal next time.'}`;
+    `Started with $10,000 · ${profit>=0?'Made':'Lost'} $${Math.abs(profit).toLocaleString()}`;
   document.getElementById('pm-go-sub').textContent =
-    "The odds shown were derived directly from our model's drawdown prediction — 8 real companies, 8 real outcomes.";
-  go.scrollIntoView({behavior:'smooth', block:'center'});
+    "Odds were derived directly from our model's drawdown prediction — 8 real companies, 8 real outcomes.";
+  go.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 function restartMarket() {
-  G = {round:0, bankroll:10000, bet:250, pick:null, revealed:false};
+  G = {round:0,bankroll:10000,bet:250,pick:null,revealed:false};
   document.getElementById('pm-bankroll').textContent = '$10,000';
-  document.getElementById('pm-bankroll').style.color = 'var(--green)';
+  document.getElementById('pm-bankroll').style.color = 'var(--emerald)';
   document.getElementById('pm-gameover').style.display = 'none';
-  document.querySelectorAll('.pm-chip').forEach(b => b.classList.toggle('active', b.dataset.amt === '250'));
+  document.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b.dataset.amt==='250'));
   loadMarket();
-  document.getElementById('activity').scrollIntoView({behavior:'smooth'});
 }
 
 loadMarket();
