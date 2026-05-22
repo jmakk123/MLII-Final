@@ -831,6 +831,98 @@
       transition: opacity .15s;
     }
     .restart-btn:hover { opacity: .88; }
+
+    /* ── INTRO / KEY CONCEPTS PAGE ────────────────────────────────── */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .85rem;
+      margin: 1.5rem 0 2rem;
+    }
+    .concept-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .concept-card.hl { border-color: rgba(200,137,42,.35); }
+    .concept-icon { font-size: 1.6rem; margin-bottom: .6rem; }
+    .concept-name {
+      font-family: var(--heading);
+      font-size: .95rem;
+      font-weight: 600;
+      margin-bottom: .35rem;
+    }
+    .concept-def { font-size: .8rem; color: var(--sub); line-height: 1.65; }
+    .concept-ex  { font-size: .75rem; color: var(--muted); margin-top: .5rem; font-style: italic; }
+
+    .drawdown-visual {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .dv-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 90px;
+      margin: 1rem 0 .5rem;
+    }
+    .dv-bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      background: var(--emerald);
+      opacity: .7;
+      transition: opacity .15s;
+      min-width: 8px;
+    }
+    .dv-bar.crash { background: var(--rose); opacity: .85; }
+    .dv-bar.peak  { background: var(--amber); opacity: 1; }
+    .dv-annotations {
+      display: flex;
+      justify-content: space-between;
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: .4rem;
+    }
+    .dv-note { font-size: .8rem; color: var(--sub); line-height: 1.6; margin-top: .75rem; }
+
+    .gap-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    @media(max-width:700px){ .gap-box { grid-template-columns: 1fr; } }
+    .gap-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .gap-card.bad  { border-left: 3px solid var(--rose); }
+    .gap-card.good { border-left: 3px solid var(--emerald); }
+    .gap-title { font-weight: 600; font-size: .9rem; margin-bottom: .5rem; }
+    .gap-body  { font-size: .8rem; color: var(--sub); line-height: 1.65; }
+
+    .metric-explain {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .85rem;
+      margin: 1.25rem 0;
+    }
+    .me-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+    }
+    .me-name { font-family: var(--mono); font-size: .78rem; color: var(--amber); margin-bottom: .3rem; font-weight: 600; }
+    .me-full { font-size: .82rem; font-weight: 600; margin-bottom: .3rem; }
+    .me-def  { font-size: .77rem; color: var(--sub); line-height: 1.6; }
+    .me-scale { font-size: .72rem; color: var(--muted); margin-top: .4rem; font-family: var(--mono); }
   </style>
 </head>
 <body>
@@ -846,6 +938,9 @@
     <div class="sb-section-label">Sections</div>
     <div class="nav-item active" data-page="overview" onclick="navigate('overview')">
       <span class="nav-icon">⌂</span> Overview
+    </div>
+    <div class="nav-item" data-page="intro" onclick="navigate('intro')">
+      <span class="nav-icon">📖</span> Key Concepts
     </div>
     <div class="nav-item" data-page="data" onclick="navigate('data')">
       <span class="nav-icon">⊞</span> Data &amp; Methodology
@@ -885,18 +980,18 @@
       <div class="overview-hero">
         <div class="pg-eyebrow">01 — Overview</div>
         <div class="big-title">Predicting<br>the <em>Fall</em></div>
-        <p class="pg-sub">A neural network that forecasts the maximum peak-to-trough stock drawdown for US public companies over the next 12 months — built on 25 years of Compustat fundamentals and CRSP price history.</p>
+        <p class="pg-sub">A neural network that predicts how far a US public company's stock will fall over the next 12 months — trained on 25 years of accounting data.</p>
       </div>
 
       <div class="kpi-row">
-        <div class="kpi"><div class="kpi-val">87,995</div><div class="kpi-label">Firm-year anchors with full 5-year windows</div></div>
-        <div class="kpi"><div class="kpi-val">29M</div><div class="kpi-label">Raw daily CRSP price rows</div></div>
-        <div class="kpi"><div class="kpi-val">25 yrs</div><div class="kpi-label">Historical depth, 1999–2025</div></div>
-        <div class="kpi"><div class="kpi-val">−54%</div><div class="kpi-label">Brier score improvement vs vol-only</div></div>
+        <div class="kpi"><div class="kpi-val">87,995</div><div class="kpi-label">Company-years in the dataset</div></div>
+        <div class="kpi"><div class="kpi-val">29M</div><div class="kpi-label">Daily stock price rows processed</div></div>
+        <div class="kpi"><div class="kpi-val">25 yrs</div><div class="kpi-label">Historical data, 1999–2025</div></div>
+        <div class="kpi"><div class="kpi-val">−54%</div><div class="kpi-label">Better crash probability vs. baseline</div></div>
       </div>
 
       <div class="info-box">
-        <strong>Why forward drawdown?</strong> Bankruptcy is too sparse (387 events). Raw return is too noisy. Forward drawdown — the maximum peak-to-trough loss in the 12 months after a fiscal year's anchor date — is continuous, economically meaningful, and observable for every public firm without requiring the company to fail. Target ∈ [−1, 0]. Delistings mapped to −1.0.
+        <strong>Why predict drawdown?</strong> Bankruptcies are too rare to model well (only 387 in our dataset). Raw stock returns are too noisy. Forward drawdown — the worst drop from peak to trough over the next 12 months — is measurable for every public company and gives a clear, actionable risk number without waiting for a company to fail.
       </div>
 
       <div class="dd-example">
@@ -924,12 +1019,169 @@
       </div>
 
       <div class="quick-nav" style="margin-top:2rem">
-        <div class="qn-card" onclick="navigate('data')"><div class="qn-icon">⊞</div><div><div class="qn-label">Data &amp; Methodology</div><div class="qn-sub">Pipeline, ratios, leakage fixes</div></div></div>
-        <div class="qn-card" onclick="navigate('models')"><div class="qn-icon">◈</div><div><div class="qn-label">Models &amp; Process</div><div class="qn-sub">LSTM, MLP, ablations</div></div></div>
-        <div class="qn-card" onclick="navigate('findings')"><div class="qn-icon">≋</div><div><div class="qn-label">Findings</div><div class="qn-sub">Results table + charts</div></div></div>
-        <div class="qn-card" onclick="navigate('usecases')"><div class="qn-icon">⊕</div><div><div class="qn-label">Use Cases</div><div class="qn-sub">Credit, VC, quant, PM</div></div></div>
-        <div class="qn-card" onclick="navigate('slides')"><div class="qn-icon">◫</div><div><div class="qn-label">Presentation</div><div class="qn-sub">Key slides &amp; talking points</div></div></div>
-        <div class="qn-card" onclick="navigate('activity')" style="border-color:rgba(200,137,42,.3);background:var(--amber-lo)"><div class="qn-icon">🎲</div><div><div class="qn-label" style="color:var(--amber)">Activity — DrawdownMarket</div><div class="qn-sub">Bet on real test-set firms</div></div></div>
+        <div class="qn-card" onclick="navigate('intro')"><div class="qn-icon">📖</div><div><div class="qn-label">Key Concepts</div><div class="qn-sub">Drawdown, metrics, plain English</div></div></div>
+        <div class="qn-card" onclick="navigate('data')"><div class="qn-icon">⊞</div><div><div class="qn-label">Data &amp; Methodology</div><div class="qn-sub">Where the data comes from</div></div></div>
+        <div class="qn-card" onclick="navigate('models')"><div class="qn-icon">◈</div><div><div class="qn-label">Models &amp; Process</div><div class="qn-sub">What we built and tested</div></div></div>
+        <div class="qn-card" onclick="navigate('findings')"><div class="qn-icon">≋</div><div><div class="qn-label">Findings</div><div class="qn-sub">Results &amp; key takeaways</div></div></div>
+        <div class="qn-card" onclick="navigate('usecases')"><div class="qn-icon">⊕</div><div><div class="qn-label">Use Cases</div><div class="qn-sub">Who uses this and how</div></div></div>
+        <div class="qn-card" onclick="navigate('activity')" style="border-color:rgba(200,137,42,.3);background:var(--amber-lo)"><div class="qn-icon">🎲</div><div><div class="qn-label" style="color:var(--amber)">Activity — DrawdownMarket</div><div class="qn-sub">Bet on real companies from our test set</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ KEY CONCEPTS ══ -->
+  <div class="page" id="page-intro">
+    <div class="page-inner">
+      <div class="pg-eyebrow">Key Concepts</div>
+      <h1 class="pg-title">Not a finance person?<br><em style="font-style:normal;color:var(--amber)">No problem.</em></h1>
+      <p class="pg-sub">Here are the only ideas you need to follow along — defined in plain English.</p>
+
+      <!-- DRAWDOWN -->
+      <h2 style="font-family:var(--heading);font-size:1.2rem;font-weight:600;margin-bottom:.5rem">What is a drawdown?</h2>
+      <p style="font-size:.88rem;color:var(--sub);line-height:1.75;max-width:640px;margin-bottom:1rem">
+        A <strong style="color:var(--text)">drawdown</strong> is how far a stock falls from its highest point to its lowest point over some window of time. Think of it as the worst-case loss someone holding the stock would have experienced.
+      </p>
+
+      <div class="drawdown-visual">
+        <div style="font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Stock price over 12 months — illustrative</div>
+        <div class="dv-chart">
+          <div class="dv-bar" style="height:45%"></div>
+          <div class="dv-bar" style="height:52%"></div>
+          <div class="dv-bar" style="height:61%"></div>
+          <div class="dv-bar" style="height:70%"></div>
+          <div class="dv-bar" style="height:80%"></div>
+          <div class="dv-bar" style="height:88%"></div>
+          <div class="dv-bar peak" style="height:100%"></div>
+          <div class="dv-bar crash" style="height:88%"></div>
+          <div class="dv-bar crash" style="height:72%"></div>
+          <div class="dv-bar crash" style="height:60%"></div>
+          <div class="dv-bar crash" style="height:48%"></div>
+          <div class="dv-bar crash" style="height:40%"></div>
+        </div>
+        <div class="dv-annotations">
+          <span>Jan</span><span>Peak ← $100 <span style="color:var(--amber)">▲</span></span><span>Trough → $60 <span style="color:var(--rose)">▼</span></span><span>Dec</span>
+        </div>
+        <div class="dv-note">In this example the stock peaked at $100 and later bottomed at $60 — a <strong style="color:var(--rose)">−40% drawdown</strong>. We predict this number <em>before</em> it happens, using only information available at the start of the year.</div>
+      </div>
+
+      <div class="pg-divider"></div>
+
+      <!-- EXISTING METRICS -->
+      <h2 style="font-family:var(--heading);font-size:1.2rem;font-weight:600;margin-bottom:.5rem">How risk is measured today</h2>
+      <p style="font-size:.88rem;color:var(--sub);line-height:1.75;max-width:640px;margin-bottom:1rem">
+        Finance already has a toolkit of risk metrics. Here's what they are and what they miss.
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="concept-icon">〜</div>
+          <div class="concept-name">Volatility</div>
+          <div class="concept-def">Measures how much a stock bounces around day-to-day. High vol = unpredictable price moves.</div>
+          <div class="concept-ex">Example: a stock moving ±3% every day has high volatility.</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">β</div>
+          <div class="concept-name">Beta</div>
+          <div class="concept-def">Measures how much a stock amplifies (or dampens) market swings. Beta 2.0 means it moves twice as much as the S&amp;P 500.</div>
+          <div class="concept-ex">Example: if the market drops 10%, a beta-2 stock drops ~20%.</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">📊</div>
+          <div class="concept-name">Value at Risk (VaR)</div>
+          <div class="concept-def">Statistical estimate of the worst expected loss over a short period at a given confidence level (e.g., 95%).</div>
+          <div class="concept-ex">Example: "5% chance of losing more than $50K this month."</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">🔠</div>
+          <div class="concept-name">Credit Ratings</div>
+          <div class="concept-def">Letter grades (AAA → D) that Moody's or S&amp;P assign to a company's debt based on its ability to repay.</div>
+          <div class="concept-ex">Example: BBB− is the lowest "investment grade" rating.</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">Z</div>
+          <div class="concept-name">Altman Z-Score</div>
+          <div class="concept-def">A 1968 formula that combines five accounting ratios into a single bankruptcy-risk score. Still widely used today.</div>
+          <div class="concept-ex">Z &lt; 1.81 = distress zone; Z &gt; 2.99 = safe zone.</div>
+        </div>
+        <div class="concept-card hl">
+          <div class="concept-icon">▼</div>
+          <div class="concept-name">Forward Drawdown <span style="font-size:.7rem;color:var(--amber)">(ours)</span></div>
+          <div class="concept-def">The maximum peak-to-trough loss a stock experiences over the <em>next</em> 12 months. Predicted before it happens.</div>
+          <div class="concept-ex">Target: a number from 0% (no loss) to −100% (total collapse).</div>
+        </div>
+      </div>
+
+      <div class="pg-divider"></div>
+
+      <!-- THE GAP -->
+      <h2 style="font-family:var(--heading);font-size:1.2rem;font-weight:600;margin-bottom:.5rem">Why existing metrics fall short</h2>
+      <div class="gap-box">
+        <div class="gap-card bad">
+          <div class="gap-title">They look backward</div>
+          <div class="gap-body">Volatility tells you how bumpy the <em>past</em> was. Credit ratings react slowly — Enron was investment-grade three months before it collapsed. VaR assumes stock returns follow a bell curve. They don't.</div>
+        </div>
+        <div class="gap-card bad">
+          <div class="gap-title">They don't quantify the drop</div>
+          <div class="gap-body">"High beta" tells you a stock is sensitive to the market. It doesn't tell you <em>how far it could fall over the next year</em>. That's the number portfolio managers and risk desks actually need.</div>
+        </div>
+        <div class="gap-card good">
+          <div class="gap-title">What we do differently</div>
+          <div class="gap-body">We feed 5 years of a company's accounting history through a neural network and predict the worst-case stock loss over the <em>next</em> 12 months — a forward-looking, continuous, actionable number.</div>
+        </div>
+        <div class="gap-card good">
+          <div class="gap-title">Why not just predict bankruptcy?</div>
+          <div class="gap-body">Bankruptcies are rare (only 387 in our dataset). Rare events are hard to model reliably. A large drawdown is much more common — and just as useful as an early warning signal.</div>
+        </div>
+      </div>
+
+      <div class="pg-divider"></div>
+
+      <!-- METRICS WE USE -->
+      <h2 style="font-family:var(--heading);font-size:1.2rem;font-weight:600;margin-bottom:.5rem">How we score our model</h2>
+      <p style="font-size:.88rem;color:var(--sub);line-height:1.75;max-width:640px;margin-bottom:1rem">
+        When you look at our results table, here's what each column actually means.
+      </p>
+      <div class="metric-explain">
+        <div class="me-card">
+          <div class="me-name">MAE</div>
+          <div class="me-full">Mean Absolute Error</div>
+          <div class="me-def">Average prediction error in percentage points. If our prediction is −40% and reality is −50%, the error is 10pp.</div>
+          <div class="me-scale">Lower = better ↓</div>
+        </div>
+        <div class="me-card">
+          <div class="me-name">RMSE</div>
+          <div class="me-full">Root Mean Sq. Error</div>
+          <div class="me-def">Like MAE but punishes big mistakes more. A few catastrophic mispredictions will spike RMSE even if average error is low.</div>
+          <div class="me-scale">Lower = better ↓</div>
+        </div>
+        <div class="me-card">
+          <div class="me-name">R²</div>
+          <div class="me-full">Explained Variance</div>
+          <div class="me-def">How much of the variation in actual drawdowns our model explains. 0 = no better than guessing the mean. 1 = perfect.</div>
+          <div class="me-scale">Higher = better ↑  (0 → 1)</div>
+        </div>
+        <div class="me-card">
+          <div class="me-name">PR-AUC</div>
+          <div class="me-full">Precision-Recall AUC</div>
+          <div class="me-def">How well we identify stocks that will crash 30%+. Measures ranking quality for the riskiest names — not just average accuracy.</div>
+          <div class="me-scale">Higher = better ↑  (0 → 1)</div>
+        </div>
+        <div class="me-card">
+          <div class="me-name">Brier</div>
+          <div class="me-full">Brier Score</div>
+          <div class="me-def">How well-calibrated our crash probabilities are. A model that says "80% chance of crash" when the true rate is 80% scores well.</div>
+          <div class="me-scale">Lower = better ↓  (0 = perfect)</div>
+        </div>
+        <div class="me-card">
+          <div class="me-name">Spearman</div>
+          <div class="me-full">Rank Correlation</div>
+          <div class="me-def">Whether we correctly rank companies by risk within a single year — e.g., does the stock we flag as most dangerous actually fall the most?</div>
+          <div class="me-scale">Higher = better ↑  (−1 → 1)</div>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:1rem">
+        <strong>Ready to go deeper?</strong> Head to <span style="color:var(--amber);cursor:pointer" onclick="navigate('data')">Data &amp; Methodology</span> to see how we built the dataset, or jump straight to <span style="color:var(--amber);cursor:pointer" onclick="navigate('findings')">Findings</span> to see the results.
       </div>
     </div>
   </div>
@@ -938,8 +1190,8 @@
   <div class="page" id="page-data">
     <div class="page-inner">
       <div class="pg-eyebrow">02 — Data &amp; Methodology</div>
-      <h1 class="pg-title">From raw WRDS<br>to model-ready tensors</h1>
-      <p class="pg-sub">Two raw sources, five processing stages, 97 features per anchor — with zero leakage between train, val, and test splits.</p>
+      <h1 class="pg-title">Where the data<br>comes from.</h1>
+      <p class="pg-sub">Two databases, one pipeline — turning decades of company filings and stock prices into model inputs, with no information leaking from the future into training.</p>
 
       <div class="pipeline">
         <div>
@@ -990,7 +1242,7 @@
         <div>
           <div class="split-label">Leakage Fix</div>
           <div class="info-box" style="margin:0">
-            <strong>Train-only scaling.</strong> Winsorize bounds and z-score mean/std are fit exclusively on training-fold rows, then applied frozen to val and test. The original baseline notebook (02) fit on all rows — this inflated test metrics. Our corrected pipeline eliminates this.
+            <strong>No future data leaking in.</strong> All scaling statistics (like averages and outlier cutoffs) are calculated using only training-period data, then frozen and applied to validation and test sets. This is important — if you let test data influence your preprocessing, your results look better than they really are.
           </div>
         </div>
       </div>
@@ -1001,8 +1253,8 @@
   <div class="page" id="page-models">
     <div class="page-inner">
       <div class="pg-eyebrow">03 — Models &amp; Process</div>
-      <h1 class="pg-title">Four variants.<br>One winner.</h1>
-      <p class="pg-sub">We tested two financial-branch encoders (LSTM vs. MLP-flatten) crossed with two fusion strategies (full dual-stream vs. financial-only). All run against three baselines.</p>
+      <h1 class="pg-title">Four models.<br>One winner.</h1>
+      <p class="pg-sub">We built several versions of a neural network and compared them against simpler baselines. The best model turned out to be simpler than expected.</p>
 
       <div class="two-col" style="margin-bottom:2.5rem">
         <div>
@@ -1035,12 +1287,12 @@
         <div>
           <div class="split-label" style="margin-bottom:1rem">Model Ladder</div>
           <div class="model-ladder">
-            <div class="ml-item"><div class="ml-num">B0</div><div><div class="ml-name">Vol-Only</div><div class="ml-desc">Trailing volatility → scalar. Naive floor.</div></div></div>
-            <div class="ml-item"><div class="ml-num">B1</div><div><div class="ml-name">Ridge Regression</div><div class="ml-desc">L2 linear on 97-feature flat vector.</div></div></div>
-            <div class="ml-item"><div class="ml-num">B2</div><div><div class="ml-name">XGBoost</div><div class="ml-desc">Gradient-boosted trees, same 97 features.</div></div></div>
-            <div class="ml-item"><div class="ml-num">N1</div><div><div class="ml-name">LSTM + Full Fusion</div><div class="ml-desc">Financial LSTM + price MLP → fused head.</div></div></div>
-            <div class="ml-item"><div class="ml-num">N2</div><div><div class="ml-name">MLP + Full Fusion</div><div class="ml-desc">Flatten financial → MLP + price MLP → fused.</div></div></div>
-            <div class="ml-item winner"><div class="ml-num">N3</div><div><div class="ml-name">Financial LSTM</div><div class="ml-desc">LSTM on accounting tensor only — no price branch.</div></div><div class="ml-badge">WINNER</div></div>
+            <div class="ml-item"><div class="ml-num">B0</div><div><div class="ml-name">Vol-Only</div><div class="ml-desc">Just uses past volatility to predict future drawdown. Our baseline to beat.</div></div></div>
+            <div class="ml-item"><div class="ml-num">B1</div><div><div class="ml-name">Ridge Regression</div><div class="ml-desc">Simple linear model on all 97 features. Fast but can't learn complex patterns.</div></div></div>
+            <div class="ml-item"><div class="ml-num">B2</div><div><div class="ml-name">XGBoost</div><div class="ml-desc">Tree-based model. Good at tabular data, no notion of time order.</div></div></div>
+            <div class="ml-item"><div class="ml-num">N1</div><div><div class="ml-name">LSTM + Price Branch</div><div class="ml-desc">Neural net reading 5 years of accounting history + recent stock stats.</div></div></div>
+            <div class="ml-item"><div class="ml-num">N2</div><div><div class="ml-name">MLP + Price Branch</div><div class="ml-desc">Same two inputs but using a simpler, non-sequential network for accounting data.</div></div></div>
+            <div class="ml-item winner"><div class="ml-num">N3</div><div><div class="ml-name">Financial LSTM</div><div class="ml-desc">LSTM on accounting data only — no price branch. Cleanest signal.</div></div><div class="ml-badge">WINNER</div></div>
           </div>
         </div>
       </div>
@@ -1053,7 +1305,7 @@
       <div class="feat-row"><span class="feat-name">pf_max_dd</span><div class="feat-track"><div class="feat-fill" style="width:68%"></div></div><span class="feat-val">0.098</span></div>
       <div class="feat-row"><span class="feat-name">ebit_ta</span><div class="feat-track"><div class="feat-fill" style="width:36%"></div></div><span class="feat-val">0.052</span></div>
       <div class="feat-row"><span class="feat-name">oancf_at</span><div class="feat-track"><div class="feat-fill" style="width:27%"></div></div><span class="feat-val">0.039</span></div>
-      <p style="font-size:.82rem;color:var(--muted);margin-top:1.25rem;line-height:1.65">Price volatility and prior max drawdown dominate — confirming that recent price regime is the single strongest predictor. EBIT margin at lag 3 is the leading accounting signal. Notably, the price branch in the full fusion model added noise rather than signal: the financial LSTM implicitly captures enough momentum through 5 years of ratio sequences.</p>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:1.25rem;line-height:1.65">Past volatility and prior drawdown are the strongest single predictors — which makes sense. The interesting finding: EBIT margin from 3 years ago is the top accounting signal. And when we added recent stock price stats as a second input to the neural net, it actually <em>hurt</em> performance. The accounting history alone already captured enough of that information.</p>
     </div>
   </div>
 
@@ -1061,26 +1313,26 @@
   <div class="page" id="page-findings">
     <div class="page-inner">
       <div class="pg-eyebrow">04 — Findings / Analysis</div>
-      <h1 class="pg-title">The conclusion.</h1>
-      <p class="pg-sub">The financial LSTM beats the vol-only floor on MAE, RMSE, and R² — and destroys it on Brier score. PR-AUC is a statistical tie. The price branch hurt, not helped.</p>
+      <h1 class="pg-title">The results.</h1>
+      <p class="pg-sub">The neural network beats the simple volatility baseline on most metrics — and by a large margin on crash probability calibration. One surprise: adding stock price data made things worse, not better.</p>
 
       <div class="finding-row">
         <div class="finding-card kill">
           <div class="finding-emoji">💀</div>
-          <div class="finding-title">Brier — Obliterated</div>
-          <div class="finding-body">Vol-only Brier of 0.573 is near-chance as a probability calibrator. The financial LSTM produces genuinely calibrated crash probabilities — 54% better.</div>
+          <div class="finding-title">Crash Probabilities — Way Better</div>
+          <div class="finding-body">The vol-only model's probability estimates are barely better than random. Our neural net produces genuinely accurate crash probabilities — 54% lower Brier score.</div>
           <div class="finding-stat">0.267 <span>vs 0.573</span></div>
         </div>
         <div class="finding-card win">
           <div class="finding-emoji">📉</div>
-          <div class="finding-title">MAE &amp; RMSE — Beats the Floor</div>
-          <div class="finding-body">Financial LSTM beats vol-only on both regression metrics. R² improves from 0.166 to 0.293 — nearly double the explained variance on the test set.</div>
+          <div class="finding-title">Prediction Accuracy — Beats the Floor</div>
+          <div class="finding-body">Our model's average prediction error is smaller, and it explains nearly twice as much of the variation in actual drawdowns (R² goes from 0.17 to 0.29).</div>
           <div class="finding-stat">0.144 <span>MAE vs 0.153</span></div>
         </div>
         <div class="finding-card info">
           <div class="finding-emoji">🔬</div>
-          <div class="finding-title">Surprise: Price Branch = Noise</div>
-          <div class="finding-body">Full dual-stream fusion (LSTM + price MLP) loses to financial-only on every metric. The LSTM captures accounting momentum implicitly — the price branch re-encodes redundant signal.</div>
+          <div class="finding-title">Surprise: Price Data = Noise</div>
+          <div class="finding-body">Adding recent stock price stats as a second input made every metric worse. The 5-year accounting history already captures what the price data was trying to add — reading both just confused the model.</div>
           <div class="finding-stat" style="color:var(--sky)">Fin-only wins</div>
         </div>
       </div>
@@ -1123,8 +1375,8 @@
       </div>
 
       <div class="note-block">
-        † Baseline Spearman is pooled across years (inflated by macro regime). Neural net Spearman 0.6454 is within-year — methodologically stronger despite the similar number.<br>
-        ‡ Top-decile definitions differ: baselines use a −30% binary threshold (easy at 52% base rate); neural net measures fraction in worst-realized decile within the same year. <strong>Columns not directly comparable.</strong>
+        † The baseline Spearman numbers are computed across all years pooled together, which inflates them because 2020 was a catastrophic year for everyone — that's an easy rank to get right. Our neural net's 0.6454 is computed <em>within each year separately</em>, which is a harder and more honest test.<br>
+        ‡ "Top-decile" means something different for the baselines (fraction that crossed −30%) vs. our model (fraction that landed in the actual worst-performing 10% for that year). These two columns are not directly comparable.
       </div>
 
       <div class="chart-pair">
@@ -1140,7 +1392,7 @@
 
       <div class="conclusion-box">
         <div class="split-label" style="margin-bottom:.6rem">Key Takeaway</div>
-        <p>The result is nuanced: <strong>the deep model adds real value on regression and calibration</strong>, but PR-AUC is a near-tie with vol-only. For a risk manager deciding whether to hedge, a well-calibrated crash probability (Brier 0.267 vs 0.573) is more useful than a marginally better AUC curve. The financial LSTM wins where it matters most in practice.</p>
+        <p>The neural net clearly wins on prediction accuracy and probability calibration. PR-AUC — how well we rank risky stocks — is roughly tied with the simple volatility baseline. For someone actually making risk decisions, a well-calibrated crash probability (54% better Brier score) is more useful than a slightly better ranking curve. <strong>The model wins where it counts in practice.</strong></p>
       </div>
     </div>
   </div>
@@ -1150,7 +1402,7 @@
     <div class="page-inner">
       <div class="pg-eyebrow">05 — Use Cases / Applications</div>
       <h1 class="pg-title">Who uses<br>a drawdown signal?</h1>
-      <p class="pg-sub">A forward drawdown prediction is immediately actionable across four financial contexts — each with a different risk horizon and decision type.</p>
+      <p class="pg-sub">A predicted drawdown score is useful in four very different contexts — from bank lending to hedge fund short books.</p>
 
       <div class="brand-grid">
         <!-- SOLDMAN GACHS -->
@@ -1237,7 +1489,7 @@
     <div class="page-inner">
       <div class="pg-eyebrow">06 — Presentation</div>
       <h1 class="pg-title">The story<br>in six slides.</h1>
-      <p class="pg-sub">Core narrative from the ML II final presentation.</p>
+      <p class="pg-sub">The main points from our final presentation, condensed.</p>
 
       <div class="slide-stack">
         <div class="slide">
@@ -1245,8 +1497,8 @@
           <div>
             <div class="slide-eyebrow">The Problem</div>
             <div class="slide-title">Predicting the Fall Before It Happens</div>
-            <div class="slide-body">Bankruptcy prediction is too rare to model (387 events). Raw returns are too noisy. <span class="hi">Forward maximum drawdown</span> is the signal in between — continuous, economically interpretable, and observable for every public company over any 12-month window.</div>
-            <div class="slide-callout amber">52% of test-set firms experienced a drawdown worse than −30% in 2020–2023. This is not a rare event — it's the norm.</div>
+            <div class="slide-body">Bankruptcies are too rare to model well. Raw returns are too noisy. <span class="hi">Forward maximum drawdown</span> is the number in between — measurable for every public company, and directly useful to risk managers.</div>
+            <div class="slide-callout amber">52% of companies in our test set fell more than 30% at some point during 2020–2023. This is not a rare edge case — it's routine.</div>
           </div>
         </div>
 
@@ -1255,8 +1507,8 @@
           <div>
             <div class="slide-eyebrow">The Data</div>
             <div class="slide-title">25 Years, Two Sources, One Tensor</div>
-            <div class="slide-body">Compustat annual fundamentals (1999–2025) linked to CRSP daily prices via the CCM linktable. Each firm-year anchor gets a <span class="hi">(5, 18) accounting tensor</span> covering the five prior fiscal years plus <span class="hi">7 price features</span> from the trailing 252 trading days.</div>
-            <div class="slide-callout amber">87,995 firm-years · 29M daily rows · train-only scaling — no leakage</div>
+            <div class="slide-body">Annual company financial filings (1999–2025) linked to daily stock prices. For each company-year, we build a <span class="hi">5-year window of 18 accounting ratios</span> plus <span class="hi">7 recent price stats</span>. Everything is scaled using only training-era data.</div>
+            <div class="slide-callout amber">87,995 company-years · 29M daily stock rows · no future data leaking into training</div>
           </div>
         </div>
 
@@ -1265,8 +1517,8 @@
           <div>
             <div class="slide-eyebrow">The Architecture</div>
             <div class="slide-title">Four Variants, One Winner</div>
-            <div class="slide-body">We tested LSTM vs. MLP-flatten encoders, each crossed with full-fusion vs. financial-only. The winner: <span class="hi">financial-only LSTM</span>. Adding the price MLP branch actually hurt — the sequential accounting data already captures enough price-regime information implicitly.</div>
-            <div class="slide-callout green">Financial branch: (batch, 5, 18) → 32d · Training: Huber loss, AdamW, cosine LR, early stopping</div>
+            <div class="slide-body">We tested different network architectures — with and without stock price data as a second input. The winner: <span class="hi">accounting data only, read as a sequence</span>. Adding stock prices actually made things worse — five years of financial ratios already contains what the price data was trying to add.</div>
+            <div class="slide-callout green">Architecture: 5-year accounting sequence → LSTM → 32 features → prediction. Trained with early stopping to avoid overfitting.</div>
           </div>
         </div>
 
@@ -1275,7 +1527,7 @@
           <div>
             <div class="slide-eyebrow">The Result</div>
             <div class="slide-title">Beats Vol-Only — With a Surprise</div>
-            <div class="slide-body">Financial LSTM: MAE 0.1444 vs 0.1532 (−5.8%), R² 0.293 vs 0.166 (+76%), Brier 0.267 vs 0.573 (<span class="hi">−54%</span>). PR-AUC is a statistical tie (0.8662 vs 0.8689). The full dual-stream fusion underperforms — price branch adds noise, not signal.</div>
+            <div class="slide-body">Our model beats the simple volatility baseline on MAE (−6%), R² (+76%), and Brier score (<span class="hi">−54%</span>). Ranking accuracy is roughly tied. The key finding: stock price data added noise, not signal — accounting history alone was enough.</div>
             <div class="slide-callout green">✓ MAE −5.8% &nbsp; ✓ R² +76% &nbsp; ✓ Brier −54% &nbsp; ≈ PR-AUC (tie)</div>
           </div>
         </div>
@@ -1285,8 +1537,8 @@
           <div>
             <div class="slide-eyebrow">Why It Matters</div>
             <div class="slide-title">From Signal to Decision</div>
-            <div class="slide-body">A well-calibrated drawdown probability is directly usable: credit desks can trigger watchlists, hedge funds can rank short books, VCs can screen public comps, and asset managers can size protective hedges. The signal updates annually at each 10-K anchor date.</div>
-            <div class="slide-callout amber">96%+ top-decile precision: 9 out of 10 firms flagged as highest-risk are actually in the worst-realized decile that year.</div>
+            <div class="slide-body">A reliable drawdown score is immediately useful: banks can flag risky borrowers earlier, hedge funds can build their short lists, VCs can screen investments, and portfolio managers can size hedges. The score updates once per year when a company files its annual report.</div>
+            <div class="slide-callout amber">9 out of 10 companies we flag as highest-risk actually end up in the worst-performing 10% that year.</div>
           </div>
         </div>
 
@@ -1295,8 +1547,8 @@
           <div>
             <div class="slide-eyebrow">Honest Assessment</div>
             <div class="slide-title">Limitations &amp; Next Steps</div>
-            <div class="slide-body">The price branch hypothesis failed — volatility as a standalone baseline is already near-optimal for raw regression. Future work: <span class="hi">sector-conditioned heads</span>, <span class="hi">macro regime features</span> (yield curve, VIX), <span class="hi">quarterly filing cadence</span> instead of annual anchors.</div>
-            <div class="slide-callout amber">Most useful as a risk screener — not a precise return predictor. That's fine.</div>
+            <div class="slide-body">Stock price features added noise rather than signal — an unexpected result. Next steps: train separate models per industry sector, add macro features like interest rates and market volatility, and update predictions quarterly instead of annually.</div>
+            <div class="slide-callout amber">This is a risk screener, not a crystal ball. Knowing which 10% of companies are most likely to collapse is already very valuable.</div>
           </div>
         </div>
       </div>
