@@ -500,9 +500,9 @@
             <div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Gradient-boosted trees on the same 97 features — strongest traditional baseline</div>
           </div>
           <div style="background:rgba(0,212,255,.06);border:1px solid var(--accent);border-radius:10px;padding:1rem 1.25rem">
-            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.25rem">Deep Model</div>
-            <div style="font-weight:700;color:var(--accent)">LSTM + MLP Fusion Network</div>
-            <div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Dual-stream: financial LSTM branch + price MLP branch → fused head</div>
+            <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:.25rem">Deep Model — 4 variants tested</div>
+            <div style="font-weight:700;color:var(--accent)">Financial LSTM <span style="color:var(--green);font-size:.8rem">← WINNER</span></div>
+            <div style="font-size:.82rem;color:var(--muted);margin-top:.2rem">LSTM encoder on (5,18) accounting tensor only · full fusion, MLP-only, and price-only ablations also run — financial branch alone won</div>
           </div>
         </div>
       </div>
@@ -529,27 +529,32 @@
     <div class="section-label fade-in">04 · Findings / Analysis</div>
     <h2 class="section-title fade-in">Our Conclusion</h2>
     <p class="section-sub fade-in">
-      The fusion model beats the vol-only baseline on 2 out of 3 headline metrics — and on one metric it isn't even close.
-      The result confirms that combining structured financial history with price dynamics adds genuine discriminative power
-      beyond what volatility alone captures.
+      The best model — a pure financial LSTM (no price branch) — beats the vol-only baseline on MAE, RMSE, and R²,
+      and <strong style="color:var(--green)">absolutely murders it on Brier score</strong> (0.2665 vs 0.5732 — a 54% improvement).
+      PR-AUC is 0.27pp shy of the vol-only floor, essentially a tie.
+      The surprise finding: the financial-only branch outperforms the full dual-stream fusion, suggesting
+      the price features added noise rather than signal on top of the LSTM accounting representation.
     </p>
 
     <!-- Key findings cards -->
     <div class="finding-cards fade-in">
       <div class="finding-card win">
-        <div class="finding-emoji">🏆</div>
-        <div class="finding-title">Brier Score — Destroyed</div>
-        <div class="finding-body">The vol-only Brier of 0.573 is near-chance on the binary classification task. The fusion model's calibrated probability output makes this gap enormous — the model actually knows how likely a crash is.</div>
+        <div class="finding-emoji">💀</div>
+        <div class="finding-title">Brier Score — Absolutely Murdered</div>
+        <div class="finding-body">Vol-only Brier of 0.573 is near-chance — min-max normalized volatility is a terrible probability calibrator. The financial LSTM produces genuinely calibrated crash probabilities.</div>
+        <div class="finding-stat" style="color:var(--green)">0.267 <span style="font-size:1rem;color:var(--muted)">vs 0.573</span></div>
       </div>
       <div class="finding-card win">
-        <div class="finding-emoji">📈</div>
-        <div class="finding-title">PR-AUC — Beats Baseline</div>
-        <div class="finding-body">At the −30% threshold, the fusion network improves precision-recall over the vol-only floor. Five years of accounting history adds signal that raw price volatility misses — especially leverage and margin trends.</div>
+        <div class="finding-emoji">📉</div>
+        <div class="finding-title">MAE &amp; RMSE — Beats the Floor</div>
+        <div class="finding-body">On regression error, the financial LSTM beats vol-only on both MAE (0.1444 vs 0.1532) and RMSE (0.1926 vs 0.2091). R² improves from 0.166 to 0.293 — nearly double the explained variance.</div>
+        <div class="finding-stat">0.144 <span style="font-size:1rem;color:var(--muted)">MAE vs 0.153</span></div>
       </div>
-      <div class="finding-card draw">
-        <div class="finding-emoji">⚡</div>
-        <div class="finding-title">Volatility Still Dominates MAE</div>
-        <div class="finding-body">On raw regression error, the vol-only baseline is hard to beat. Price momentum is such a strong short-run signal that the regression task partly collapses to volatility prediction — an honest limitation.</div>
+      <div class="finding-card info">
+        <div class="finding-emoji">🔬</div>
+        <div class="finding-title">Key Finding: Price Branch Adds Noise</div>
+        <div class="finding-body">The full dual-stream fusion (LSTM + price MLP) underperforms the financial-only LSTM. Adding 7 price features hurt rather than helped — the LSTM's accounting representation already captures what the price branch re-encodes.</div>
+        <div class="finding-stat" style="color:var(--yellow)">Fin-only wins</div>
       </div>
     </div>
 
@@ -579,20 +584,21 @@
             <td class="badge-mid">0.8531</td><td class="badge-mid">0.3177</td><td class="badge-mid">0.5979</td><td class="badge-mid">0.9631</td>
           </tr>
           <tr class="row-highlight">
-            <td class="model-name" style="color:var(--accent)">🎯 Fusion Network (LSTM)</td>
-            <td id="nn-mae"><span style="color:var(--muted);font-size:.8rem">— TBD</span></td>
-            <td id="nn-rmse"><span style="color:var(--muted);font-size:.8rem">— TBD</span></td>
-            <td id="nn-r2"><span style="color:var(--muted);font-size:.8rem">— TBD</span></td>
-            <td id="nn-prauc"><span style="color:var(--muted);font-size:.8rem">— TBD</span></td>
-            <td id="nn-brier"><span class="badge-kill">KILLS IT</span></td>
-            <td id="nn-spearman"><span style="color:var(--muted);font-size:.8rem">— TBD</span></td>
-            <td id="nn-topdec"><span style="color:var(--muted);font-size:.8rem">— TBD</span></td>
+            <td class="model-name" style="color:var(--accent)">🎯 Financial LSTM <span style="font-size:.75rem;color:var(--muted)">(best model)</span></td>
+            <td><span class="badge-kill">0.1444</span></td>
+            <td><span class="badge-kill">0.1926</span></td>
+            <td><span class="badge-kill">0.2926</span></td>
+            <td><span class="badge-nn">0.8662</span></td>
+            <td><span class="badge-kill">0.2665</span></td>
+            <td><span class="badge-nn">0.6454†</span></td>
+            <td><span class="badge-nn">0.4413‡</span></td>
           </tr>
         </tbody>
       </table>
       <p style="font-size:.75rem;color:var(--muted);margin-top:.75rem">
-        Rank metrics (Spearman, Top-Decile) computed <strong>within each anchor year</strong> then averaged — not pooled across years. Pooling inflates Spearman by capturing macro regime, not firm-level discrimination.
-        Brier uses min-max normalized risk score in [0,1]. Top-Decile: of the 10% worst-predicted firms, what fraction were in the worst-realized decile that year.
+        † Baseline Spearman is pooled across years (inflated by macro regime); Neural net Spearman 0.6454 is within-year — likely a stronger result despite the slightly lower number.<br>
+        ‡ Top-decile definitions differ: baselines measure fraction breaching −30% binary (easy at 52% base rate); neural net measures fraction in worst-realized decile within the same year (correct definition). These columns are <em>not directly comparable</em>.<br>
+        Green cells = best in column across all models. Brier: lower is better (vol-only 0.5732 is near-chance; neural net 0.2665 is a 54% improvement).
       </p>
     </div>
 
@@ -762,9 +768,9 @@
 
       <div class="slide">
         <div class="slide-num">Slide 04 · The Result</div>
-        <div class="slide-title">Beats Vol-Only on 2 of 3 Metrics</div>
-        <div class="slide-body">The fusion model improves over the volatility-only baseline on <span class="slide-accent">PR-AUC</span> and dominates on <span class="slide-accent">Brier score</span> (vol-only Brier ≈ 0.57 — near chance). Raw regression MAE remains competitive with the naive floor because volatility is a strong short-run predictor.</div>
-        <div class="slide-highlight" style="color:var(--green)">✓ Better calibrated crash probabilities &nbsp;·&nbsp; ✓ Higher precision at the −30% threshold</div>
+        <div class="slide-title">Beats Vol-Only — With a Surprise</div>
+        <div class="slide-body">The <span class="slide-accent">financial-only LSTM</span> (no price branch) is the best model: MAE 0.1444 vs 0.1532, R² 0.293 vs 0.166, and Brier score cut by 54% (0.267 vs 0.573). PR-AUC is a statistical tie (0.8662 vs 0.8689). The full dual-stream fusion actually underperforms — the price branch added noise, not signal.</div>
+        <div class="slide-highlight" style="color:var(--green)">✓ MAE −5.8% · ✓ R² +76% · ✓ Brier −54% · ~ PR-AUC (tie) &nbsp;|&nbsp; Fin-only &gt; Full fusion</div>
       </div>
 
       <div class="slide">
@@ -918,9 +924,9 @@ const CO = {
 new Chart(document.getElementById('prauc-chart'),{
   type:'bar',
   data:{
-    labels:['Vol-Only','Ridge','XGBoost','Fusion NN'],
+    labels:['Vol-Only','Ridge','XGBoost','Fin LSTM'],
     datasets:[{
-      data:[0.8689,0.8368,0.8531,null],
+      data:[0.8689,0.8368,0.8531,0.8662],
       backgroundColor:['rgba(90,112,153,.5)','rgba(90,112,153,.5)','rgba(255,214,0,.5)','rgba(0,212,255,.5)'],
       borderColor:['#5a7099','#5a7099','#ffd600','#00d4ff'],
       borderWidth:2,borderRadius:6
@@ -931,9 +937,9 @@ new Chart(document.getElementById('prauc-chart'),{
 new Chart(document.getElementById('mae-chart'),{
   type:'bar',
   data:{
-    labels:['Vol-Only','Ridge','XGBoost','Fusion NN'],
+    labels:['Vol-Only','Ridge','XGBoost','Fin LSTM'],
     datasets:[{
-      data:[0.1532,0.1692,0.1660,null],
+      data:[0.1532,0.1692,0.1660,0.1444],
       backgroundColor:['rgba(90,112,153,.5)','rgba(90,112,153,.5)','rgba(255,214,0,.5)','rgba(0,212,255,.5)'],
       borderColor:['#5a7099','#5a7099','#ffd600','#00d4ff'],
       borderWidth:2,borderRadius:6
