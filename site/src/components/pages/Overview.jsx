@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { Database, Clock, Target } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts'
 
 function CountUp({ target, decimals = 0, prefix = '', suffix = '' }) {
   const [val, setVal] = useState(0)
@@ -34,26 +34,58 @@ const KPIS = [
 ]
 
 const DD_BARS = [
-  { name: 'Bed Bath & Beyond (BBBY)', pct: 60, color: 'var(--red)',   val: '-60%' },
-  { name: 'American Airlines (AAL)',  pct: 41, color: 'var(--red)',   val: '-41%' },
-  { name: 'Microsoft (MSFT)',         pct: 31, color: 'var(--amber)', val: '-31%' },
-  { name: 'Netflix (NFLX)',           pct: 58, color: 'var(--red)',   val: '-58%' },
-  { name: 'Johnson & Johnson (JNJ)',  pct: 13, color: 'var(--green)', val: '-13%' },
+  { name: 'Bed Bath & Beyond', drawdown: -60, sector: 'Retail' },
+  { name: 'American Airlines', drawdown: -41, sector: 'Airlines' },
+  { name: 'Microsoft',         drawdown: -31, sector: 'Software' },
+  { name: 'Netflix',           drawdown: -58, sector: 'Streaming' },
+  { name: 'Johnson & Johnson', drawdown: -13, sector: 'Healthcare' },
 ]
 
-export default function Overview() {
-  const [hovered, setHovered] = useState(null)
+function ddColor(v) {
+  if (v <= -50) return 'var(--red)'
+  if (v <= -30) return 'var(--amber)'
+  return 'var(--green)'
+}
 
+export default function Overview() {
   return (
     <div className="page-wrap">
       <div className="eyebrow">01 / Overview</div>
       <h1 className="page-title">Predicting<br />the <span style={{ color: 'var(--blue-700)' }}>Fall</span></h1>
-      <p className="page-sub">
-        A neural network that predicts how far a US public company&apos;s stock will fall over the next 12 months,
-        trained on 25 years of accounting data and daily price history.
+
+      {/* Buildup */}
+      <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-5)' }}>
+        Risk managers, credit teams, and portfolio managers all need the same number: how much could this position lose before it recovers? Today they triangulate it from volatility, leverage, credit ratings, and gut. We tried to do better with a single learned score.
       </p>
 
-      <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--sp-4)', marginBottom: 'var(--sp-10)' }}>
+        <div className="card card-p">
+          <div className="section-label">The motivating question</div>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
+            Bankruptcies are too rare to model reliably (only 387 in our dataset, roughly 0.3% of firm-years). Raw stock returns are too noisy to predict cleanly at any horizon. The number actually used by risk teams sits in between: the worst peak-to-trough loss over a defined window. We chose to predict that, 12 months forward, for every US public firm.
+          </p>
+        </div>
+        <div className="card card-p">
+          <div className="section-label">Team and course</div>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
+            Final project for Machine Learning II, UChicago MS-ADS, Spring 2026. Built over four weeks by Nick Dhaliwal, Jared Maksoud, Nicholas Mikhail, and Yung Chyi Yang. Architecture, training loop, and evaluation discipline all match the methodology submission the instructor graded "strongest in the cohort."
+          </p>
+        </div>
+        <div className="card card-p">
+          <div className="section-label">Our EDA journey</div>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
+            Three findings reshaped the project. The realized base rate of drawdowns past 30% was 51.7% on our universe, far above the 10 to 20% the brief expected (CRSP is small-cap heavy). COVID-era anchors had mean drawdowns near 50%, dominating any year-pooled metric. Newly public firms lacked 5 years of accounting history. The first pushed us toward rank metrics; the second told us validation had to be the COVID window; the third forced clean drop-not-impute handling.
+          </p>
+        </div>
+        <div className="card card-p">
+          <div className="section-label">What this is</div>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
+            This site is the presentation companion. The model is a real PyTorch checkpoint trained on 76,990 anchor rows; the headline numbers come from a 3-seed ensemble of our best architecture. The notebook, training pipeline, and trained weights all live in the public repo linked in the sidebar.
+          </p>
+        </div>
+      </div>
+
+      <div className="kpi-grid" style={{ marginBottom: 'var(--sp-10)' }}>
         {KPIS.map(({ Icon, num, suffix, label, decimals, prefix }) => (
           <div className="kpi-cell" key={label}>
             <div className="kpi-num">
@@ -65,93 +97,107 @@ export default function Overview() {
       </div>
 
       {/* What is forward drawdown */}
-      <h2 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '.45rem' }}>What is forward drawdown?</h2>
-      <p style={{ fontSize: '.92rem', color: 'var(--slate-700)', lineHeight: 1.7, maxWidth: 720, marginBottom: '1rem' }}>
+      <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-1)', marginBottom: 'var(--sp-2)' }}>
+        What is forward drawdown?
+      </h2>
+      <p style={{ fontSize: 'var(--text-base)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-4)' }}>
         Forward drawdown is the worst peak-to-trough percentage loss a stock will experience over the next 12 months.
         A value of <span style={{ color: 'var(--red)', fontWeight: 600 }}>-40%</span> means the stock fell 40% from its highest point during the year.
       </p>
-      <div className="info-box" style={{ marginBottom: '2rem' }}>
+      <div className="info-box" style={{ marginBottom: 'var(--sp-10)' }}>
         <strong style={{ color: 'var(--blue-900)' }}>How we built the metric.</strong>{' '}
         For every company-year, we anchor at fiscal-year-end plus 90 days (the realistic 10-K filing date), then take 12 months of adjusted CRSP daily prices and compute the worst close-to-peak decline.
         Delisted firms get full-loss treatment for bankruptcy or liquidation, terminal-value treatment for mergers. Every prediction uses only data available before the anchor date, so there is no look-ahead leakage.
       </div>
 
-      {/* Why */}
-      <h2 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '.45rem' }}>Why predict drawdown?</h2>
-      <p style={{ fontSize: '.88rem', color: 'var(--slate-500)', lineHeight: 1.75, maxWidth: 720, marginBottom: '2rem' }}>
-        Bankruptcies are too rare to model reliably (only 387 in the dataset). Raw stock returns are too noisy.
-        Forward drawdown sits in the middle: it is continuous, defined for every public company, and directly useful for sizing positions, setting stop-loss levels, and flagging firms that warrant deeper review.
-      </p>
-
-      {/* Drawdown in context */}
-      <h2 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '.45rem' }}>Reading the number in context</h2>
-      <p style={{ fontSize: '.88rem', color: 'var(--slate-500)', lineHeight: 1.75, maxWidth: 720, marginBottom: '1rem' }}>
+      {/* Reading the number in context */}
+      <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-1)', marginBottom: 'var(--sp-2)' }}>
+        Reading the number in context
+      </h2>
+      <p style={{ fontSize: 'var(--text-base)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-4)' }}>
         Drawdown is one risk number among several. Practitioners typically read it alongside:
       </p>
-      <div className="concept-grid" style={{ marginBottom: '1rem' }}>
+      <div className="concept-grid" style={{ marginBottom: 'var(--sp-4)' }}>
         <div className="concept-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', marginBottom: '.4rem' }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: '1rem', color: 'var(--blue-500)' }}>〜</span>
-            <span style={{ fontSize: '.88rem', fontWeight: 600, color: 'var(--slate-900)' }}>Volatility</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', color: 'var(--blue-500)' }}>〜</span>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-1)' }}>Volatility</span>
           </div>
           <div className="concept-def">Day-to-day price variability. High vol firms can have high drawdowns even without a true distress event. Drawdown tells you how deep the worst dip got; vol tells you how bumpy the ride was.</div>
         </div>
         <div className="concept-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', marginBottom: '.4rem' }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: '1rem', color: 'var(--blue-500)' }}>%</span>
-            <span style={{ fontSize: '.88rem', fontWeight: 600, color: 'var(--slate-900)' }}>Value at Risk (VaR)</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', color: 'var(--blue-500)' }}>%</span>
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-1)' }}>Value at Risk (VaR)</span>
           </div>
           <div className="concept-def">The worst loss expected at a given confidence level over a short horizon (a day, a week). Drawdown extends the same idea to a full year and to peak-to-trough, which is what actually triggers margin calls and stop-outs.</div>
         </div>
       </div>
-      <div className="info-box">
+      <div className="info-box" style={{ marginBottom: 'var(--sp-10)' }}>
         <strong style={{ color: 'var(--blue-900)' }}>How to use the score.</strong>{' '}
         A predicted -10% is a quiet year. A predicted -30% means the model expects a material drawdown, the same threshold the brief uses for the binary headline flag. Below -50% is in the genuine-distress range.
         Combine with volatility for sizing, with leverage for solvency context, and with sector trends for the macro picture.
       </div>
 
-      {/* Sample bars, hover-driven */}
-      <div className="card card-p" style={{ marginTop: '2rem' }}>
-        <div className="section-label" style={{ marginBottom: '.4rem' }}>Sample realized drawdowns from our test set, fyear 2020 to 2023</div>
-        <div style={{ fontSize: '.72rem', color: 'var(--slate-500)', marginBottom: '1rem' }}>Hover a company name to reveal its realized drawdown.</div>
-        {DD_BARS.map(({ name, pct, color, val }) => {
-          const isHover = hovered === name
-          return (
-            <div
-              key={name}
-              onMouseEnter={() => setHovered(name)}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                marginBottom: '.75rem', cursor: 'default',
-                padding: '.35rem .5rem', marginLeft: '-.5rem', marginRight: '-.5rem',
-                borderRadius: 6, transition: 'background .15s',
-                background: isHover ? 'var(--slate-50)' : 'transparent',
+      {/* Sample drawdowns chart */}
+      <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-1)', marginBottom: 'var(--sp-2)' }}>
+        Sample realized drawdowns
+      </h2>
+      <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-3)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-4)' }}>
+        Five firms from our test set (fyear 2020 to 2023). Realized drawdowns from CRSP daily prices, color-coded by severity.
+      </p>
+      <div className="card card-p" style={{ paddingTop: 'var(--sp-6)', paddingBottom: 'var(--sp-6)' }}>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={DD_BARS}
+            layout="vertical"
+            margin={{ top: 4, right: 56, bottom: 4, left: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+            <XAxis
+              type="number"
+              domain={[-100, 0]}
+              tick={{ fontSize: 11, fill: 'var(--text-4)', fontFamily: 'var(--mono)' }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v) => `${v}%`}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tick={{ fontSize: 12, fill: 'var(--text-2)', fontFamily: 'var(--sans)' }}
+              axisLine={false}
+              tickLine={false}
+              width={160}
+            />
+            <Tooltip
+              formatter={(v) => [`${v}%`, 'Realized drawdown']}
+              labelStyle={{ color: 'var(--text-1)', fontWeight: 600 }}
+              contentStyle={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                fontSize: 12,
+                fontFamily: 'var(--mono)',
+                color: 'var(--text-2)',
               }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '.85rem', color: 'var(--slate-700)', marginBottom: '.35rem' }}>
-                <span style={{ fontWeight: 500 }}>{name}</span>
-                <motion.span
-                  initial={false}
-                  animate={{ opacity: isHover ? 1 : 0, x: isHover ? 0 : 6 }}
-                  transition={{ duration: .14 }}
-                  style={{ fontFamily: 'var(--mono)', fontWeight: 600, color }}
-                >
-                  {val}
-                </motion.span>
-              </div>
-              <div className="dd-bar-track">
-                <motion.div
-                  className="dd-bar-fill"
-                  style={{ background: color }}
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${pct}%` }}
-                  viewport={{ once: true }}
-                  transition={{ duration: .8, ease: 'easeOut', delay: .1 }}
-                />
-              </div>
-            </div>
-          )
-        })}
+            />
+            <Bar dataKey="drawdown" radius={[0, 4, 4, 0]}>
+              {DD_BARS.map((d) => <Cell key={d.name} fill={ddColor(d.drawdown)} />)}
+              <LabelList
+                dataKey="drawdown"
+                position="right"
+                formatter={(v) => `${v}%`}
+                style={{ fill: 'var(--text-2)', fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 600 }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+        <div style={{ display: 'flex', gap: 'var(--sp-4)', marginTop: 'var(--sp-4)', fontSize: 'var(--text-xs)', color: 'var(--text-3)', flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--green)' }} /> Mild (greater than -30%)</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--amber)' }} /> Material (-30% to -50%)</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--red)' }} /> Severe (worse than -50%)</span>
+        </div>
       </div>
     </div>
   )

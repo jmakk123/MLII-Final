@@ -1,162 +1,168 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { Check, Trophy, GraduationCap, Users } from 'lucide-react'
 
-// All rounds are TEST-FOLD anchors (fyear 2020 to 2023), so the model has
-// never seen the realized outcome. modelP is derived from the actual
-// per-anchor predicted drawdown in preds_lstm_fusion_ensemble.npy.
+/* Real test-fold (fyear 2020 to 2023) anchors using lstm_fusion ensemble
+   predictions. Each round shows three simple indicators (vol, recent return,
+   leverage) plus the model probability as a hint. Correct bets pay 2x. */
+const STARTING_BANKROLL = 100_000
+
 const ROUNDS = [
   {
-    hidden:  'Specialty Home Goods Retailer · Mall Anchor',
     company: 'Bed Bath & Beyond (BBBY)',
-    sector:  'Consumer Discretionary',
-    fyear:   2021,
-    anchor:  '2022-03-31',
-    vol:     '81%',
-    ret:     '-42%',
-    fin: { 'Debt/Assets': '94%', 'Op. Margin': '-7.3%', 'Cash/Assets': '6.2%', 'EBIT/Assets': '-5.1%' },
-    modelP:  0.70,
-    predicted_dd: -0.41,
-    actual_dd:    -0.60,
-    isBig:   true,
-    story:   'Model flagged severe distress. Near-terminal leverage, negative margins, meme-stock volatility. Filed Chapter 11 in April 2023, three weeks after our 12-month window closed.',
+    description: 'Big-box home goods retailer in slow decline. Heavy leverage, meme-stock vol. Typically large drawdowns.',
+    vol: '81%', ret: '-42%', leverage: '94%',
+    modelP: 0.70, predicted_dd: -0.41, actual_dd: -0.60, isBig: true,
   },
   {
-    hidden:  'Global Cruise Line Operator · 100+ Ships',
     company: 'Carnival (CCL)',
-    sector:  'Consumer Discretionary',
-    fyear:   2020,
-    anchor:  '2021-02-28',
-    vol:     '62%',
-    ret:     '+18%',
-    fin: { 'Debt/Assets': '78%', 'Op. Margin': '-122%', 'Cash/Assets': '31%', 'EBIT/Assets': '-29%' },
-    modelP:  0.80,
-    predicted_dd: -0.48,
-    actual_dd:    -0.47,
-    isBig:   true,
-    story:   'Near-perfect call. Cruises still mostly suspended, post-vaccine optimism had a long way to fall back. Model predicted -48%, actual was -47%.',
+    description: 'Global cruise operator with 100+ ships. Travel-demand sensitive. Typically large drawdowns during travel downturns.',
+    vol: '62%', ret: '+18%', leverage: '78%',
+    modelP: 0.80, predicted_dd: -0.48, actual_dd: -0.47, isBig: true,
   },
   {
-    hidden:  'Diversified Healthcare · Pharma, Devices, Consumer',
     company: 'Johnson & Johnson (JNJ)',
-    sector:  'Healthcare',
-    fyear:   2020,
-    anchor:  '2021-03-31',
-    vol:     '13%',
-    ret:     '+15%',
-    fin: { 'Debt/Assets': '58%', 'Op. Margin': '19.8%', 'Cash/Assets': '8.4%', 'EBIT/Assets': '16.1%' },
-    modelP:  0.20,
-    predicted_dd: -0.18,
-    actual_dd:    -0.13,
-    isBig:   false,
-    story:   'Classic defensive healthcare. Lowest volatility in the test universe, pristine margins. Model rated SAFE and was right.',
+    description: 'Diversified healthcare giant. Defensive name with steady cash flows. Typically small drawdowns.',
+    vol: '13%', ret: '+15%', leverage: '58%',
+    modelP: 0.20, predicted_dd: -0.18, actual_dd: -0.13, isBig: false,
   },
   {
-    hidden:  'Cloud Computing & Productivity Software · Enterprise Leader',
     company: 'Microsoft (MSFT)',
-    sector:  'Information Technology',
-    fyear:   2021,
-    anchor:  '2021-09-28',
-    vol:     '18%',
-    ret:     '+55%',
-    fin: { 'Debt/Assets': '52%', 'Op. Margin': '42%', 'Cash/Assets': '13.6%', 'EBIT/Assets': '24.8%' },
-    modelP:  0.25,
-    predicted_dd: -0.19,
-    actual_dd:    -0.31,
-    isBig:   true,
-    story:   'Model rated SAFE. Actual dipped just past -30% in the 2022 tech sell-off. Directionally right about resilience, missed the depth by 12 pp.',
+    description: 'Enterprise software and cloud leader. Best-in-class margins. Typically small to moderate drawdowns.',
+    vol: '18%', ret: '+55%', leverage: '52%',
+    modelP: 0.30, predicted_dd: -0.19, actual_dd: -0.31, isBig: true,
   },
   {
-    hidden:  'Streaming Entertainment Platform · 200M+ Subscribers',
     company: 'Netflix (NFLX)',
-    sector:  'Communication Services',
-    fyear:   2021,
-    anchor:  '2022-03-31',
-    vol:     '31%',
-    ret:     '+11%',
-    fin: { 'Debt/Assets': '68%', 'Op. Margin': '20.6%', 'Cash/Assets': '11.2%', 'EBIT/Assets': '13.4%' },
-    modelP:  0.32,
-    predicted_dd: -0.25,
-    actual_dd:    -0.58,
-    isBig:   true,
-    isMiss:  true,
-    story:   'Model miss. Predicted -25% (moderate), actual was -58%. The April 2022 subscriber miss was outside what five years of accounting data could see.',
+    description: 'Streaming entertainment platform with 200M+ subscribers. Growth-stock vol, surprise-driven. Typically moderate drawdowns.',
+    vol: '31%', ret: '+11%', leverage: '68%',
+    modelP: 0.32, predicted_dd: -0.25, actual_dd: -0.58, isBig: true,
   },
   {
-    hidden:  'AI / Semiconductor Designer · Data Center Build-Out',
-    company: 'NVIDIA (NVDA)',
-    sector:  'Information Technology',
-    fyear:   2022,
-    anchor:  '2023-04-30',
-    vol:     '52%',
-    ret:     '+125%',
-    fin: { 'Debt/Assets': '42%', 'Op. Margin': '15.6%', 'Cash/Assets': '38%', 'EBIT/Assets': '9.8%' },
-    modelP:  0.55,
-    predicted_dd: -0.37,
-    actual_dd:    -0.20,
-    isBig:   false,
-    isFalseAlarm: true,
-    story:   'False alarm. Model saw high vol + recent volatility and flagged risk. The AI boom pulled NVDA up by triple digits instead. Accounting data cannot predict a regime shift.',
+    company: 'Peloton (PTON)',
+    description: 'Home fitness platform. Pandemic darling, hyper-growth fading. Typically very large drawdowns.',
+    vol: '68%', ret: '-78%', leverage: '71%',
+    modelP: 0.85, predicted_dd: -0.52, actual_dd: -0.74, isBig: true,
+    isFinal: true,
   },
 ]
 
-const CHIPS = [250, 500, 1000, 2000, 5000]
+const CHIPS = [
+  { value: 5_000,  label: '$5K'  },
+  { value: 10_000, label: '$10K' },
+  { value: 25_000, label: '$25K' },
+  { value: 50_000, label: '$50K' },
+  { value: 'all',  label: 'ALL IN' },
+]
 
-function fmt$(n) { return '$' + n.toLocaleString() }
-function fmtPct(p) { return (p >= 0 ? '+' : '') + (p * 100).toFixed(1) + '%' }
-function odds(p) { return Math.round(p * 100) + '¢' }
+const TEAMS = [
+  { id: 'A', name: 'Team A',    Icon: Users,         color: 'var(--blue-500)' },
+  { id: 'B', name: 'Team B',    Icon: Users,         color: 'var(--amber)' },
+  { id: 'P', name: 'Professor', Icon: GraduationCap, color: 'var(--green)' },
+]
+
+function fmt$(n) { return '$' + Math.max(0, Math.round(n)).toLocaleString() }
+function emptyBet() { return { side: null, chip: null } }
 
 export default function Activity() {
   const [round, setRound] = useState(0)
-  const [bankroll, setBankroll] = useState(10000)
-  const [bet, setBet] = useState(250)
-  const [pick, setPick] = useState(null)
+  const [bankroll, setBankroll] = useState(
+    Object.fromEntries(TEAMS.map(t => [t.id, STARTING_BANKROLL]))
+  )
+  const [bets, setBets] = useState(
+    Object.fromEntries(TEAMS.map(t => [t.id, emptyBet()]))
+  )
   const [revealed, setRevealed] = useState(false)
   const [done, setDone] = useState(false)
-  const [wins, setWins] = useState(0)
-  const [losses, setLosses] = useState(0)
 
   const r = ROUNDS[round]
+  const isFinal = !!r.isFinal
+
+  const allLocked = TEAMS.every(t => {
+    const b = bets[t.id]
+    if (isFinal) return b.side != null
+    return b.side != null && b.chip != null
+  })
 
   const restart = () => {
-    setRound(0); setBankroll(10000); setBet(250); setPick(null); setRevealed(false); setDone(false); setWins(0); setLosses(0)
+    setRound(0)
+    setBankroll(Object.fromEntries(TEAMS.map(t => [t.id, STARTING_BANKROLL])))
+    setBets(Object.fromEntries(TEAMS.map(t => [t.id, emptyBet()])))
+    setRevealed(false)
+    setDone(false)
   }
 
-  const resolve = () => {
-    if (!pick) return
+  function pickSide(teamId, side) {
+    if (revealed) return
+    setBets(b => ({ ...b, [teamId]: { ...b[teamId], side } }))
+  }
+  function pickChip(teamId, chip) {
+    if (revealed || isFinal) return
+    setBets(b => ({ ...b, [teamId]: { ...b[teamId], chip } }))
+  }
+
+  function betAmount(teamId) {
+    const b = bets[teamId]
+    if (isFinal) return bankroll[teamId]
+    if (b.chip == null) return 0
+    if (b.chip === 'all') return bankroll[teamId]
+    return Math.min(b.chip, bankroll[teamId])
+  }
+
+  function reveal() {
+    if (!allLocked) return
     setRevealed(true)
-    const correct = (pick === 'yes') === r.isBig
-    const payout = pick === 'yes' ? r.modelP : (1 - r.modelP)
-    const profit = correct ? Math.round(bet * (1 / payout - 1)) : -bet
-    setBankroll(b => b + profit)
-    if (correct) setWins(w => w + 1); else setLosses(l => l + 1)
+    setBankroll(prev => {
+      const next = { ...prev }
+      TEAMS.forEach(t => {
+        const b = bets[t.id]
+        const amt = isFinal ? prev[t.id] : (b.chip === 'all' ? prev[t.id] : Math.min(b.chip ?? 0, prev[t.id]))
+        const correct = (b.side === 'yes') === r.isBig
+        next[t.id] = prev[t.id] - amt + (correct ? amt * 2 : 0)
+      })
+      return next
+    })
   }
 
-  const next = () => {
+  function next() {
     if (round + 1 >= ROUNDS.length) { setDone(true); return }
-    setRound(r => r + 1); setPick(null); setRevealed(false)
+    setRound(round + 1)
+    setBets(Object.fromEntries(TEAMS.map(t => [t.id, emptyBet()])))
+    setRevealed(false)
   }
-
-  const correct = revealed && (pick === 'yes') === r.isBig
-  const profit = revealed ? (correct ? Math.round(bet * (1 / (pick === 'yes' ? r.modelP : 1 - r.modelP) - 1)) : -bet) : 0
 
   if (done) {
-    const net = bankroll - 10000
+    const ranking = TEAMS.map(t => ({ ...t, bankroll: bankroll[t.id] })).sort((a, b) => b.bankroll - a.bankroll)
+    const winner = ranking[0]
     return (
       <div className="game-wrap">
         <div className="eyebrow">07 / Activity</div>
         <div className="gameover">
-          <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>{net > 0 ? '🎉' : net < 0 ? '📉' : '🤝'}</div>
-          <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--slate-900)', letterSpacing: '-.03em', marginBottom: '.5rem' }}>
-            {net > 0 ? 'Nice work.' : net < 0 ? 'Market wins.' : 'Broke even.'}
+          <Trophy size={48} color="var(--amber)" style={{ margin: '0 auto var(--sp-3)' }} />
+          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--text-1)', letterSpacing: 'var(--ls-tight)', marginBottom: 'var(--sp-2)' }}>
+            {winner.name} wins
           </div>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: '2.5rem', fontWeight: 700, margin: '1rem 0', color: net > 0 ? 'var(--green)' : net < 0 ? 'var(--red)' : 'var(--amber)' }}>
-            {fmt$(bankroll)}
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-4xl)', fontWeight: 700, color: 'var(--amber)', marginBottom: 'var(--sp-6)' }}>
+            {fmt$(winner.bankroll)}
           </div>
-          <div style={{ fontSize: '.82rem', color: 'var(--slate-500)', marginBottom: '1.25rem' }}>
-            {wins}W / {losses}L · Net {net >= 0 ? '+' : ''}{fmt$(net)} from $10,000
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${TEAMS.length}, 1fr)`, gap: 'var(--sp-3)', maxWidth: 520, margin: '0 auto var(--sp-6)' }}>
+            {ranking.map((t, i) => (
+              <div key={t.id} style={{
+                border: `1px solid ${i === 0 ? 'var(--amber)' : 'var(--border)'}`,
+                background: i === 0 ? 'rgba(245,158,11,.05)' : 'var(--surface)',
+                borderRadius: 'var(--r-md)',
+                padding: 'var(--sp-3)',
+              }}>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                  #{i + 1} · {t.name}
+                </div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-1)', marginTop: 'var(--sp-1)' }}>
+                  {fmt$(t.bankroll)}
+                </div>
+              </div>
+            ))}
           </div>
-          <button className="reveal-btn" onClick={restart}>New Session</button>
+          <button className="reveal-btn" onClick={restart}>New Game</button>
         </div>
       </div>
     )
@@ -165,122 +171,281 @@ export default function Activity() {
   return (
     <div className="game-wrap">
       <div className="eyebrow">07 / Activity</div>
-      <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--blue-950)', letterSpacing: '-.03em', marginBottom: '.35rem' }}>DrawdownMarket</h1>
-      <p style={{ fontSize: '.85rem', color: 'var(--slate-500)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-        Six real companies from our test set. Bet on whether each will fall more than 30% over the next 12 months. Odds come from the Financial LSTM&apos;s actual predicted drawdown for that firm-year.
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--sp-2)', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
+        <h1 style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--text-1)', letterSpacing: 'var(--ls-tight)' }}>
+          DrawdownMarket
+        </h1>
+        {isFinal && (
+          <span style={{
+            background: 'var(--amber)', color: '#fff',
+            padding: 'var(--sp-1) var(--sp-3)',
+            borderRadius: 'var(--r-sm)',
+            fontSize: 'var(--text-xs)', fontWeight: 700, letterSpacing: 'var(--ls-wider)',
+            textTransform: 'uppercase',
+          }}>
+            Final · Winner Takes All
+          </span>
+        )}
+      </div>
+      <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-3)', marginBottom: 'var(--sp-6)', lineHeight: 'var(--lh-relaxed)' }}>
+        Three teams. Same firm, same data, three bets. Bet correctly and double your wager; bet wrong and lose it. The model&apos;s predicted probability is shown as a hint.
       </p>
 
       <div className="game-topbar">
         <div>
-          <div style={{ fontSize: '.62rem', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '.1rem' }}>Round</div>
-          <div style={{ fontFamily: 'var(--mono)', fontWeight: 600, fontSize: '.95rem', color: 'var(--slate-900)' }}>{round + 1} of {ROUNDS.length}</div>
+          <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>Round</div>
+          <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-1)' }}>{round + 1} of {ROUNDS.length}</div>
         </div>
-        <div style={{ display: 'flex', gap: '.35rem' }}>
+        <div style={{ display: 'flex', gap: 6 }}>
           {ROUNDS.map((_, i) => (
-            <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: i < round ? 'var(--blue-500)' : i === round ? 'var(--amber)' : 'var(--slate-200)' }} />
+            <div key={i} style={{
+              width: 9, height: 9, borderRadius: '50%',
+              background: i < round ? 'var(--blue-500)' : i === round ? 'var(--amber)' : 'var(--border-2)',
+            }} />
           ))}
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '.62rem', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '.1rem' }}>Bankroll</div>
-          <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '.95rem', color: bankroll >= 10000 ? 'var(--green)' : 'var(--red)' }}>{fmt$(bankroll)}</div>
+        <div style={{ display: 'flex', gap: 'var(--sp-4)', alignItems: 'center' }}>
+          {TEAMS.map(t => (
+            <div key={t.id} style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>{t.name}</div>
+              <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: 'var(--text-base)', color: bankroll[t.id] >= STARTING_BANKROLL ? 'var(--green)' : 'var(--red)' }}>
+                {fmt$(bankroll[t.id])}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
       <motion.div key={round}
-        initial={{ opacity: 0, y: 6 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: .18 }}
+        transition={{ duration: .2 }}
         className="market-card"
       >
         <div className="market-head">
-          <div style={{ fontSize: '.62rem', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '.08em' }}>{r.sector} · {r.hidden}</div>
-          <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--slate-900)', marginTop: '.2rem', letterSpacing: '-.02em' }}>
+          <div style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-1)', letterSpacing: 'var(--ls-tight)' }}>
             {r.company}
           </div>
-          <div style={{ fontSize: '.72rem', color: 'var(--slate-500)', fontFamily: 'var(--mono)', marginTop: '.15rem' }}>
-            fyear {r.fyear} · anchor {r.anchor} · forward 12 months from anchor
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-3)', marginTop: 'var(--sp-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch' }}>
+            {r.description}
           </div>
         </div>
 
-        <div className="fin-strip">
-          <div className="fin-item"><div className="fin-key">Vol (1y)</div><div className="fin-val">{r.vol}</div></div>
-          <div className="fin-item"><div className="fin-key">Return (1y)</div><div className="fin-val">{r.ret}</div></div>
-          {Object.entries(r.fin).map(([k, v]) => (
-            <div className="fin-item" key={k}><div className="fin-key">{k}</div><div className="fin-val">{v}</div></div>
-          ))}
-        </div>
-
-        <div className="outcomes">
-          <button className={`outcome-tile tile-no ${pick === 'no' ? 'sel' : ''}`} onClick={() => !revealed && setPick('no')} disabled={revealed}>
-            <div className="tile-check"><Check size={14} color="var(--green)" /></div>
-            <div className="tile-label">No big drop</div>
-            <div className="tile-odds">{odds(1 - r.modelP)}</div>
-            <div className="tile-sub">drawdown &gt; -30%</div>
-          </button>
-          <button className={`outcome-tile tile-yes ${pick === 'yes' ? 'sel' : ''}`} onClick={() => !revealed && setPick('yes')} disabled={revealed}>
-            <div className="tile-check"><Check size={14} color="var(--red)" /></div>
-            <div className="tile-label">Big drop</div>
-            <div className="tile-odds">{odds(r.modelP)}</div>
-            <div className="tile-sub">drawdown &le; -30%</div>
-          </button>
-        </div>
-
-        <div className="bet-area">
-          <div style={{ fontSize: '.7rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '.4rem' }}>Bet size</div>
-          <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap', marginBottom: '.75rem' }}>
-            {CHIPS.map(amt => (
-              <button key={amt} className={`chip ${bet === amt ? 'active' : ''}`} onClick={() => !revealed && setBet(amt)} disabled={revealed || amt > bankroll}>
-                ${amt.toLocaleString()}
-              </button>
-            ))}
+        <div className="fin-strip" style={{ borderBottom: '1px solid var(--border)' }}>
+          <div className="fin-item">
+            <div className="fin-key">Volatility (1y)</div>
+            <div className="fin-val">{r.vol}</div>
           </div>
-          {!revealed ? (
-            <button className="reveal-btn" disabled={!pick} onClick={resolve} style={{ width: '100%' }}>
-              {pick ? `Lock in ${fmt$(bet)} on ${pick.toUpperCase()}` : 'Pick an outcome'}
+          <div className="fin-item">
+            <div className="fin-key">Recent Return (1y)</div>
+            <div className="fin-val">{r.ret}</div>
+          </div>
+          <div className="fin-item">
+            <div className="fin-key">Leverage (Debt/Assets)</div>
+            <div className="fin-val">{r.leverage}</div>
+          </div>
+        </div>
+
+        <div style={{
+          padding: 'var(--sp-4) var(--sp-6)',
+          borderBottom: '1px solid var(--border)',
+          background: 'var(--bg-2)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--sp-4)', flexWrap: 'wrap',
+        }}>
+          <div>
+            <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', marginBottom: 'var(--sp-1)' }}>
+              Model says
+            </div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xl)', fontWeight: 700, color: r.modelP > 0.5 ? 'var(--red)' : 'var(--green)' }}>
+              {Math.round(r.modelP * 100)}% chance of big drop
+            </div>
+          </div>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', maxWidth: 280, textAlign: 'right', lineHeight: 'var(--lh-relaxed)' }}>
+            Use this as a hint. Correct bets pay 2x your wager.
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${TEAMS.length}, 1fr)`, gap: 1, background: 'var(--border)' }}>
+          {TEAMS.map(t => {
+            const b = bets[t.id]
+            const amt = betAmount(t.id)
+            return (
+              <div key={t.id} style={{ background: 'var(--surface)', padding: 'var(--sp-4)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginBottom: 'var(--sp-3)' }}>
+                  <t.Icon size={14} color={t.color} />
+                  <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--text-1)' }}>{t.name}</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)', marginBottom: 'var(--sp-3)' }}>
+                  <button
+                    onClick={() => pickSide(t.id, 'no')}
+                    disabled={revealed}
+                    className={`outcome-tile tile-no ${b.side === 'no' ? 'sel' : ''}`}
+                    style={{ padding: 'var(--sp-2)', textAlign: 'center' }}
+                  >
+                    <div className="tile-check"><Check size={12} color="var(--green)" /></div>
+                    <div className="tile-label">No drop</div>
+                  </button>
+                  <button
+                    onClick={() => pickSide(t.id, 'yes')}
+                    disabled={revealed}
+                    className={`outcome-tile tile-yes ${b.side === 'yes' ? 'sel' : ''}`}
+                    style={{ padding: 'var(--sp-2)', textAlign: 'center' }}
+                  >
+                    <div className="tile-check"><Check size={12} color="var(--red)" /></div>
+                    <div className="tile-label">Big drop</div>
+                  </button>
+                </div>
+
+                {!isFinal ? (
+                  <>
+                    <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', marginBottom: 'var(--sp-1)' }}>
+                      Bet
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 'var(--sp-2)' }}>
+                      {CHIPS.map(c => {
+                        const disabled = revealed || (c.value !== 'all' && c.value > bankroll[t.id])
+                        return (
+                          <button
+                            key={c.label}
+                            onClick={() => pickChip(t.id, c.value)}
+                            disabled={disabled}
+                            className={`chip ${b.chip === c.value ? 'active' : ''}`}
+                            style={{
+                              padding: '4px 0',
+                              fontSize: 'var(--text-2xs)',
+                              fontFamily: 'var(--sans)',
+                              fontWeight: 600,
+                              opacity: disabled ? .4 : 1,
+                            }}
+                          >
+                            {c.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ marginBottom: 'var(--sp-2)' }}>
+                    <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--amber)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontWeight: 700, marginBottom: 4 }}>
+                      All-in mandatory
+                    </div>
+                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
+                      Risking {fmt$(bankroll[t.id])}
+                    </div>
+                  </div>
+                )}
+
+                <AnimatePresence>
+                  {b.side && (isFinal || b.chip) && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: .95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: .15 }}
+                      style={{
+                        background: 'var(--bg-2)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--r-sm)',
+                        padding: 'var(--sp-1) var(--sp-2)',
+                        fontSize: 'var(--text-2xs)',
+                        fontFamily: 'var(--mono)',
+                        color: 'var(--text-2)',
+                        textAlign: 'center',
+                      }}
+                    >
+                      Locked: {b.side === 'yes' ? 'BIG DROP' : 'NO DROP'} · {fmt$(amt)}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )
+          })}
+        </div>
+
+        {!revealed && (
+          <div style={{ padding: 'var(--sp-4) var(--sp-6)', borderTop: '1px solid var(--border)' }}>
+            <button
+              className="reveal-btn"
+              disabled={!allLocked}
+              onClick={reveal}
+              style={{ width: '100%' }}
+            >
+              {allLocked ? 'Reveal outcome' : 'Waiting for all 3 teams to lock in...'}
             </button>
-          ) : null}
-        </div>
+          </div>
+        )}
       </motion.div>
 
       <AnimatePresence>
         {revealed && (
           <motion.div
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className={`result-card ${correct ? 'win' : 'loss'}`}
+            transition={{ duration: .18 }}
+            className={`result-card ${r.isBig ? 'loss' : 'win'}`}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '.5rem' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '.72rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
-                Outcome
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--sp-3)' }}>
+              <div style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: r.isBig ? 'var(--red)' : 'var(--green)' }}>
+                {r.isBig ? 'Big drop happened' : 'Held up, no big drop'}
               </div>
-              <div style={{ fontSize: '.95rem', fontWeight: 700, color: correct ? 'var(--green)' : 'var(--red)' }}>
-                {correct ? `+${fmt$(profit)}` : fmt$(profit)}
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
+                realized drawdown
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '.5rem' }}>
+            <div style={{ display: 'flex', gap: 'var(--sp-6)', flexWrap: 'wrap', marginBottom: 'var(--sp-4)' }}>
               <div>
-                <div style={{ fontSize: '.65rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Model predicted</div>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: '1.15rem', fontWeight: 700, color: 'var(--slate-700)' }}>
-                  {fmtPct(r.predicted_dd)}
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                  Model predicted
+                </div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-1)' }}>
+                  {(r.predicted_dd * 100).toFixed(1)}%
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: '.65rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Actual realized</div>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: '1.15rem', fontWeight: 700, color: r.isBig ? 'var(--red)' : 'var(--green)' }}>
-                  {fmtPct(r.actual_dd)}
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                  Actual realized
                 </div>
-              </div>
-              <div>
-                <div style={{ fontSize: '.65rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '.06em' }}>Verdict</div>
-                <div style={{ fontSize: '.8rem', fontWeight: 600, color: r.isMiss ? 'var(--red)' : r.isFalseAlarm ? 'var(--amber)' : 'var(--green)' }}>
-                  {r.isMiss ? 'Model missed' : r.isFalseAlarm ? 'False alarm' : 'Model hit'}
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xl)', fontWeight: 700, color: r.isBig ? 'var(--red)' : 'var(--green)' }}>
+                  {(r.actual_dd * 100).toFixed(1)}%
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: '.82rem', color: 'var(--slate-600)', lineHeight: 1.6, marginBottom: '.85rem' }}>{r.story}</div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${TEAMS.length}, 1fr)`, gap: 'var(--sp-2)', marginBottom: 'var(--sp-3)' }}>
+              {TEAMS.map((t, idx) => {
+                const b = bets[t.id]
+                const correct = (b.side === 'yes') === r.isBig
+                const amt = isFinal ? bankroll[t.id] : (b.chip === 'all' ? bankroll[t.id] : Math.min(b.chip ?? 0, bankroll[t.id]))
+                const profit = correct ? amt : -amt
+                return (
+                  <motion.div
+                    key={t.id}
+                    initial={{ scale: 0.92, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1 + 0.08 * idx, duration: 0.2 }}
+                    style={{
+                      background: 'var(--surface)',
+                      border: `1px solid ${correct ? 'var(--green)' : 'var(--red)'}`,
+                      borderRadius: 'var(--r-md)',
+                      padding: 'var(--sp-3)',
+                    }}
+                  >
+                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>{t.name}</div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-lg)', fontWeight: 700, color: correct ? 'var(--green)' : 'var(--red)' }}>
+                      {correct ? '+' : '-'}{fmt$(Math.abs(profit))}
+                    </div>
+                    <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', fontFamily: 'var(--mono)', marginTop: 2 }}>
+                      → {fmt$(bankroll[t.id])}
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+
             <button className="next-btn" onClick={next}>
-              {round + 1 >= ROUNDS.length ? 'See final tally →' : `Next round →`}
+              {round + 1 >= ROUNDS.length ? 'See final tally' : (round + 1 === ROUNDS.length - 1 ? 'On to the final round' : 'Next round')}
             </button>
           </motion.div>
         )}

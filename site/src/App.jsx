@@ -28,14 +28,33 @@ const variants = {
   exit:     { opacity: 0, transition: { duration: .12 } },
 }
 
-const SB_KEY = 'ds.sidebar.open'
+const SB_KEY    = 'ds.sidebar.open'
+const THEME_KEY = 'ds.theme'
+
+function getInitialTheme() {
+  try {
+    const v = localStorage.getItem(THEME_KEY)
+    if (v === 'light' || v === 'dark') return v
+  } catch {}
+  if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
+    return 'dark'
+  }
+  return 'light'
+}
 
 export default function App() {
   const [page, setPage] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     try { const v = localStorage.getItem(SB_KEY); return v === null ? true : v === '1' } catch { return true }
   })
+  const [theme, setTheme] = useState(getInitialTheme)
   const scrollRef = useRef(null)
+
+  // Persist + apply theme
+  useEffect(() => {
+    try { localStorage.setItem(THEME_KEY, theme) } catch {}
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   useEffect(() => {
     try { localStorage.setItem(SB_KEY, sidebarOpen ? '1' : '0') } catch {}
@@ -46,12 +65,20 @@ export default function App() {
     if (scrollRef.current) scrollRef.current.scrollTop = 0
   }
 
+  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
+
   const PageComponent = PAGES[page] ?? Overview
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       {sidebarOpen && (
-        <Sidebar current={page} navigate={navigate} onClose={() => setSidebarOpen(false)} />
+        <Sidebar
+          current={page}
+          navigate={navigate}
+          onClose={() => setSidebarOpen(false)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
       )}
 
       {!sidebarOpen && (
@@ -60,16 +87,18 @@ export default function App() {
           aria-label="Open sidebar"
           title="Open sidebar"
           style={{
-            position: 'fixed', top: 14, left: 14, zIndex: 50,
-            width: 36, height: 36, borderRadius: 7,
-            background: 'var(--white)', border: '1px solid var(--slate-200)',
+            position: 'fixed', top: 16, left: 16, zIndex: 50,
+            width: 40, height: 40, borderRadius: 'var(--r-md)',
+            background: 'var(--surface)', border: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: 'var(--slate-700)',
-            boxShadow: '0 1px 3px rgba(0,0,0,.04)',
-            transition: 'border-color .15s, box-shadow .15s',
+            cursor: 'pointer', color: 'var(--text-2)',
+            boxShadow: 'var(--shadow-md)',
+            transition: 'border-color .15s, color .15s, transform .1s',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(30,64,175,.08)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--slate-200)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,.04)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(1px)' }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = '' }}
         >
           <Menu size={18} />
         </button>

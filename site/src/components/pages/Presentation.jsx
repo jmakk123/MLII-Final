@@ -41,8 +41,7 @@ export default function Presentation() {
   return (
     <div className="page-wrap">
       <div className="eyebrow">06 / Quick Recap</div>
-      <h1 className="page-title">Quick Recap<br />in six slides.</h1>
-      <p className="page-sub">Headline points from our final presentation. Each slide stands alone so you can drop them into a deck or read straight through.</p>
+      <h1 className="page-title" style={{ marginBottom: 'var(--sp-8)' }}>Quick Recap</h1>
       {SLIDES.map(({ num, eyebrow, title, body, callout, calloutStyle, hi }) => (
         <div key={num} className="slide">
           <div className={`slide-num${hi ? ' hi' : ''}`}>{num}</div>

@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, Database, Cpu, BarChart2, Briefcase, Presentation, Gamepad2, GitFork, X } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Database, Cpu, BarChart2, Briefcase, Presentation, Gamepad2, GitFork, Sun, Moon, PanelLeftClose } from 'lucide-react'
 
 const NAV = [
   { id: 'overview',  label: 'Overview',           Icon: LayoutDashboard },
@@ -10,46 +10,57 @@ const NAV = [
   { id: 'slides',    label: 'Quick Recap',        Icon: Presentation },
 ]
 
-export default function Sidebar({ current, navigate, onClose }) {
+export default function Sidebar({ current, navigate, onClose, theme, onToggleTheme }) {
+  const isDark = theme === 'dark'
   return (
     <aside className="sidebar">
-      {/* Logo + close */}
-      <div style={{ padding: '1.35rem 1.1rem 1rem', borderBottom: '1px solid var(--slate-200)', position: 'relative' }}>
-        <button
-          onClick={onClose}
-          aria-label="Hide sidebar"
-          title="Hide sidebar"
-          style={{
-            position: 'absolute', top: '.75rem', right: '.6rem',
-            width: 24, height: 24, padding: 0,
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            color: 'var(--slate-400)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: 4, transition: 'background .15s, color .15s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--slate-100)'; e.currentTarget.style.color = 'var(--slate-700)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--slate-400)' }}
-        >
-          <X size={15} />
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 6,
-            background: 'var(--blue-900)', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
-            <BarChart2 size={15} color="#fff" />
+      {/* Logo */}
+      <div style={{ padding: 'var(--sp-5) var(--sp-4) var(--sp-4)', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--sp-2)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', minWidth: 0 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 'var(--r-md)',
+              background: 'var(--blue-900)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <BarChart2 size={15} color="var(--surface)" />
+            </div>
+            <span style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-1)', letterSpacing: 'var(--ls-tight)', whiteSpace: 'nowrap' }}>
+              DrawdownSignal
+            </span>
           </div>
-          <span style={{ fontWeight: 700, fontSize: '.95rem', color: 'var(--blue-950)', letterSpacing: '-.02em' }}>
-            DrawdownSignal
-          </span>
+          <button
+            onClick={onToggleTheme}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={{
+              width: 28, height: 28, borderRadius: 'var(--r-sm)',
+              background: 'transparent', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--text-3)',
+              transition: 'color .15s, border-color .15s, background .15s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-1)'; e.currentTarget.style.borderColor = 'var(--border-2)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+          >
+            {isDark ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
         </div>
-        <div style={{ fontSize: '.65rem', color: 'var(--slate-500)', marginTop: '.3rem', marginLeft: '.05rem' }}>
+        <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', marginTop: 'var(--sp-2)' }}>
           ML II · UChicago MS-ADS 2026
         </div>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, overflowY: 'auto', padding: '.5rem 0' }}>
-        <div style={{ fontSize: '.6rem', fontWeight: 600, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--slate-400)', padding: '.85rem 1.1rem .4rem' }}>
+      <nav style={{ flex: 1, overflowY: 'auto', padding: 'var(--sp-2) 0' }}>
+        <div style={{
+          fontSize: 'var(--text-2xs)', fontWeight: 600,
+          letterSpacing: 'var(--ls-wider)', textTransform: 'uppercase',
+          color: 'var(--text-4)',
+          padding: 'var(--sp-3) var(--sp-4) var(--sp-1)',
+        }}>
           Sections
         </div>
         {NAV.map(({ id, label, Icon }) => {
@@ -59,18 +70,19 @@ export default function Sidebar({ current, navigate, onClose }) {
               key={id}
               onClick={() => navigate(id)}
               style={{
-                display: 'flex', alignItems: 'center', gap: '.65rem',
-                width: '100%', padding: '.55rem 1.1rem',
+                display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
+                width: '100%', padding: 'var(--sp-2) var(--sp-4)',
                 background: active ? 'var(--blue-50)' : 'transparent',
-                border: 'none', borderLeft: `2px solid ${active ? 'var(--blue-500)' : 'transparent'}`,
-                color: active ? 'var(--blue-700)' : 'var(--slate-500)',
-                fontSize: '.83rem', fontWeight: active ? 600 : 400,
+                border: 'none',
+                borderLeft: `2px solid ${active ? 'var(--blue-500)' : 'transparent'}`,
+                color: active ? 'var(--blue-700)' : 'var(--text-3)',
+                fontSize: 'var(--text-sm)', fontWeight: active ? 600 : 400,
                 cursor: 'pointer', textAlign: 'left',
                 fontFamily: 'var(--sans)',
                 transition: 'all .15s',
               }}
-              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'var(--slate-50)'; e.currentTarget.style.color = 'var(--slate-900)' } }}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--slate-500)' } }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
             >
               <Icon size={15} style={{ flexShrink: 0 }} />
               {label}
@@ -78,40 +90,67 @@ export default function Sidebar({ current, navigate, onClose }) {
           )
         })}
 
-        {/* Game, separated */}
-        <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '.5rem', paddingTop: '.5rem' }}>
+        {/* Activity, separated */}
+        <div style={{ borderTop: '1px solid var(--border)', marginTop: 'var(--sp-2)', paddingTop: 'var(--sp-2)' }}>
           <button
             onClick={() => navigate('activity')}
             style={{
-              display: 'flex', alignItems: 'center', gap: '.65rem',
-              width: '100%', padding: '.55rem 1.1rem',
+              display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
+              width: '100%', padding: 'var(--sp-2) var(--sp-4)',
               background: current === 'activity' ? 'rgba(245,158,11,.08)' : 'transparent',
-              border: 'none', borderLeft: `2px solid ${current === 'activity' ? 'var(--amber)' : 'transparent'}`,
-              color: current === 'activity' ? '#92400E' : 'var(--slate-500)',
-              fontSize: '.83rem', fontWeight: current === 'activity' ? 600 : 400,
+              border: 'none',
+              borderLeft: `2px solid ${current === 'activity' ? 'var(--amber)' : 'transparent'}`,
+              color: current === 'activity' ? '#92400E' : 'var(--text-3)',
+              fontSize: 'var(--text-sm)', fontWeight: current === 'activity' ? 600 : 400,
               cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--sans)',
               transition: 'all .15s',
             }}
-            onMouseEnter={e => { if (current !== 'activity') { e.currentTarget.style.background = 'var(--slate-50)'; e.currentTarget.style.color = 'var(--slate-900)' } }}
-            onMouseLeave={e => { if (current !== 'activity') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--slate-500)' } }}
+            onMouseEnter={e => { if (current !== 'activity') { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
+            onMouseLeave={e => { if (current !== 'activity') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
           >
             <Gamepad2 size={15} style={{ flexShrink: 0 }} />
             Activity
             <span style={{
               marginLeft: 'auto', background: 'var(--amber)', color: '#fff',
-              fontSize: '.58rem', fontWeight: 700, padding: '.1rem .38rem',
-              borderRadius: 3, letterSpacing: '.05em'
+              fontSize: 'var(--text-2xs)', fontWeight: 700, padding: '2px 6px',
+              borderRadius: 3, letterSpacing: 'var(--ls-wide)'
             }}>LIVE</span>
           </button>
         </div>
       </nav>
 
-      {/* Footer */}
-      <div style={{ padding: '.85rem 1.1rem', borderTop: '1px solid var(--slate-200)' }}>
-        <div style={{ fontSize: '.68rem', color: 'var(--slate-400)', lineHeight: 1.6 }}>
+      {/* Footer with prominent Collapse button + GitHub */}
+      <div style={{ padding: 'var(--sp-3) var(--sp-4) var(--sp-4)', borderTop: '1px solid var(--border)' }}>
+        <button
+          onClick={onClose}
+          aria-label="Collapse sidebar"
+          style={{
+            width: '100%',
+            display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
+            padding: 'var(--sp-2) var(--sp-3)',
+            background: 'transparent',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--r-md)',
+            color: 'var(--text-2)',
+            fontSize: 'var(--text-sm)', fontWeight: 500,
+            cursor: 'pointer', fontFamily: 'var(--sans)',
+            transition: 'border-color .15s, color .15s, background .15s',
+            marginBottom: 'var(--sp-3)',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
+        >
+          <PanelLeftClose size={15} />
+          Collapse sidebar
+        </button>
+        <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', lineHeight: 1.6 }}>
           Data: WRDS Compustat + CRSP<br />
-          <a href="https://github.com/jmakk123/MLII-Final" target="_blank"
-            style={{ color: 'var(--blue-500)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '.3rem', marginTop: '.2rem' }}>
+          <a
+            href="https://github.com/jmakk123/MLII-Final"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--blue-500)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4 }}
+          >
             <GitFork size={11} /> GitHub
           </a>
         </div>

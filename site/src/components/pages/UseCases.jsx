@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { AlertCircle } from 'lucide-react'
 
 const UCS = [
   {
@@ -31,8 +30,8 @@ const UCS = [
     quote: '"Screen public comps in the bottom-two drawdown deciles before committing to the next tranche."',
   },
   {
-    logo: '🏰', name: 'Citidal Securities', type: 'Quantitative Hedge Fund',
-    bg: '#0A0A0A', border: '#FFD700', logoStyle: { background: 'linear-gradient(135deg,#FFD700,#e6be00)', fontSize: '1rem' },
+    logo: '2Σ', name: 'Two Stigma', type: 'Quantitative Hedge Fund',
+    bg: '#0A0A0A', border: '#FFD700', logoStyle: { background: 'linear-gradient(135deg,#FFD700,#e6be00)', color: '#0A0A0A', fontWeight: 700, fontSize: '1rem' },
     nameColor: '#FFD700',
     rows: [
       { ticker: 'BBBY', pct: 82, color: 'var(--red)',   val: '-82%', badge: 'SHORT', bdg: 'badge-red' },
@@ -45,8 +44,8 @@ const UCS = [
     quote: '"Rotate shorts quarterly using the worst-predicted decile; rebalance at 10-K anchor dates."',
   },
   {
-    logo: '◆', name: 'Blarkrock', type: 'Asset Manager · Risk Platform',
-    bg: '#001A14', border: '#2DD4BF', logoStyle: { background: 'linear-gradient(135deg,#2DD4BF,#14b8a6)', fontSize: '1rem' },
+    logo: '🎩', name: 'The Charles Schwabfather', type: 'Asset Manager · Risk Platform',
+    bg: '#001A14', border: '#2DD4BF', logoStyle: { background: 'linear-gradient(135deg,#2DD4BF,#14b8a6)', color: '#001A14', fontSize: '1.1rem' },
     nameColor: '#2DD4BF',
     rows: [
       { ticker: 'AAL',  pct: 88, color: '#2DD4BF', val: '14.2%', badge: 'PUTS', bdg: 'badge-blue' },
@@ -67,54 +66,41 @@ export default function UseCases() {
       <h1 className="page-title">Who uses<br />a drawdown signal?</h1>
       <p className="page-sub">Four contexts where a calibrated forward-drawdown score plugs into existing risk processes: banks, venture, quant, and asset management.</p>
 
-      <div style={{
-        display: 'flex', alignItems: 'flex-start', gap: '.55rem',
-        background: 'rgba(245,158,11,.06)', border: '1px solid rgba(245,158,11,.25)',
-        borderRadius: 6, padding: '.55rem .85rem', marginBottom: '1.5rem',
-      }}>
-        <AlertCircle size={14} color="#92400E" style={{ flexShrink: 0, marginTop: 2 }} />
-        <div style={{ fontSize: '.74rem', color: '#92400E', lineHeight: 1.55 }}>
-          <strong>Illustrative personas, not real clients.</strong> Names are parodied on purpose. The deployment patterns are real and consistent with how risk teams in each segment use comparable scores today.
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
+      <div className="uc-grid">
         {UCS.map(({ logo, name, type, bg, border, logoStyle, nameColor, rows, desc, use, quote }) => (
           <motion.div key={name} className="uc-card"
-            whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(0,0,0,.1)' }}
+            whileHover={{ y: -3, boxShadow: 'var(--shadow-lg)' }}
             transition={{ duration: .18 }}
           >
-            <div className="uc-header" style={{ background: bg, borderBottom: `1px solid ${border}25`, padding: '1.1rem 1.25rem' }}>
-              <div className="uc-logo" style={{ ...logoStyle, width: 44, height: 44, borderRadius: 8, fontSize: '1.1rem' }}>{logo}</div>
-              <div>
-                <div className="uc-name" style={{ color: nameColor, fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-.02em' }}>
+            <div className="uc-header" style={{ background: bg, borderBottom: `1px solid ${border}25` }}>
+              <div className="uc-logo" style={logoStyle}>{logo}</div>
+              <div style={{ minWidth: 0 }}>
+                <div className="uc-name" style={{ color: nameColor }}>
                   {name}
                 </div>
-                <div className="uc-type" style={{ fontSize: '.72rem', marginTop: '.15rem' }}>{type}</div>
+                <div className="uc-type">{type}</div>
               </div>
             </div>
-            <div className="uc-screen" style={{ margin: '1rem 1rem .25rem' }}>
+            <div className="uc-screen">
               {rows.map(({ ticker, pct, color, val, badge, bdg }) => (
                 <div key={ticker} className="uc-row">
                   <span className="uc-ticker">{ticker}</span>
                   <div className="bar-track">
                     <div className="bar-fill" style={{ width: `${pct}%`, background: color }} />
                   </div>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: '.72rem', width: 40, textAlign: 'right', color, flexShrink: 0 }}>{val}</span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', width: 44, textAlign: 'right', color, flexShrink: 0 }}>{val}</span>
                   <span className={`badge ${bdg}`}>{badge}</span>
                 </div>
               ))}
             </div>
-            <div style={{ padding: '.85rem 1.25rem .25rem', fontSize: '.83rem', color: 'var(--slate-700)', lineHeight: 1.65 }}>
-              {desc}
-            </div>
-            <div style={{ padding: '.65rem 1.25rem .35rem' }}>
-              <div style={{ fontSize: '.62rem', fontWeight: 600, color: 'var(--blue-500)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '.3rem' }}>
+            <div className="uc-desc">{desc}</div>
+            <div style={{ padding: '0 var(--sp-5) var(--sp-2)' }}>
+              <div style={{ fontSize: 'var(--text-2xs)', fontWeight: 600, color: 'var(--blue-500)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wider)', marginBottom: 'var(--sp-1)' }}>
                 How they would use the signal
               </div>
-              <div style={{ fontSize: '.8rem', color: 'var(--slate-600)', lineHeight: 1.65 }}>{use}</div>
+              <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>{use}</div>
             </div>
-            <div className="uc-quote" style={{ borderLeftColor: border, fontSize: '.78rem' }}>{quote}</div>
+            <div className="uc-quote" style={{ borderLeftColor: border }}>{quote}</div>
           </motion.div>
         ))}
       </div>

@@ -215,15 +215,78 @@ export default function Data() {
 
       <div className="divider" />
 
-      <div className="section-label">The 18 Financial Ratios</div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.35rem', marginBottom: '.85rem' }}>
-        {['r_wc_ta · X1','r_re_ta · X2','r_ebit_ta · X3','r_mv_tl · X4','r_sale_ta · X5','r_tl_ta','r_cl_ca','r_ni_ta','r_log_at','r_gross_margin','r_oper_margin','r_net_margin','r_ebitda_margin','r_opex_ratio','r_da_intensity','r_ltdebt_ta','r_inv_turn','r_recv_turn'].map(r => (
-          <span key={r} className="tag">{r}</span>
-        ))}
+      <div className="section-label">The 18 Financial Ratios · hover any tag for definition</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.4rem', marginBottom: 'var(--sp-3)' }}>
+        {RATIOS.map(r => <RatioTag key={r.name} ratio={r} />)}
       </div>
-      <p style={{ fontSize: '.78rem', color: 'var(--slate-500)', lineHeight: 1.65 }}>
+      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', lineHeight: 'var(--lh-relaxed)' }}>
         Drawn from Altman 1968, Ohlson 1980, Zmijewski 1984, plus standard margin, turnover, and leverage ratios from Lombardo et al. 2022 and Pellegrino et al. 2024. The same five-year sequence per anchor feeds both the recurrent and feed-forward financial encoders.
       </p>
     </div>
+  )
+}
+
+const RATIOS = [
+  { name: 'r_wc_ta · X1',     desc: 'Working capital divided by total assets. Altman X1, a liquidity buffer indicator.' },
+  { name: 'r_re_ta · X2',     desc: 'Retained earnings divided by total assets. Altman X2, captures cumulative profitability over the firm\'s lifetime.' },
+  { name: 'r_ebit_ta · X3',   desc: 'EBIT divided by total assets. Altman X3, current operating profitability.' },
+  { name: 'r_mv_tl · X4',     desc: 'Market value of equity divided by total liabilities. Altman X4, market-implied solvency cushion.' },
+  { name: 'r_sale_ta · X5',   desc: 'Sales divided by total assets. Altman X5, asset turnover efficiency.' },
+  { name: 'r_tl_ta',          desc: 'Total liabilities divided by total assets. Leverage ratio used in Ohlson and Zmijewski models.' },
+  { name: 'r_cl_ca',          desc: 'Current liabilities divided by current assets. Short-term solvency stress when above 1.' },
+  { name: 'r_ni_ta',          desc: 'Net income divided by total assets. Return on assets (ROA).' },
+  { name: 'r_log_at',         desc: 'Log of total assets. Firm size proxy; larger firms tend to have smaller relative drawdowns.' },
+  { name: 'r_gross_margin',   desc: 'Gross profit divided by sales. Pricing power and unit economics.' },
+  { name: 'r_oper_margin',    desc: 'Operating profit (EBIT) divided by sales. Operational efficiency.' },
+  { name: 'r_net_margin',     desc: 'Net income divided by sales. Bottom-line profitability after all costs.' },
+  { name: 'r_ebitda_margin',  desc: 'EBITDA (operating income before depreciation) divided by sales. Cash earnings margin.' },
+  { name: 'r_opex_ratio',     desc: 'Operating expenses divided by sales. Indicator of cost-base efficiency.' },
+  { name: 'r_da_intensity',   desc: 'Depreciation and amortization divided by total assets. Capital intensity proxy.' },
+  { name: 'r_ltdebt_ta',      desc: 'Long-term debt divided by total assets. Solvency tied to debt structure.' },
+  { name: 'r_inv_turn',       desc: 'Cost of goods sold divided by inventory. Inventory turnover; NaN for financial firms, imputed by industry-year median.' },
+  { name: 'r_recv_turn',      desc: 'Sales divided by receivables. Collection efficiency; NaN for financial firms, imputed similarly.' },
+]
+
+function RatioTag({ ratio }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <span
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      style={{ position: 'relative', display: 'inline-block' }}
+    >
+      <span className="tag" style={{ cursor: 'help' }}>{ratio.name}</span>
+      <AnimatePresence>
+        {open && (
+          <motion.span
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: .12 }}
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 6px)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 260,
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: 'var(--sp-2) var(--sp-3)',
+              boxShadow: 'var(--shadow-md)',
+              zIndex: 20,
+              fontSize: 'var(--text-xs)',
+              color: 'var(--text-2)',
+              lineHeight: 'var(--lh-relaxed)',
+              fontFamily: 'var(--sans)',
+              whiteSpace: 'normal',
+              textAlign: 'left',
+            }}
+          >
+            {ratio.desc}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
   )
 }
