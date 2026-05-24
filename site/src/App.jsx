@@ -70,15 +70,23 @@ export default function App() {
   const PageComponent = PAGES[page] ?? Overview
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div className="app-shell">
       {sidebarOpen && (
-        <Sidebar
-          current={page}
-          navigate={navigate}
-          onClose={() => setSidebarOpen(false)}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
+        <>
+          {/* Backdrop only visible on small screens (CSS-driven) */}
+          <div
+            className="sidebar-backdrop"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden
+          />
+          <Sidebar
+            current={page}
+            navigate={navigate}
+            onClose={() => setSidebarOpen(false)}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+          />
+        </>
       )}
 
       {!sidebarOpen && (

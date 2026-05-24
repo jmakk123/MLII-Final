@@ -173,6 +173,7 @@
    =========================================================== */
 html, body {
   height: 100%;
+  width: 100%;
   overflow: hidden;
   background: var(--bg);
 }
@@ -186,7 +187,24 @@ body {
   text-rendering: optimizeLegibility;
   transition: background .2s ease, color .2s ease;
 }
-#root { display: flex; height: 100vh; overflow: hidden; }
+#root {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;            /* mobile-safe viewport */
+  overflow: hidden;
+}
+
+/* App shell: stretches to fill the viewport so main content never leaves
+   an empty pane on the right. */
+.app-shell {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 7px; height: 7px; }
@@ -203,6 +221,9 @@ body {
 
 /* ===========================================================
    Layout
+   Sidebar is a flex child on wide screens (sits beside content).
+   On narrow screens it becomes an overlay drawer so it doesn't
+   squeeze the page.
    =========================================================== */
 .sidebar {
   width: var(--sb-w);
@@ -211,21 +232,71 @@ body {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
 }
 
 .main-content {
-  flex: 1;
-  height: 100vh;
+  flex: 1 1 0;
+  min-width: 0;              /* required so flex child can shrink below its content size */
+  height: 100%;
   overflow-y: auto;
   background: var(--bg);
 }
 
+/* Page wrap responds across breakpoints.
+   Small: tight padding so we don't waste horizontal space.
+   Medium: comfortable padding.
+   Large: cap line length but let surrounding chrome breathe.
+   Very large: bump the cap to 1100px for KPI rows / tables. */
 .page-wrap {
   max-width: 920px;
+  width: 100%;
   margin: 0 auto;
-  padding: var(--sp-10) var(--sp-10) var(--sp-20);
+  padding: clamp(var(--sp-5), 3vw, var(--sp-10)) clamp(var(--sp-4), 3vw, var(--sp-10)) var(--sp-20);
+}
+@media (min-width: 1280px) {
+  .page-wrap { max-width: 1040px; }
+}
+@media (min-width: 1600px) {
+  .page-wrap { max-width: 1120px; }
+}
+
+/* Mobile sidebar overlay + tappable backdrop */
+.sidebar-backdrop { display: none; }
+@media (max-width: 720px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .35);
+    z-index: 55;
+    animation: backdropFade .15s ease-out;
+  }
+  @keyframes backdropFade { from { opacity: 0; } to { opacity: 1; } }
+}
+
+/* Game wrap responds across breakpoints too */
+.game-wrap {
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(var(--sp-5), 3vw, var(--sp-10)) clamp(var(--sp-4), 3vw, var(--sp-8)) var(--sp-20);
+}
+@media (min-width: 1280px) { .game-wrap { max-width: 980px; } }
+@media (min-width: 1600px) { .game-wrap { max-width: 1080px; } }
+
+/* Use-cases grid stacks on phones */
+@media (max-width: 640px) {
+  .uc-grid, .finding-grid, .kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* ===========================================================
@@ -591,7 +662,6 @@ p { line-height: var(--lh-relaxed); }
 /* ===========================================================
    Game / DrawdownMarket
    =========================================================== */
-.game-wrap { max-width: 880px; margin: 0 auto; padding: var(--sp-10) var(--sp-8) var(--sp-20); }
 .game-topbar {
   display: flex;
   align-items: center;
