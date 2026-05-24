@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import { Database, Clock, Target } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts'
 
@@ -47,6 +48,96 @@ function ddColor(v) {
   return 'var(--green)'
 }
 
+function IntroCard({ num, accent, accentSoft, eyebrow, title, bullets }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -2 }}
+      className="card"
+      style={{
+        padding: 'var(--sp-5)',
+        borderTop: `3px solid ${accent}`,
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Big number watermark */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 'var(--sp-3)', right: 'var(--sp-3)',
+          fontFamily: 'var(--display)',
+          fontSize: 'var(--text-5xl)',
+          fontWeight: 700,
+          lineHeight: 1,
+          color: accent,
+          opacity: 0.12,
+          letterSpacing: 'var(--ls-tight)',
+          pointerEvents: 'none',
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {num}
+      </div>
+      <div style={{
+        display: 'inline-block',
+        fontFamily: 'var(--mono)',
+        fontSize: 'var(--text-2xs)',
+        fontWeight: 600,
+        letterSpacing: 'var(--ls-wider)',
+        textTransform: 'uppercase',
+        color: accent,
+        background: accentSoft,
+        padding: '3px 8px',
+        borderRadius: 'var(--r-sm)',
+        marginBottom: 'var(--sp-2)',
+      }}>
+        {num} · {eyebrow}
+      </div>
+      <div style={{
+        fontFamily: 'var(--display)',
+        fontSize: 'var(--text-lg)',
+        fontWeight: 600,
+        color: 'var(--text-1)',
+        letterSpacing: 'var(--ls-tight)',
+        marginBottom: 'var(--sp-3)',
+        lineHeight: 'var(--lh-snug)',
+      }}>
+        {title}
+      </div>
+      <ul style={{
+        paddingLeft: 0,
+        listStyle: 'none',
+        margin: 0,
+      }}>
+        {bullets.map((b, i) => (
+          <li key={i} style={{
+            position: 'relative',
+            paddingLeft: 'var(--sp-5)',
+            fontSize: 'var(--text-sm)',
+            color: 'var(--text-2)',
+            lineHeight: 'var(--lh-relaxed)',
+            marginBottom: i < bullets.length - 1 ? 'var(--sp-2)' : 0,
+          }}>
+            <span style={{
+              position: 'absolute',
+              left: 0, top: '0.55em',
+              width: 6, height: 6, borderRadius: '50%',
+              background: accent,
+              flexShrink: 0,
+            }} />
+            {b}
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+  )
+}
+
 export default function Overview() {
   return (
     <div className="page-wrap">
@@ -54,35 +145,63 @@ export default function Overview() {
       <h1 className="page-title">Predicting<br />the <span style={{ color: 'var(--blue-700)' }}>Fall</span></h1>
 
       {/* Buildup */}
-      <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-5)' }}>
+      <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-6)' }}>
         Risk managers, credit teams, and portfolio managers all need the same number: how much could this position lose before it recovers? Today they triangulate it from volatility, leverage, credit ratings, and gut. We tried to do better with a single learned score.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 'var(--sp-4)', marginBottom: 'var(--sp-10)' }}>
-        <div className="card card-p">
-          <div className="section-label">The motivating question</div>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
-            Bankruptcies are too rare to model reliably (only 387 in our dataset, roughly 0.3% of firm-years). Raw stock returns are too noisy to predict cleanly at any horizon. The number actually used by risk teams sits in between: the worst peak-to-trough loss over a defined window. We chose to predict that, 12 months forward, for every US public firm.
-          </p>
-        </div>
-        <div className="card card-p">
-          <div className="section-label">Team and course</div>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
-            Final project for Machine Learning II, UChicago MS-ADS, Spring 2026. Built over four weeks by Nick Dhaliwal, Jared Maksoud, Nicholas Mikhail, and Yung Chyi Yang. Architecture, training loop, and evaluation discipline all match the methodology submission the instructor graded "strongest in the cohort."
-          </p>
-        </div>
-        <div className="card card-p">
-          <div className="section-label">Our EDA journey</div>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
-            Three findings reshaped the project. The realized base rate of drawdowns past 30% was 51.7% on our universe, far above the 10 to 20% the brief expected (CRSP is small-cap heavy). COVID-era anchors had mean drawdowns near 50%, dominating any year-pooled metric. Newly public firms lacked 5 years of accounting history. The first pushed us toward rank metrics; the second told us validation had to be the COVID window; the third forced clean drop-not-impute handling.
-          </p>
-        </div>
-        <div className="card card-p">
-          <div className="section-label">What this is</div>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
-            This site is the presentation companion. The model is a real PyTorch checkpoint trained on 76,990 anchor rows; the headline numbers come from a 3-seed ensemble of our best architecture. The notebook, training pipeline, and trained weights all live in the public repo linked in the sidebar.
-          </p>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--sp-4)', marginBottom: 'var(--sp-10)' }}>
+        <IntroCard
+          num="01"
+          accent="var(--red)"
+          accentSoft="var(--red-soft)"
+          eyebrow="The Problem"
+          title="Why drawdown, not bankruptcy or returns"
+          bullets={[
+            'Bankruptcies are too rare (387 in the dataset, ~0.3% of firm-years), making them hard to model reliably.',
+            'Raw stock returns are too noisy to predict cleanly at any horizon.',
+            'Forward drawdown sits in the middle: continuous, defined for every firm, directly useful for sizing positions and flagging risk.',
+            'We predict it 12 months forward, anchored at fiscal-year-end + 90 days (the realistic 10-K filing date).',
+          ]}
+        />
+        <IntroCard
+          num="02"
+          accent="var(--blue-500)"
+          accentSoft="var(--blue-50)"
+          eyebrow="The Team"
+          title="Machine Learning II, UChicago MS-ADS"
+          bullets={[
+            'Four-person team: Nick Dhaliwal, Jared Maksoud, Nicholas Mikhail, Yung Chyi Yang.',
+            'Final project for the Spring 2026 cohort. Built end-to-end over four weeks.',
+            'Architecture, training loop, and evaluation discipline match the methodology submission.',
+            'Methodology was graded "strongest in the cohort" by the instructor.',
+          ]}
+        />
+        <IntroCard
+          num="03"
+          accent="var(--amber)"
+          accentSoft="rgba(245,158,11,.08)"
+          eyebrow="The EDA Journey"
+          title="Three findings that reshaped the project"
+          bullets={[
+            'Realized base rate at -30% was 51.7% (vs the 10-20% the brief expected); CRSP is small-cap heavy. Pushed us to rank metrics.',
+            'COVID-era anchors had mean drawdowns near 50%, dominating any pooled metric. Forced validation = the COVID window by design.',
+            'Newly public firms lacked 5 years of accounting history. Forced a clean drop-not-impute policy on partial windows.',
+            'Bankruptcies almost never appear in the anchor set (firms delist before the forward window). The model is drawdown-among-survivors.',
+          ]}
+        />
+        <IntroCard
+          num="04"
+          accent="var(--green)"
+          accentSoft="var(--green-soft)"
+          eyebrow="The Deliverable"
+          title="A real model, end-to-end reproducible"
+          bullets={[
+            'Trained PyTorch checkpoint on 76,990 anchor rows; headline numbers from a 3-seed ensemble.',
+            'Full notebook, training pipeline, scripts, and weights live in the GitHub repo linked in the sidebar.',
+            'This site is the presentation companion: methodology, results, limitations, plus the in-class betting game.',
+            'Hover any number on the Findings page for context; spend 10 minutes on the Activity for the fun part.',
+          ]}
+        />
       </div>
 
       <div className="kpi-grid" style={{ marginBottom: 'var(--sp-10)' }}>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ===========================================================
@@ -14,9 +14,16 @@
    Color contrast: WCAG AA 4.5:1 for body, 3:1 for large text
    =========================================================== */
 :root {
-  /* Fonts */
-  --sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-  --mono: 'Fira Code', 'Consolas', ui-monospace, monospace;
+  /* Fonts — researched pairing
+     Inter (body)         : industry standard, designed for screens, x-height
+                            and tabular numerals tuned for UI work
+     Space Grotesk (display): geometric sans with personality, used by Linear,
+                            Polymarket, Vercel. Pairs cleanly with Inter
+     JetBrains Mono (code) : programming-grade mono with ligatures, readable
+                            at small sizes */
+  --sans:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --mono:    'JetBrains Mono', 'SF Mono', Consolas, ui-monospace, monospace;
 
   /* Type scale (base 16px) */
   --text-2xs: 0.6875rem;   /* 11 */
@@ -234,7 +241,7 @@ body {
   margin-bottom: var(--sp-3);
 }
 .page-title {
-  font-family: var(--sans);
+  font-family: var(--display);
   font-size: clamp(var(--text-3xl), 4.2vw, var(--text-5xl));
   font-weight: 700;
   color: var(--text-1);
@@ -255,6 +262,8 @@ h1, h2, h3, h4 {
   color: var(--text-1);
   line-height: var(--lh-snug);
   letter-spacing: var(--ls-tight);
+  font-family: var(--display);
+  font-weight: 600;
 }
 
 p { line-height: var(--lh-relaxed); }
@@ -308,10 +317,15 @@ p { line-height: var(--lh-relaxed); }
 .data-table tbody tr:hover { background: var(--bg-2); }
 .data-table tbody tr:last-child td { border-bottom: none; }
 
-.num { font-family: var(--mono); }
-.num-win { font-family: var(--mono); color: var(--green); font-weight: 600; }
-.num-loss { font-family: var(--mono); color: var(--red); font-weight: 600; }
-.num-amber { font-family: var(--mono); color: var(--amber); font-weight: 700; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.num-win { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--green); font-weight: 600; }
+.num-loss { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--red); font-weight: 600; }
+.num-amber { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--amber); font-weight: 700; }
+
+/* Tabular numerals everywhere we display dollar values or scores */
+.kpi-num, .slide-num, .tile-odds, .fin-val, .split-years, .split-n {
+  font-variant-numeric: tabular-nums;
+}
 
 /* ===========================================================
    Badges + tags
@@ -711,3 +725,51 @@ p { line-height: var(--lh-relaxed); }
 .scroll-x { overflow-x: auto; }
 .scroll-x::-webkit-scrollbar { height: 6px; }
 .scroll-x::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+
+/* ===========================================================
+   Celebration animations (winner takes all)
+   =========================================================== */
+@keyframes laserSweep {
+  0%   { transform: translateX(-120vw) rotate(var(--ang, 0deg)); opacity: 0; }
+  20%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateX(120vw) rotate(var(--ang, 0deg)); opacity: 0; }
+}
+@keyframes trophyBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-12px) scale(1.08); }
+}
+@keyframes rainbow {
+  0%   { color: #ff3d54; }
+  20%  { color: #f59e0b; }
+  40%  { color: #22c55e; }
+  60%  { color: #3b82f6; }
+  80%  { color: #a855f7; }
+  100% { color: #ff3d54; }
+}
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 16px rgba(245,158,11,.4), 0 0 32px rgba(245,158,11,.2); }
+  50%      { text-shadow: 0 0 28px rgba(245,158,11,.7), 0 0 56px rgba(245,158,11,.35); }
+}
+
+.laser {
+  position: absolute;
+  height: 2px;
+  width: 100vw;
+  background: linear-gradient(90deg, transparent 0%, currentColor 25%, currentColor 75%, transparent 100%);
+  box-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+  animation: laserSweep 1.8s cubic-bezier(.4,.05,.7,.95) forwards;
+  pointer-events: none;
+  filter: blur(.3px);
+}
+.trophy-bounce { animation: trophyBounce 1.2s ease-in-out infinite; }
+.rainbow-text  { animation: rainbow 2s linear infinite; }
+.glow-text     { animation: glow 1.6s ease-in-out infinite; }
+
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1000;
+}
