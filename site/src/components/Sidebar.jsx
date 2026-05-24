@@ -1,21 +1,36 @@
-import { LayoutDashboard, BookOpen, Database, Cpu, BarChart2, Briefcase, Presentation, Gamepad2, GitFork } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { LayoutDashboard, BookOpen, Database, Cpu, BarChart2, Briefcase, Presentation, Gamepad2, GitFork, X } from 'lucide-react'
 
 const NAV = [
-  { id: 'overview',  label: 'Overview',          Icon: LayoutDashboard },
+  { id: 'overview',  label: 'Overview',           Icon: LayoutDashboard },
   { id: 'intro',     label: 'Key Concepts',       Icon: BookOpen },
   { id: 'data',      label: 'Data & Methodology', Icon: Database },
   { id: 'models',    label: 'Models & Process',   Icon: Cpu },
   { id: 'findings',  label: 'Findings',           Icon: BarChart2 },
   { id: 'usecases',  label: 'Use Cases',          Icon: Briefcase },
-  { id: 'slides',    label: 'Presentation',       Icon: Presentation },
+  { id: 'slides',    label: 'Quick Recap',        Icon: Presentation },
 ]
 
-export default function Sidebar({ current, navigate }) {
+export default function Sidebar({ current, navigate, onClose }) {
   return (
     <aside className="sidebar">
-      {/* Logo */}
-      <div style={{ padding: '1.35rem 1.1rem 1rem', borderBottom: '1px solid var(--slate-200)' }}>
+      {/* Logo + close */}
+      <div style={{ padding: '1.35rem 1.1rem 1rem', borderBottom: '1px solid var(--slate-200)', position: 'relative' }}>
+        <button
+          onClick={onClose}
+          aria-label="Hide sidebar"
+          title="Hide sidebar"
+          style={{
+            position: 'absolute', top: '.75rem', right: '.6rem',
+            width: 24, height: 24, padding: 0,
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: 'var(--slate-400)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: 4, transition: 'background .15s, color .15s',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--slate-100)'; e.currentTarget.style.color = 'var(--slate-700)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--slate-400)' }}
+        >
+          <X size={15} />
+        </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 6,
@@ -63,7 +78,7 @@ export default function Sidebar({ current, navigate }) {
           )
         })}
 
-        {/* Game — separated */}
+        {/* Game, separated */}
         <div style={{ borderTop: '1px solid var(--slate-200)', marginTop: '.5rem', paddingTop: '.5rem' }}>
           <button
             onClick={() => navigate('activity')}

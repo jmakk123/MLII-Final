@@ -1,42 +1,48 @@
 const SLIDES = [
   {
-    num: '01', eyebrow: 'The Problem', title: 'Predicting the Fall Before It Happens',
-    body: 'Bankruptcies are too rare to model well. Raw returns are too noisy. Forward maximum drawdown is the number in between — measurable for every public company, and directly useful to risk managers.',
-    callout: '52% of companies in our test set fell more than 30% at some point during 2020–2023. This is not a rare edge case — it\'s routine.', calloutStyle: 'amber',
+    num: '01', eyebrow: 'The Problem', title: 'Predicting the fall before it happens.',
+    body: 'Bankruptcies are too rare to model reliably (387 in our dataset). Raw returns are too noisy. Forward 12-month max drawdown is the right middle ground: continuous, measurable for every public company, and directly useful for risk sizing.',
+    callout: '51.7% of test-set firm-years fell more than 30% during 2020 to 2023. This is not a rare edge case.',
+    calloutStyle: 'amber',
   },
   {
-    num: '02', eyebrow: 'The Data', title: '25 Years, Two Sources, One Tensor',
-    body: 'Annual company financial filings (1999–2025) linked to daily stock prices. For each company-year, we build a 5-year window of 18 accounting ratios plus 7 recent price stats. Everything is scaled using only training-era data.',
-    callout: '87,995 company-years · 29M daily stock rows · no future data leaking into training', calloutStyle: 'blue',
+    num: '02', eyebrow: 'The Data', title: '25 years, two databases, one tensor.',
+    body: 'Compustat annual filings (1999 to 2025) linked to CRSP daily prices. For each firm-year anchor we build a 5-year sequence of 18 accounting ratios plus 7 recent price stats. All scaling uses training-fold rows only.',
+    callout: '76,990 firm-years · 29M daily price rows · no future data leaks in.',
+    calloutStyle: 'blue',
   },
   {
-    num: '03', eyebrow: 'The Architecture', title: 'Four Variants, One Winner',
-    body: 'We tested different network architectures — with and without stock price data as a second input. The winner: accounting data only, read as a time sequence. Adding stock prices actually made things worse — five years of financial ratios already contains what the price data was trying to add.',
-    callout: 'Architecture: 5-year accounting sequence → LSTM → 32 features → prediction. Trained with early stopping to avoid overfitting.', calloutStyle: 'blue',
+    num: '03', eyebrow: 'The Architecture', title: 'Eight models, one winner.',
+    body: 'Three baselines (vol-only, Ridge, gradient-boosted trees), four neural ablations, and the full fusion model. The winner is the Financial LSTM: a 2-layer LSTM on accounting history fused with an MLP on price features, then a small head.',
+    callout: 'Architecture: 5-year accounting sequence + 7 price features → fused 48-d → scalar drawdown. Trained with early stopping plus a 3-seed ensemble.',
+    calloutStyle: 'blue',
   },
   {
-    num: '04', eyebrow: 'The Result', title: 'Beats Vol-Only — With a Surprise', hi: true,
-    body: 'Our model beats the simple volatility baseline on MAE (−6%), R² (+76%), and Brier score (−54%). Ranking accuracy is roughly tied. The key finding: stock price data added noise, not signal — accounting history alone was enough.',
-    callout: '✓ MAE −5.8%   ✓ R² +76%   ✓ Brier −54%   ≈ PR-AUC (tie)', calloutStyle: 'blue',
+    num: '04', eyebrow: 'The Result', title: 'Beats the volatility baseline on the primary metrics.', hi: true,
+    body: 'On the brief\'s headline triad, the Financial LSTM beats the volatility-only baseline by +1.7 pp on MAE, +2.9 pp on within-year Spearman, and +5.7 pp on top-decile precision. PR-AUC at -30% is +2.3 pp, just shy of the +3 pp bar. Calibration drops the Brier score by 54%.',
+    callout: 'MAE 0.121 vs 0.139 · PR-AUC 0.852 vs 0.829 · Spearman 0.666 vs 0.637 · Brier 0.226 vs 0.494.',
+    calloutStyle: 'blue',
   },
   {
-    num: '05', eyebrow: 'Why It Matters', title: 'From Signal to Decision',
-    body: 'A reliable drawdown score is immediately useful: banks can flag risky borrowers earlier, hedge funds can build their short lists, VCs can screen investments, and portfolio managers can size hedges. The score updates once per year when a company files its annual report.',
-    callout: '9 out of 10 companies we flag as highest-risk actually end up in the worst-performing 10% that year.', calloutStyle: 'amber',
+    num: '05', eyebrow: 'Why It Matters', title: 'From signal to decision.',
+    body: 'A reliable drawdown score plugs into existing risk processes. Banks flag deteriorating borrowers earlier than rating-agency feeds. Quant funds build sector-neutral long-short books. Asset managers size puts proportional to the score. VCs screen public comps before follow-on rounds. The score updates at every annual filing.',
+    callout: 'Within-year rank correlation of 0.67 means the model orders firms by drawdown risk reliably, year over year, after controlling for the macro regime.',
+    calloutStyle: 'amber',
   },
   {
-    num: '06', eyebrow: 'Honest Assessment', title: 'Limitations & Next Steps',
-    body: 'Stock price features added noise rather than signal — an unexpected result. Next steps: train separate models per industry sector, add macro features like interest rates and market volatility, and update predictions quarterly instead of annually.',
-    callout: 'This is a risk screener, not a crystal ball. Knowing which 10% of companies are most likely to collapse is already very valuable.', calloutStyle: 'amber',
+    num: '06', eyebrow: 'Honest Assessment', title: 'Limitations and next steps.',
+    body: 'The model is a drawdown-among-survivors forecaster. Firms that delist within months of the anchor never enter the panel, which left-truncates the deep tail. Base rate at -30% is 51.7% (small-cap heavy universe), so rank metrics are the cleanest signal. Cross-attention does not help at 5 timesteps. Next: per-sector models, quarterly updates, and macro features.',
+    callout: 'This is a risk screener, not a crystal ball. Knowing which 10% of firms are most likely to fall hard is already very valuable.',
+    calloutStyle: 'amber',
   },
 ]
 
 export default function Presentation() {
   return (
     <div className="page-wrap">
-      <div className="eyebrow">06 — Presentation</div>
-      <h1 className="page-title">The story<br />in six slides.</h1>
-      <p className="page-sub">The main points from our final presentation, condensed.</p>
+      <div className="eyebrow">06 / Quick Recap</div>
+      <h1 className="page-title">Quick Recap<br />in six slides.</h1>
+      <p className="page-sub">Headline points from our final presentation. Each slide stands alone so you can drop them into a deck or read straight through.</p>
       {SLIDES.map(({ num, eyebrow, title, body, callout, calloutStyle, hi }) => (
         <div key={num} className="slide">
           <div className={`slide-num${hi ? ' hi' : ''}`}>{num}</div>
