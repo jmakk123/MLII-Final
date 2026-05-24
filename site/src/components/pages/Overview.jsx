@@ -48,6 +48,19 @@ function ddColor(v) {
   return 'var(--green)'
 }
 
+function HeroWord({ word, delay = 0, color }) {
+  return (
+    <motion.span
+      initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      style={{ display: 'inline-block', color: color ?? 'inherit' }}
+    >
+      {word}
+    </motion.span>
+  )
+}
+
 function IntroCard({ num, accent, accentSoft, eyebrow, title, bullets }) {
   return (
     <motion.div
@@ -141,8 +154,16 @@ function IntroCard({ num, accent, accentSoft, eyebrow, title, bullets }) {
 export default function Overview() {
   return (
     <div className="page-wrap">
-      <div className="eyebrow">01 / Overview</div>
-      <h1 className="page-title">Predicting<br />the <span style={{ color: 'var(--blue-700)' }}>Fall</span></h1>
+      <div className="hero-wrap">
+        <div className="hero-mesh" aria-hidden />
+        <div className="eyebrow" style={{ position: 'relative', zIndex: 1 }}>01 / Overview</div>
+        <h1 className="page-title hero-title" style={{ position: 'relative', zIndex: 1 }}>
+          <HeroWord word="Predicting" delay={0.05} />
+          <br />
+          <HeroWord word="the" delay={0.15} />{' '}
+          <HeroWord word="Fall" delay={0.25} color="var(--blue-700)" />
+        </h1>
+      </div>
 
       {/* Buildup */}
       <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-6)' }}>
@@ -292,13 +313,15 @@ export default function Overview() {
             <Tooltip
               formatter={(v) => [`${v}%`, 'Realized drawdown']}
               labelStyle={{ color: 'var(--text-1)', fontWeight: 600 }}
+              cursor={{ fill: 'var(--bg-2)', opacity: 0.5 }}
               contentStyle={{
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
-                borderRadius: 6,
+                borderRadius: 8,
                 fontSize: 12,
                 fontFamily: 'var(--mono)',
                 color: 'var(--text-2)',
+                boxShadow: 'var(--shadow-md)',
               }}
             />
             <Bar dataKey="drawdown" radius={[0, 4, 4, 0]}>

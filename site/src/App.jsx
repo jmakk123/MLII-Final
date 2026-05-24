@@ -1,15 +1,21 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu } from 'lucide-react'
 import Sidebar from './components/Sidebar'
-import Overview from './components/pages/Overview'
-import KeyConcepts from './components/pages/KeyConcepts'
-import Data from './components/pages/Data'
-import Models from './components/pages/Models'
-import Findings from './components/pages/Findings'
-import UseCases from './components/pages/UseCases'
-import Presentation from './components/pages/Presentation'
-import Activity from './components/pages/Activity'
+import StickyHeader from './components/StickyHeader'
+import ShortcutsOverlay from './components/ShortcutsOverlay'
+import Footer from './components/Footer'
+
+/* Lazy-loaded pages so initial bundle stays small.
+   Each page becomes its own chunk in the build output. */
+const Overview     = lazy(() => import('./components/pages/Overview'))
+const KeyConcepts  = lazy(() => import('./components/pages/KeyConcepts'))
+const Data         = lazy(() => import('./components/pages/Data'))
+const Models       = lazy(() => import('./components/pages/Models'))
+const Findings     = lazy(() => import('./components/pages/Findings'))
+const UseCases     = lazy(() => import('./components/pages/UseCases'))
+const Presentation = lazy(() => import('./components/pages/Presentation'))
+const Activity     = lazy(() => import('./components/pages/Activity'))
 
 const PAGES = {
   overview: Overview,
@@ -22,11 +28,7 @@ const PAGES = {
   activity: Activity,
 }
 
-const variants = {
-  initial:  { opacity: 0, y: 8 },
-  animate:  { opacity: 1, y: 0, transition: { duration: .2, ease: 'easeOut' } },
-  exit:     { opacity: 0, transition: { duration: .12 } },
-}
+const PAGE_ORDER = ['overview', 'intro', 'data', 'models', 'findings', 'usecases', 'slides', 'activity']
 
 const SB_KEY    = 'ds.sidebar.open'
 const THEME_KEY = 'ds.theme'
@@ -42,15 +44,22 @@ function getInitialTheme() {
   return 'light'
 }
 
+const NUM_KEY_PAGE = {
+  '1': 'overview', '2': 'intro', '3': 'data', '4': 'models',
+  '5': 'findings', '6': 'usecases', '7': 'slides',
+}
+
 export default function App() {
   const [page, setPage] = useState('overview')
+  const [direction, setDirection] = useState(1)        // 1 = forward, -1 = back
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     try { const v = localStorage.getItem(SB_KEY); return v === null ? true : v === '1' } catch { return true }
   })
   const [theme, setTheme] = useState(getInitialTheme)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const scrollRef = useRef(null)
 
-  // Persist + apply theme
+  /* Persist + apply theme */
   useEffect(() => {
     try { localStorage.setItem(THEME_KEY, theme) } catch {}
     document.documentElement.setAttribute('data-theme', theme)
@@ -61,19 +70,52 @@ export default function App() {
   }, [sidebarOpen])
 
   const navigate = (id) => {
+    if (id === page) return
+    const cur = PAGE_ORDER.indexOf(page)
+    const next = PAGE_ORDER.indexOf(id)
+    setDirection(next > cur ? 1 : -1)
     setPage(id)
     if (scrollRef.current) scrollRef.current.scrollTop = 0
   }
 
   const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
 
+  /* Keyboard shortcuts */
+  useEffect(() => {
+    const handler = (e) => {
+      const tag = e.target?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return
+
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault()
+        setShortcutsOpen(o => !o)
+        return
+      }
+      if (e.key === 'Escape') { setShortcutsOpen(false); return }
+      if (e.shiftKey && (e.key === 'T' || e.key === 't')) { e.preventDefault(); toggleTheme(); return }
+      if (e.shiftKey && (e.key === 'S' || e.key === 's')) { e.preventDefault(); setSidebarOpen(o => !o); return }
+
+      if (!e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (NUM_KEY_PAGE[e.key]) { navigate(NUM_KEY_PAGE[e.key]); return }
+        if (e.key === 'g' || e.key === 'G') { navigate('activity'); return }
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [page])
+
   const PageComponent = PAGES[page] ?? Overview
+
+  const variants = {
+    enter: (dir) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
+    center: { opacity: 1, x: 0, transition: { duration: .26, ease: [0.22, 1, 0.36, 1] } },
+    exit: (dir) => ({ opacity: 0, x: dir > 0 ? -24 : 24, transition: { duration: .15, ease: 'easeIn' } }),
+  }
 
   return (
     <div className="app-shell">
       {sidebarOpen && (
         <>
-          {/* Backdrop only visible on small screens (CSS-driven) */}
           <div
             className="sidebar-backdrop"
             onClick={() => setSidebarOpen(false)}
@@ -93,7 +135,7 @@ export default function App() {
         <button
           onClick={() => setSidebarOpen(true)}
           aria-label="Open sidebar"
-          title="Open sidebar"
+          title="Open sidebar (Shift+S)"
           style={{
             position: 'fixed', top: 16, left: 16, zIndex: 50,
             width: 40, height: 40, borderRadius: 'var(--r-md)',
@@ -113,12 +155,25 @@ export default function App() {
       )}
 
       <div className="main-content" ref={scrollRef}>
-        <AnimatePresence mode="wait">
-          <motion.div key={page} variants={variants} initial="initial" animate="animate" exit="exit">
-            <PageComponent navigate={navigate} />
+        <StickyHeader page={page} scrollRef={scrollRef} />
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={page}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+          >
+            <Suspense fallback={<div style={{ padding: 'var(--sp-10)', color: 'var(--text-3)' }}>Loading…</div>}>
+              <PageComponent navigate={navigate} />
+            </Suspense>
           </motion.div>
         </AnimatePresence>
+        <Footer />
       </div>
+
+      <ShortcutsOverlay open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
   )
 }

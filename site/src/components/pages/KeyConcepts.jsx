@@ -112,13 +112,15 @@ export default function KeyConcepts({ navigate }) {
             <Tooltip
               labelFormatter={(v) => `month ${v.toFixed(1)}`}
               formatter={(v) => [`$${v}`, 'Price']}
+              cursor={{ stroke: 'var(--blue-500)', strokeWidth: 1, strokeDasharray: '4 4', strokeOpacity: 0.6 }}
               contentStyle={{
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
-                borderRadius: 6,
+                borderRadius: 8,
                 fontSize: 12,
                 fontFamily: 'var(--mono)',
                 color: 'var(--text-2)',
+                boxShadow: 'var(--shadow-md)',
               }}
             />
             <ReferenceLine y={peak.price} stroke="var(--amber)" strokeDasharray="4 3" strokeOpacity={0.6} />

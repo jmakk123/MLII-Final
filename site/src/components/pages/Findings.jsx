@@ -58,7 +58,16 @@ function ModelChart({ data, domain, label, higherBetter }) {
           <YAxis domain={domain} tick={{ fontSize: 10, fill: 'var(--slate-400)', fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} width={42} />
           <Tooltip
             formatter={(v) => [v.toFixed(4), label]}
-            contentStyle={{ background: '#fff', border: '1px solid var(--slate-200)', borderRadius: 6, fontSize: 12, fontFamily: 'var(--mono)' }}
+            cursor={{ fill: 'var(--bg-2)', opacity: 0.5 }}
+            contentStyle={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              fontSize: 12,
+              fontFamily: 'var(--mono)',
+              color: 'var(--text-2)',
+              boxShadow: 'var(--shadow-md)',
+            }}
           />
           <Bar dataKey="val" radius={[4, 4, 0, 0]}>
             {data.map(({ name }) => (
