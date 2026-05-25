@@ -1,20 +1,38 @@
-import { LayoutDashboard, BookOpen, Database, Cpu, BarChart2, Briefcase, Presentation, Gamepad2, GitFork, Sun, Moon, PanelLeftClose } from 'lucide-react'
+import {
+  LayoutDashboard, BookOpen, Database, Cpu, BarChart2, Briefcase,
+  Presentation, Gamepad2, GitFork, Sun, Moon, PanelLeftClose,
+  Table, GitCompare, AlertTriangle, Rewind,
+} from 'lucide-react'
 
-const NAV = [
-  { id: 'overview',  label: 'Overview',           Icon: LayoutDashboard },
-  { id: 'intro',     label: 'Key Concepts',       Icon: BookOpen },
-  { id: 'data',      label: 'Data & Methodology', Icon: Database },
-  { id: 'models',    label: 'Models & Process',   Icon: Cpu },
-  { id: 'findings',  label: 'Findings',           Icon: BarChart2 },
-  { id: 'usecases',  label: 'Use Cases',          Icon: Briefcase },
-  { id: 'slides',    label: 'Quick Recap',        Icon: Presentation },
+const GROUPS = [
+  {
+    label: 'Model',
+    items: [
+      { id: 'predictions', label: 'Predictions',  Icon: Table },
+      { id: 'compare',     label: 'Compare',      Icon: GitCompare,    soon: true },
+      { id: 'risks',       label: 'Top Risks',    Icon: AlertTriangle, soon: true },
+      { id: 'backtest',    label: 'Backtest',     Icon: Rewind,        soon: true },
+    ],
+  },
+  {
+    label: 'Project',
+    items: [
+      { id: 'overview',  label: 'Overview',           Icon: LayoutDashboard },
+      { id: 'intro',     label: 'Key Concepts',       Icon: BookOpen },
+      { id: 'data',      label: 'Data & Methodology', Icon: Database },
+      { id: 'models',    label: 'Models & Process',   Icon: Cpu },
+      { id: 'findings',  label: 'Findings',           Icon: BarChart2 },
+      { id: 'usecases',  label: 'Use Cases',          Icon: Briefcase },
+      { id: 'slides',    label: 'Quick Recap',        Icon: Presentation },
+    ],
+  },
 ]
 
 export default function Sidebar({ current, navigate, onClose, theme, onToggleTheme }) {
   const isDark = theme === 'dark'
   return (
     <aside className="sidebar">
-      {/* Logo */}
+      {/* Logo + theme toggle */}
       <div style={{ padding: 'var(--sp-5) var(--sp-4) var(--sp-4)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--sp-2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', minWidth: 0 }}>
@@ -53,73 +71,107 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
         </div>
       </div>
 
-      {/* Nav */}
+      {/* Grouped nav */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: 'var(--sp-2) 0' }}>
+        {GROUPS.map((grp, gi) => (
+          <div key={grp.label} style={{ marginBottom: gi < GROUPS.length - 1 ? 'var(--sp-2)' : 0 }}>
+            <div style={{
+              fontSize: 'var(--text-2xs)',
+              fontWeight: 600,
+              letterSpacing: 'var(--ls-wider)',
+              textTransform: 'uppercase',
+              color: 'var(--text-4)',
+              padding: 'var(--sp-3) var(--sp-4) var(--sp-1)',
+            }}>
+              {grp.label}
+            </div>
+            {grp.items.map(({ id, label, Icon, soon }) => {
+              const active = current === id
+              const disabled = !!soon
+              return (
+                <button
+                  key={id}
+                  onClick={() => !disabled && navigate(id)}
+                  disabled={disabled}
+                  title={disabled ? 'Coming next' : undefined}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
+                    width: '100%', padding: 'var(--sp-2) var(--sp-4)',
+                    background: active ? 'var(--blue-50)' : 'transparent',
+                    border: 'none',
+                    borderLeft: `2px solid ${active ? 'var(--blue-500)' : 'transparent'}`,
+                    color: active ? 'var(--blue-700)' : (disabled ? 'var(--text-4)' : 'var(--text-3)'),
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: active ? 600 : 400,
+                    cursor: disabled ? 'not-allowed' : 'pointer',
+                    textAlign: 'left',
+                    fontFamily: 'var(--sans)',
+                    transition: 'all .15s',
+                    opacity: disabled ? 0.55 : 1,
+                  }}
+                  onMouseEnter={e => { if (!active && !disabled) { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
+                  onMouseLeave={e => { if (!active && !disabled) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
+                >
+                  <Icon size={15} style={{ flexShrink: 0 }} />
+                  {label}
+                  {disabled && (
+                    <span style={{
+                      marginLeft: 'auto',
+                      fontFamily: 'var(--mono)',
+                      fontSize: '9px',
+                      fontWeight: 600,
+                      color: 'var(--text-4)',
+                      letterSpacing: 'var(--ls-wide)',
+                    }}>
+                      SOON
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        ))}
+
+        {/* Activity, separated visually */}
         <div style={{
-          fontSize: 'var(--text-2xs)', fontWeight: 600,
-          letterSpacing: 'var(--ls-wider)', textTransform: 'uppercase',
+          fontSize: 'var(--text-2xs)',
+          fontWeight: 600,
+          letterSpacing: 'var(--ls-wider)',
+          textTransform: 'uppercase',
           color: 'var(--text-4)',
           padding: 'var(--sp-3) var(--sp-4) var(--sp-1)',
+          borderTop: '1px solid var(--border)',
+          marginTop: 'var(--sp-2)',
         }}>
-          Sections
+          Activity
         </div>
-        {NAV.map(({ id, label, Icon }) => {
-          const active = current === id
-          return (
-            <button
-              key={id}
-              onClick={() => navigate(id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
-                width: '100%', padding: 'var(--sp-2) var(--sp-4)',
-                background: active ? 'var(--blue-50)' : 'transparent',
-                border: 'none',
-                borderLeft: `2px solid ${active ? 'var(--blue-500)' : 'transparent'}`,
-                color: active ? 'var(--blue-700)' : 'var(--text-3)',
-                fontSize: 'var(--text-sm)', fontWeight: active ? 600 : 400,
-                cursor: 'pointer', textAlign: 'left',
-                fontFamily: 'var(--sans)',
-                transition: 'all .15s',
-              }}
-              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
-            >
-              <Icon size={15} style={{ flexShrink: 0 }} />
-              {label}
-            </button>
-          )
-        })}
-
-        {/* Activity, separated */}
-        <div style={{ borderTop: '1px solid var(--border)', marginTop: 'var(--sp-2)', paddingTop: 'var(--sp-2)' }}>
-          <button
-            onClick={() => navigate('activity')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
-              width: '100%', padding: 'var(--sp-2) var(--sp-4)',
-              background: current === 'activity' ? 'rgba(245,158,11,.08)' : 'transparent',
-              border: 'none',
-              borderLeft: `2px solid ${current === 'activity' ? 'var(--amber)' : 'transparent'}`,
-              color: current === 'activity' ? '#92400E' : 'var(--text-3)',
-              fontSize: 'var(--text-sm)', fontWeight: current === 'activity' ? 600 : 400,
-              cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--sans)',
-              transition: 'all .15s',
-            }}
-            onMouseEnter={e => { if (current !== 'activity') { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
-            onMouseLeave={e => { if (current !== 'activity') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
-          >
-            <Gamepad2 size={15} style={{ flexShrink: 0 }} />
-            Activity
-            <span style={{
-              marginLeft: 'auto', background: 'var(--amber)', color: '#fff',
-              fontSize: 'var(--text-2xs)', fontWeight: 700, padding: '2px 6px',
-              borderRadius: 3, letterSpacing: 'var(--ls-wide)'
-            }}>LIVE</span>
-          </button>
-        </div>
+        <button
+          onClick={() => navigate('activity')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
+            width: '100%', padding: 'var(--sp-2) var(--sp-4)',
+            background: current === 'activity' ? 'rgba(245,158,11,.08)' : 'transparent',
+            border: 'none',
+            borderLeft: `2px solid ${current === 'activity' ? 'var(--amber)' : 'transparent'}`,
+            color: current === 'activity' ? '#92400E' : 'var(--text-3)',
+            fontSize: 'var(--text-sm)', fontWeight: current === 'activity' ? 600 : 400,
+            cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--sans)',
+            transition: 'all .15s',
+          }}
+          onMouseEnter={e => { if (current !== 'activity') { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
+          onMouseLeave={e => { if (current !== 'activity') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
+        >
+          <Gamepad2 size={15} style={{ flexShrink: 0 }} />
+          DrawdownMarket
+          <span style={{
+            marginLeft: 'auto', background: 'var(--amber)', color: '#fff',
+            fontSize: 'var(--text-2xs)', fontWeight: 700, padding: '2px 6px',
+            borderRadius: 3, letterSpacing: 'var(--ls-wide)'
+          }}>LIVE</span>
+        </button>
       </nav>
 
-      {/* Footer with prominent Collapse button + GitHub */}
+      {/* Footer */}
       <div style={{ padding: 'var(--sp-3) var(--sp-4) var(--sp-4)', borderTop: '1px solid var(--border)' }}>
         <button
           onClick={onClose}

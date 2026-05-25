@@ -2,14 +2,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 
 const SHORTCUTS = [
-  { keys: ['1'], label: 'Overview' },
-  { keys: ['2'], label: 'Key Concepts' },
-  { keys: ['3'], label: 'Data & Methodology' },
-  { keys: ['4'], label: 'Models & Process' },
-  { keys: ['5'], label: 'Findings' },
-  { keys: ['6'], label: 'Use Cases' },
-  { keys: ['7'], label: 'Quick Recap' },
-  { keys: ['G'], label: 'Activity (Game)' },
+  { keys: ['1'], label: 'Predictions' },
+  { keys: ['2'], label: 'Overview' },
+  { keys: ['3'], label: 'Key Concepts' },
+  { keys: ['4'], label: 'Data & Methodology' },
+  { keys: ['5'], label: 'Models & Process' },
+  { keys: ['6'], label: 'Findings' },
+  { keys: ['7'], label: 'Use Cases' },
+  { keys: ['8'], label: 'Quick Recap' },
+  { keys: ['G'], label: 'DrawdownMarket (game)' },
   { keys: ['Shift', 'T'], label: 'Toggle dark / light theme' },
   { keys: ['Shift', 'S'], label: 'Toggle sidebar' },
   { keys: ['?'], label: 'Show this shortcut overlay' },

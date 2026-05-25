@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 
 /* Lazy-loaded pages so initial bundle stays small.
    Each page becomes its own chunk in the build output. */
+const Predictions  = lazy(() => import('./components/pages/Predictions'))
 const Overview     = lazy(() => import('./components/pages/Overview'))
 const KeyConcepts  = lazy(() => import('./components/pages/KeyConcepts'))
 const Data         = lazy(() => import('./components/pages/Data'))
@@ -18,17 +19,18 @@ const Presentation = lazy(() => import('./components/pages/Presentation'))
 const Activity     = lazy(() => import('./components/pages/Activity'))
 
 const PAGES = {
-  overview: Overview,
-  intro:    KeyConcepts,
-  data:     Data,
-  models:   Models,
-  findings: Findings,
-  usecases: UseCases,
-  slides:   Presentation,
-  activity: Activity,
+  predictions: Predictions,
+  overview:    Overview,
+  intro:       KeyConcepts,
+  data:        Data,
+  models:      Models,
+  findings:    Findings,
+  usecases:    UseCases,
+  slides:      Presentation,
+  activity:    Activity,
 }
 
-const PAGE_ORDER = ['overview', 'intro', 'data', 'models', 'findings', 'usecases', 'slides', 'activity']
+const PAGE_ORDER = ['predictions', 'overview', 'intro', 'data', 'models', 'findings', 'usecases', 'slides', 'activity']
 
 const SB_KEY    = 'ds.sidebar.open'
 const THEME_KEY = 'ds.theme'
@@ -45,8 +47,8 @@ function getInitialTheme() {
 }
 
 const NUM_KEY_PAGE = {
-  '1': 'overview', '2': 'intro', '3': 'data', '4': 'models',
-  '5': 'findings', '6': 'usecases', '7': 'slides',
+  '1': 'predictions', '2': 'overview', '3': 'intro', '4': 'data',
+  '5': 'models', '6': 'findings', '7': 'usecases', '8': 'slides',
 }
 
 export default function App() {

@@ -48,6 +48,119 @@ function ddColor(v) {
   return 'var(--green)'
 }
 
+const FEATURED = [
+  { ticker: 'BBBY', name: 'Bed Bath & Beyond', year: 2021, pred: -0.41, actual: -0.60, outcome: 'hit'  },
+  { ticker: 'NFLX', name: 'Netflix',           year: 2021, pred: -0.25, actual: -0.58, outcome: 'miss' },
+  { ticker: 'MSFT', name: 'Microsoft',         year: 2021, pred: -0.19, actual: -0.31, outcome: 'miss' },
+  { ticker: 'JNJ',  name: 'Johnson & Johnson', year: 2020, pred: -0.18, actual: -0.13, outcome: 'safe' },
+  { ticker: 'CCL',  name: 'Carnival',          year: 2020, pred: -0.48, actual: -0.47, outcome: 'hit'  },
+]
+const OUTCOME_COLORS = {
+  hit:  { c: 'var(--green)', bg: 'var(--green-soft)', label: 'Hit' },
+  miss: { c: 'var(--red)',   bg: 'var(--red-soft)',   label: 'Miss' },
+  safe: { c: 'var(--green)', bg: 'var(--green-soft)', label: 'Safe' },
+  false_alarm: { c: 'var(--amber)', bg: 'var(--amber-lo)', label: 'False alarm' },
+}
+function pctFmt(v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(0) + '%' }
+
+function FeaturedPredictions({ navigate }) {
+  return (
+    <div style={{ marginBottom: 'var(--sp-8)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--sp-3)', gap: 'var(--sp-3)' }}>
+        <div>
+          <div className="section-label" style={{ marginBottom: 4 }}>Try the model</div>
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-3)' }}>
+            A few predictions from our test set. Click <em>Predictions</em> to browse all 15,311.
+          </div>
+        </div>
+        <button
+          onClick={() => navigate && navigate('predictions')}
+          style={{
+            padding: '8px 14px',
+            background: 'var(--blue-700)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 'var(--r-md)',
+            fontFamily: 'var(--sans)',
+            fontSize: 'var(--text-sm)',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'opacity .15s, transform .1s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '.9'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+          onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(1px)'}
+          onMouseUp={(e) => e.currentTarget.style.transform = ''}
+        >
+          Browse all 15,311 →
+        </button>
+      </div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: 'var(--sp-3)',
+      }}>
+        {FEATURED.map((f, i) => (
+          <motion.div
+            key={f.ticker}
+            className="card"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+            whileHover={{ y: -3, boxShadow: 'var(--shadow-md)' }}
+            onClick={() => navigate && navigate('predictions')}
+            style={{ padding: 'var(--sp-4)', cursor: 'pointer' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--sp-2)' }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--text-1)' }}>
+                {f.ticker}
+              </span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>
+                fyear {f.year}
+              </span>
+            </div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', marginBottom: 'var(--sp-3)' }}>
+              {f.name}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
+              <div>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+                  Predicted
+                </div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', fontWeight: 700, color: ddColor(f.pred), fontVariantNumeric: 'tabular-nums' }}>
+                  {pctFmt(f.pred)}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+                  Realized
+                </div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', fontWeight: 700, color: ddColor(f.actual), fontVariantNumeric: 'tabular-nums' }}>
+                  {pctFmt(f.actual)}
+                </div>
+              </div>
+            </div>
+            <div style={{
+              marginTop: 'var(--sp-3)',
+              display: 'inline-block',
+              fontFamily: 'var(--mono)',
+              fontSize: 'var(--text-2xs)',
+              fontWeight: 600,
+              padding: '2px 8px',
+              borderRadius: 'var(--r-sm)',
+              background: OUTCOME_COLORS[f.outcome].bg,
+              color: OUTCOME_COLORS[f.outcome].c,
+            }}>
+              {OUTCOME_COLORS[f.outcome].label}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function HeroWord({ word, delay = 0, color }) {
   return (
     <motion.span
@@ -151,7 +264,7 @@ function IntroCard({ num, accent, accentSoft, eyebrow, title, bullets }) {
   )
 }
 
-export default function Overview() {
+export default function Overview({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="hero-wrap">
@@ -164,6 +277,10 @@ export default function Overview() {
           <HeroWord word="Fall" delay={0.25} color="var(--blue-700)" />
         </h1>
       </div>
+
+      {/* Featured Predictions strip */}
+      <FeaturedPredictions navigate={navigate} />
+
 
       {/* Buildup */}
       <p style={{ fontSize: 'var(--text-lg)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-6)' }}>
