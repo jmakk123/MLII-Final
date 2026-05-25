@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 
 const PAGE_META = {
   predictions: { eyebrow: 'Model · Predictions',    title: 'Drawdown Predictions' },
+  compare:     { eyebrow: 'Model · Compare',         title: 'Compare Firms' },
+  risks:       { eyebrow: 'Model · Top Risks',       title: 'Top Predicted Drawdowns' },
+  backtest:    { eyebrow: 'Model · Backtest',        title: 'Backtest by Year' },
   overview:    { eyebrow: '01 / Overview',           title: 'Predicting the Fall' },
   intro:       { eyebrow: 'Key Concepts',            title: 'Key Concepts' },
   data:        { eyebrow: '02 / Data & Methodology', title: 'From raw filings to tensors' },

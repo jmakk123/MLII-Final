@@ -9,9 +9,9 @@ const GROUPS = [
     label: 'Model',
     items: [
       { id: 'predictions', label: 'Predictions',  Icon: Table },
-      { id: 'compare',     label: 'Compare',      Icon: GitCompare,    soon: true },
-      { id: 'risks',       label: 'Top Risks',    Icon: AlertTriangle, soon: true },
-      { id: 'backtest',    label: 'Backtest',     Icon: Rewind,        soon: true },
+      { id: 'compare',     label: 'Compare',      Icon: GitCompare },
+      { id: 'risks',       label: 'Top Risks',    Icon: AlertTriangle },
+      { id: 'backtest',    label: 'Backtest',     Icon: Rewind },
     ],
   },
   {
