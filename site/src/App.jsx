@@ -61,6 +61,7 @@ const NUM_KEY_PAGE = {
 export default function App() {
   const [page, setPage] = useState('overview')
   const [direction, setDirection] = useState(1)        // 1 = forward, -1 = back
+  const [pageInit, setPageInit] = useState(null)       // optional initial state passed to next page
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     try { const v = localStorage.getItem(SB_KEY); return v === null ? true : v === '1' } catch { return true }
   })
@@ -78,11 +79,12 @@ export default function App() {
     try { localStorage.setItem(SB_KEY, sidebarOpen ? '1' : '0') } catch {}
   }, [sidebarOpen])
 
-  const navigate = (id) => {
-    if (id === page) return
+  const navigate = (id, init) => {
+    if (id === page && !init) return
     const cur = PAGE_ORDER.indexOf(page)
     const next = PAGE_ORDER.indexOf(id)
     setDirection(next > cur ? 1 : -1)
+    setPageInit(init ?? null)
     setPage(id)
     if (scrollRef.current) scrollRef.current.scrollTop = 0
   }
@@ -175,7 +177,7 @@ export default function App() {
             exit="exit"
           >
             <Suspense fallback={<div style={{ padding: 'var(--sp-10)', color: 'var(--text-3)' }}>Loading…</div>}>
-              <PageComponent navigate={navigate} />
+              <PageComponent navigate={navigate} init={pageInit} />
             </Suspense>
           </motion.div>
         </AnimatePresence>

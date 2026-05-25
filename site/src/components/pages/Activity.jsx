@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, Trophy, GraduationCap, Users, Sparkles, Lightbulb } from 'lucide-react'
+import { Check, Trophy, GraduationCap, Users, Sparkles, Lightbulb, Zap } from 'lucide-react'
 
 /* Real test-fold (fyear 2020 to 2023) anchors using lstm_fusion ensemble
    predictions. Each round shows three indicators (vol, recent return,
@@ -67,6 +67,105 @@ const TEAMS = [
 
 function fmt$(n) { return '$' + Math.max(0, Math.round(n)).toLocaleString() }
 function emptyBet() { return { side: null, chip: null, hintUsed: false } }
+
+/* -------------------- Final round intro overlay -------------------- */
+function FinalRoundIntro({ show }) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.78)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+          }}
+        >
+          <div style={{ textAlign: 'center', color: '#fff' }}>
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', damping: 14, stiffness: 220, delay: 0.05 }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 12,
+                fontFamily: 'var(--mono)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 700,
+                letterSpacing: 'var(--ls-wider)',
+                textTransform: 'uppercase',
+                color: 'var(--amber)',
+                marginBottom: 12,
+              }}
+            >
+              <Zap size={16} fill="var(--amber)" />
+              All In
+              <Zap size={16} fill="var(--amber)" />
+            </motion.div>
+            <motion.div
+              initial={{ scale: 0.4, y: 40 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+              style={{
+                fontFamily: 'var(--display)',
+                fontSize: 'clamp(48px, 12vw, 120px)',
+                fontWeight: 700,
+                letterSpacing: '-0.04em',
+                lineHeight: 0.9,
+                textShadow: '0 0 32px rgba(245,158,11,.6), 0 0 64px rgba(245,158,11,.3)',
+              }}
+            >
+              FINAL ROUND
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.25, duration: 0.3 }}
+              style={{
+                marginTop: 16,
+                fontSize: 'var(--text-lg)',
+                color: 'rgba(255,255,255,.85)',
+                fontFamily: 'var(--sans)',
+              }}
+            >
+              Winner takes all
+            </motion.div>
+            {/* Speed lines */}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ x: i % 2 === 0 ? '-100vw' : '100vw', opacity: 0 }}
+                animate={{ x: 0, opacity: [0, 1, 0] }}
+                transition={{ duration: 0.7, delay: 0.1 + i * 0.06, ease: 'easeOut' }}
+                style={{
+                  position: 'absolute',
+                  top: `${15 + i * 9}%`,
+                  left: 0, right: 0,
+                  height: 2,
+                  background: 'linear-gradient(90deg, transparent, var(--amber), transparent)',
+                  pointerEvents: 'none',
+                }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
 
 /* -------------------- Celebration overlay -------------------- */
 const CONFETTI_COLORS = ['#ff3d54', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#06b6d4', '#ec4899', '#facc15']
@@ -157,9 +256,18 @@ export default function Activity() {
   )
   const [revealed, setRevealed] = useState(false)
   const [done, setDone] = useState(false)
+  const [showFinalIntro, setShowFinalIntro] = useState(false)
 
   const r = ROUNDS[round]
   const isFinal = !!r.isFinal
+
+  // When the final round first loads, flash the FINAL ROUND overlay
+  useEffect(() => {
+    if (!isFinal || done) return
+    setShowFinalIntro(true)
+    const t = setTimeout(() => setShowFinalIntro(false), 2200)
+    return () => clearTimeout(t)
+  }, [isFinal, done, round])
 
   const allLocked = TEAMS.every(t => {
     const b = bets[t.id]
@@ -293,7 +401,8 @@ export default function Activity() {
 
   /* -------------------- Round view -------------------- */
   return (
-    <div className="game-wrap">
+    <div className="game-wrap" style={{ position: 'relative' }}>
+      <FinalRoundIntro show={showFinalIntro} />
       <div className="eyebrow">07 / Activity</div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--sp-2)', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
         <h1 style={{

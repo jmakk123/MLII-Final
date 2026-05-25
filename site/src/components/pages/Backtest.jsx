@@ -20,8 +20,8 @@ function ddColor(v) {
   return 'var(--green)'
 }
 
-export default function Backtest() {
-  const [year, setYear] = useState(YEARS[YEARS.length - 1])
+export default function Backtest({ init }) {
+  const [year, setYear] = useState(init?.year ?? YEARS[YEARS.length - 1])
 
   const top = useMemo(() => {
     return [...predictions]

@@ -19,8 +19,8 @@ function ddColor(v) {
   return 'var(--green)'
 }
 
-export default function TopRisks() {
-  const [year, setYear]   = useState(YEARS[0])
+export default function TopRisks({ init }) {
+  const [year, setYear]   = useState(init?.year ?? YEARS[0])
   const [count, setCount] = useState(25)
 
   const top = useMemo(() => {

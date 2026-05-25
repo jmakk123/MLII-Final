@@ -28,9 +28,9 @@ function pickDefaultRow(name) {
   return matches[0] || null
 }
 
-export default function Compare() {
-  const [a, setA] = useState(() => pickDefaultRow('Bed Bath & Beyond'))
-  const [b, setB] = useState(() => pickDefaultRow('Microsoft'))
+export default function Compare({ init }) {
+  const [a, setA] = useState(() => init?.a ?? pickDefaultRow('Bed Bath & Beyond'))
+  const [b, setB] = useState(() => init?.b ?? pickDefaultRow('Microsoft'))
 
   return (
     <div className="page-wrap">

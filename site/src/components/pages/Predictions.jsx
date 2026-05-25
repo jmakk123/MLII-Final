@@ -1,7 +1,17 @@
 import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, ChevronUp, ChevronDown, X, ExternalLink } from 'lucide-react'
+import { Search, ChevronUp, ChevronDown, X, GitCompare, AlertTriangle, Rewind } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import predictions from '../../data/predictions.json'
+import detail from '../../data/predictions_detail.json'
+
+const RATIO_LABELS = {
+  r_oper_margin: { label: 'Operating margin', desc: 'EBIT divided by sales. Higher means more profit per dollar of revenue.' },
+  r_tl_ta:       { label: 'Leverage',          desc: 'Total liabilities divided by total assets. Higher means more debt relative to assets.' },
+  r_ebit_ta:     { label: 'EBIT / Total assets', desc: 'Operating profitability against the asset base. Altman X3.' },
+  r_re_ta:       { label: 'Retained earnings ratio', desc: 'Retained earnings divided by total assets. Cumulative profitability.' },
+  r_log_at:      { label: 'Firm size (log assets)', desc: 'Log of total assets. Higher means larger firm.' },
+}
 
 const SECTORS = Array.from(new Set(predictions.map(r => r.s))).sort()
 const YEARS   = Array.from(new Set(predictions.map(r => r.y))).sort()
@@ -35,7 +45,7 @@ function ddColor(v) {
   return 'var(--green)'
 }
 
-export default function Predictions() {
+export default function Predictions({ navigate }) {
   const [search, setSearch]   = useState('')
   const [sector, setSector]   = useState('all')
   const [year, setYear]       = useState('all')
@@ -241,7 +251,7 @@ export default function Predictions() {
       </div>
 
       {/* Detail drawer */}
-      <FirmDetailDrawer row={selected} onClose={() => setSelected(null)} />
+      <FirmDetailDrawer row={selected} onClose={() => setSelected(null)} navigate={navigate} />
     </div>
   )
 }
@@ -270,7 +280,7 @@ function FilterSelect({ value, onChange, label, children }) {
   )
 }
 
-function FirmDetailDrawer({ row, onClose }) {
+function FirmDetailDrawer({ row, onClose, navigate }) {
   return (
     <AnimatePresence>
       {row && (
@@ -296,7 +306,7 @@ function FirmDetailDrawer({ row, onClose }) {
             style={{
               position: 'fixed',
               top: 0, right: 0, bottom: 0,
-              width: 'min(92vw, 520px)',
+              width: 'min(92vw, 560px)',
               background: 'var(--surface)',
               borderLeft: '1px solid var(--border)',
               zIndex: 90,
@@ -304,7 +314,7 @@ function FirmDetailDrawer({ row, onClose }) {
               boxShadow: 'var(--shadow-lg)',
             }}
           >
-            <FirmDetailBody row={row} onClose={onClose} />
+            <FirmDetailBody row={row} onClose={onClose} navigate={navigate} />
           </motion.aside>
         </>
       )}
@@ -312,11 +322,13 @@ function FirmDetailDrawer({ row, onClose }) {
   )
 }
 
-function FirmDetailBody({ row, onClose }) {
+function FirmDetailBody({ row, onClose, navigate }) {
   if (!row) return null
   const verdict = OUTCOME_LABEL[row.o]
   const predBig = row.p <= -0.30
   const actualBig = row.a <= -0.30
+  const dkey = `${row.g}-${row.y}`
+  const d = detail[dkey]
   return (
     <div style={{ padding: 'var(--sp-6)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--sp-4)' }}>
@@ -415,7 +427,66 @@ function FirmDetailBody({ row, onClose }) {
         </p>
       </div>
 
-      {/* Drawdown visual */}
+      {/* Forward 12-month price chart (real CRSP, normalized to 100) */}
+      {d?.prices && d.prices.length >= 4 && (
+        <div style={{ marginBottom: 'var(--sp-5)' }}>
+          <div className="section-label" style={{ marginBottom: 'var(--sp-2)' }}>
+            Forward 12-month price · normalized to 100 at anchor
+          </div>
+          <div className="card" style={{ padding: 'var(--sp-3)' }}>
+            <ResponsiveContainer width="100%" height={160}>
+              <LineChart
+                data={d.prices.map((p, i) => ({ m: i, price: p }))}
+                margin={{ top: 4, right: 8, bottom: 4, left: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis
+                  dataKey="m"
+                  type="number"
+                  domain={[0, Math.max(12, d.prices.length - 1)]}
+                  ticks={[0, 3, 6, 9, 12]}
+                  tickFormatter={(v) => `+${v}m`}
+                  tick={{ fontSize: 10, fill: 'var(--text-4)', fontFamily: 'var(--mono)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 10, fill: 'var(--text-4)', fontFamily: 'var(--mono)' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={36}
+                />
+                <Tooltip
+                  formatter={(v) => [v.toFixed(1), 'Price (anchor=100)']}
+                  labelFormatter={(m) => `+${m} months`}
+                  cursor={{ stroke: 'var(--blue-500)', strokeWidth: 1, strokeDasharray: '4 4' }}
+                  contentStyle={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontFamily: 'var(--mono)',
+                    color: 'var(--text-2)',
+                  }}
+                />
+                <ReferenceLine y={100} stroke="var(--text-4)" strokeDasharray="2 4" />
+                <ReferenceLine y={100 + row.p * 100} stroke="var(--blue-500)" strokeDasharray="3 3" label={{ value: `predicted`, fill: 'var(--blue-500)', fontSize: 9, position: 'left', fontFamily: 'var(--mono)' }} />
+                <Line
+                  type="monotone"
+                  dataKey="price"
+                  stroke={ddColor(row.a)}
+                  strokeWidth={2.2}
+                  dot={false}
+                  isAnimationActive
+                  animationDuration={700}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Drawdown bars (predicted + realized depth visual) */}
       <div style={{ marginBottom: 'var(--sp-5)' }}>
         <div className="section-label" style={{ marginBottom: 'var(--sp-2)' }}>Drawdown depth</div>
         <DrawdownBar value={row.p} label="Predicted" />
@@ -425,12 +496,116 @@ function FirmDetailBody({ row, onClose }) {
         </div>
       </div>
 
+      {/* Ratios with sector percentile */}
+      {d?.ratios && d.ratios.length > 0 && (
+        <div style={{ marginBottom: 'var(--sp-5)' }}>
+          <div className="section-label" style={{ marginBottom: 'var(--sp-2)' }}>
+            Selected ratios · where this firm sits within its sector
+          </div>
+          <div className="card" style={{ padding: 'var(--sp-3)' }}>
+            {d.ratios.map((r) => (
+              <RatioBar key={r.k} r={r} />
+            ))}
+            <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', marginTop: 'var(--sp-2)', fontFamily: 'var(--mono)', textAlign: 'right' }}>
+              Percentile is relative to the firm&apos;s GICS sector across our test panel.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cross-links to other model pages */}
+      {navigate && (
+        <div style={{ marginBottom: 'var(--sp-5)' }}>
+          <div className="section-label" style={{ marginBottom: 'var(--sp-2)' }}>Open this firm in</div>
+          <div style={{ display: 'flex', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
+            <CrossLink Icon={GitCompare} label="Compare" onClick={() => { onClose(); navigate('compare', { a: row }) }} />
+            <CrossLink Icon={AlertTriangle} label={`Top Risks · ${row.y}`} onClick={() => { onClose(); navigate('risks', { year: row.y }) }} />
+            <CrossLink Icon={Rewind} label={`Backtest · ${row.y}`} onClick={() => { onClose(); navigate('backtest', { year: row.y }) }} />
+          </div>
+        </div>
+      )}
+
       {/* Methodology link */}
       <div className="info-box" style={{ fontSize: 'var(--text-xs)' }}>
         <strong style={{ color: 'var(--blue-900)' }}>How this prediction was made.</strong>{' '}
-        The Financial LSTM ensemble (3 seeds) read five years of accounting ratios plus seven price-derived features for {row.n} as of {row.d}, then produced a single forward 12-month max drawdown forecast. Read the architecture in <a href="#models" style={{ color: 'var(--blue-500)', textDecoration: 'underline' }}>Models &amp; Process</a> or see the headline metrics in <a href="#findings" style={{ color: 'var(--blue-500)', textDecoration: 'underline' }}>Findings</a>.
+        The Financial LSTM ensemble (3 seeds) read five years of accounting ratios plus seven price-derived features for {row.n} as of {row.d}, then produced a single forward 12-month max drawdown forecast. Architecture lives in Models &amp; Process; headline metrics in Findings.
       </div>
     </div>
+  )
+}
+
+function RatioBar({ r }) {
+  const meta = RATIO_LABELS[r.k] ?? { label: r.k, desc: '' }
+  const pct = Math.round(r.p * 100)
+  return (
+    <div style={{ marginBottom: 'var(--sp-3)' }} title={meta.desc}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-2)', fontWeight: 500 }}>{meta.label}</span>
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-3)' }}>
+          {r.v >= 0 ? '+' : ''}{r.v.toFixed(3)}  ·  <span style={{ color: 'var(--blue-700)', fontWeight: 600 }}>{pct}th pctl</span>
+        </span>
+      </div>
+      <div style={{ position: 'relative', height: 8, background: 'var(--bg-2)', borderRadius: 999, overflow: 'hidden' }}>
+        {/* Sector range backdrop with quartile marks */}
+        {[25, 50, 75].map((q) => (
+          <div key={q} style={{
+            position: 'absolute', top: 0, bottom: 0,
+            left: `${q}%`, width: 1,
+            background: 'var(--border-2)',
+          }} />
+        ))}
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          style={{
+            height: '100%',
+            background: 'var(--blue-500)',
+            opacity: 0.85,
+            borderRadius: 999,
+          }}
+        />
+        {/* Marker at firm's exact percentile */}
+        <motion.div
+          initial={{ left: '0%' }}
+          animate={{ left: `${pct}%` }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          style={{
+            position: 'absolute', top: -2, bottom: -2,
+            width: 3,
+            background: 'var(--blue-700)',
+            borderRadius: 2,
+            transform: 'translateX(-1.5px)',
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function CrossLink({ Icon, label, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        padding: '6px 10px',
+        background: 'var(--bg-2)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--r-md)',
+        color: 'var(--text-2)',
+        fontFamily: 'var(--sans)',
+        fontSize: 'var(--text-xs)',
+        fontWeight: 500,
+        cursor: 'pointer',
+        transition: 'border-color .15s, color .15s, background .15s',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
+    >
+      <Icon size={12} />
+      {label}
+    </button>
   )
 }
 
