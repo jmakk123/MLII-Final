@@ -9,7 +9,7 @@ const TOP_N = 10
 const NARRATIVE = {
   2020: 'Anchored March 2021. The forward window covered the post-vaccine reopening, supply chain whiplash, and the start of the meme-stock era.',
   2021: 'Anchored March 2022. The forward window includes the 2022 tech sell-off and the start of the Fed rate-hike cycle.',
-  2022: 'Anchored March 2023. The forward window captures the regional bank stress (SVB, First Republic) and the AI rally.',
+  2022: 'Anchored March 2023. The forward window spans the AI rally, late-cycle macro uncertainty, and persistent Fed tightening. Note: the most-talked-about regional bank failures of 2023 (SVB, First Republic) sat outside our anchor panel because they delisted before a full 12-month forward window could be priced. This is the survivorship bias documented in Limitations.',
   2023: 'Anchored March 2024. The forward window covers the AI mania pullback in mid-2024 and the late-cycle macro debate.',
 }
 

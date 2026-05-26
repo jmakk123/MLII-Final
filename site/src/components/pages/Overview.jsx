@@ -332,12 +332,12 @@ export default function Overview({ navigate }) {
           accent="var(--green)"
           accentSoft="var(--green-soft)"
           eyebrow="The Deliverable"
-          title="A real model, end-to-end reproducible"
+          title="The model is the product"
           bullets={[
-            'Trained PyTorch checkpoint on 76,990 anchor rows; headline numbers from a 3-seed ensemble.',
-            'Full notebook, training pipeline, scripts, and weights live in the GitHub repo linked in the sidebar.',
-            'This site is the presentation companion: methodology, results, limitations, plus the in-class betting game.',
-            'Hover any number on the Findings page for context; spend 10 minutes on the Activity for the fun part.',
+            'Trained PyTorch checkpoint on 76,990 anchor rows. Headline numbers come from a 3-seed ensemble of the best architecture.',
+            'Every prediction the model made on the 15,311-row test fold is browsable, searchable, and filterable in the Predictions page.',
+            'Compare any two firms, see the top risks for a given year, replay how the model would have called past years in Backtest.',
+            'Notebook, training pipeline, and trained weights are in the public repo. This site is the product, not a slide deck.',
           ]}
         />
       </div>

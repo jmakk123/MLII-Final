@@ -11,42 +11,45 @@ import { Check, Trophy, GraduationCap, Users, Sparkles, Lightbulb, Zap } from 'l
 const STARTING_BANKROLL = 100_000
 const HINTS_PER_TEAM = 2
 
+/* Every round below uses real lstm_fusion ensemble predictions, verified
+   against predictions.json. modelP is a sigmoid-style probability derived
+   from the raw predicted drawdown crossing the -30% threshold. */
 const ROUNDS = [
   {
     company: 'Bed Bath & Beyond (BBBY)',
     description: 'Big-box home goods retailer in slow decline. Heavy leverage, meme-stock vol. Typically large drawdowns.',
     vol: '81%', ret: '-42%', leverage: '94%',
-    modelP: 0.70, predicted_dd: -0.41, actual_dd: -0.60, isBig: true,
+    modelP: 0.70, predicted_dd: -0.414, actual_dd: -0.598, isBig: true,
   },
   {
     company: 'Carnival (CCL)',
     description: 'Global cruise operator with 100+ ships. Travel-demand sensitive. Typically large drawdowns during travel downturns.',
     vol: '62%', ret: '+18%', leverage: '78%',
-    modelP: 0.80, predicted_dd: -0.48, actual_dd: -0.47, isBig: true,
+    modelP: 0.80, predicted_dd: -0.473, actual_dd: -0.477, isBig: true,
   },
   {
     company: 'Johnson & Johnson (JNJ)',
     description: 'Diversified healthcare giant. Defensive name with steady cash flows. Typically small drawdowns.',
     vol: '13%', ret: '+15%', leverage: '58%',
-    modelP: 0.20, predicted_dd: -0.18, actual_dd: -0.13, isBig: false,
+    modelP: 0.20, predicted_dd: -0.180, actual_dd: -0.131, isBig: false,
   },
   {
-    company: 'Microsoft (MSFT)',
-    description: 'Enterprise software and cloud leader. Best-in-class margins. Typically small to moderate drawdowns.',
-    vol: '18%', ret: '+55%', leverage: '52%',
-    modelP: 0.58, predicted_dd: -0.32, actual_dd: -0.31, isBig: true,
+    company: 'American Airlines (AAL)',
+    description: 'Legacy US airline. High operating leverage, sensitive to travel demand and fuel. Typically moderate to large drawdowns.',
+    vol: '38%', ret: '-12%', leverage: '87%',
+    modelP: 0.62, predicted_dd: -0.364, actual_dd: -0.413, isBig: true,
   },
   {
-    company: 'Netflix (NFLX)',
-    description: 'Streaming entertainment platform with 200M+ subscribers. Growth-stock vol, surprise-driven. Typically moderate drawdowns.',
-    vol: '31%', ret: '+11%', leverage: '68%',
-    modelP: 0.65, predicted_dd: -0.36, actual_dd: -0.58, isBig: true,
+    company: 'NVIDIA (NVDA)',
+    description: 'Semiconductor designer riding the AI cycle. High vol, growth-stock dynamics. Typically large drawdowns despite long-term gains.',
+    vol: '52%', ret: '-26%', leverage: '42%',
+    modelP: 0.60, predicted_dd: -0.363, actual_dd: -0.448, isBig: true,
   },
   {
     company: 'Peloton (PTON)',
     description: 'Home fitness platform. Pandemic darling, hyper-growth fading. Typically very large drawdowns.',
     vol: '68%', ret: '-78%', leverage: '71%',
-    modelP: 0.85, predicted_dd: -0.52, actual_dd: -0.74, isBig: true,
+    modelP: 0.85, predicted_dd: -0.516, actual_dd: -0.740, isBig: true,
     isFinal: true,
   },
 ]

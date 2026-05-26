@@ -249,7 +249,7 @@ export default function Models() {
 
       {/* Features carousel */}
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '.85rem' }}>
-        <div className="section-label" style={{ margin: 0 }}>Features used · 97 total · top 5 shown first</div>
+        <div className="section-label" style={{ margin: 0 }}>Feature glossary · 97 features total</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
           <button
             onClick={() => setFeatPage(p => Math.max(0, p - 1))}
@@ -286,28 +286,19 @@ export default function Models() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem', marginBottom: '1.25rem' }}>
-        {visibleFeats.map((f, i) => {
-          const isTop = featPage === 0
-          return (
-            <div key={f.name} className="card" style={{ padding: '.85rem 1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '.75rem', marginBottom: '.3rem' }}>
-                {isTop && (
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: '.7rem', color: 'var(--amber)', fontWeight: 700, width: 22 }}>
-                    #{i + 1}
-                  </span>
-                )}
-                <span style={{ fontFamily: 'var(--mono)', fontSize: '.82rem', fontWeight: 600, color: 'var(--blue-700)' }}>{f.name}</span>
-              </div>
-              <div style={{ fontSize: '.78rem', color: 'var(--slate-600)', lineHeight: 1.6, paddingLeft: isTop ? '2.7rem' : 0 }}>{f.desc}</div>
+        {visibleFeats.map((f) => (
+          <div key={f.name} className="card" style={{ padding: '.85rem 1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '.75rem', marginBottom: '.3rem' }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: '.82rem', fontWeight: 600, color: 'var(--blue-700)' }}>{f.name}</span>
             </div>
-          )
-        })}
+            <div style={{ fontSize: '.78rem', color: 'var(--slate-600)', lineHeight: 1.6 }}>{f.desc}</div>
+          </div>
+        ))}
       </div>
 
       <div className="info-box" style={{ marginBottom: '2rem' }}>
-        <strong style={{ color: 'var(--blue-900)' }}>What the top features tell us.</strong>{' '}
-        The strongest predictors are split between market signals (volatility, prior drawdown, dollar volume, beta) and balance-sheet stress signals (operating margin, leverage, profitability).
-        Neither side dominates: that is exactly why the dual-stream design works. The financial branch captures structural stress that takes years to develop; the price branch captures recent regime shifts that the accounting data has not yet absorbed.
+        <strong style={{ color: 'var(--blue-900)' }}>Where the signal comes from.</strong>{' '}
+        The features split cleanly into market signals (volatility, prior drawdown, dollar volume, beta) and balance-sheet stress signals (operating margin, leverage, profitability). Neither side dominates: that is exactly why the dual-stream design works. The financial branch captures structural stress that takes years to develop; the price branch captures recent regime shifts that the accounting data has not yet absorbed.
       </div>
 
       <div className="divider" />
