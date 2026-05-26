@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import ArchitectureFlow from '../visuals/ArchitectureFlow'
 
 const MODELS = [
   {
@@ -200,6 +201,8 @@ export default function Models() {
       <div className="eyebrow">Project · Models</div>
       <h1 className="page-title">Eight models.<br />One winner.</h1>
       <p className="page-sub">Three baselines, four ablations, and one full fusion model. Click any model to see its architecture, tradeoffs, and verdict for our use case.</p>
+
+      <ArchitectureFlow />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1.4fr', gap: '1.5rem', marginBottom: '2.5rem', alignItems: 'start' }}>
         {/* Model ladder (left) */}

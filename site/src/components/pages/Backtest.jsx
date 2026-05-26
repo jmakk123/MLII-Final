@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Rewind, Check, X as XIcon } from 'lucide-react'
 import predictions from '../../data/predictions.json'
+import SectorHeatmap from '../visuals/SectorHeatmap'
 
 const YEARS = Array.from(new Set(predictions.map(r => r.y))).sort()
 const TOP_N = 10
@@ -154,6 +155,10 @@ export default function Backtest({ init }) {
       <div className="info-box" style={{ marginTop: 'var(--sp-5)', fontSize: 'var(--text-xs)' }}>
         <strong style={{ color: 'var(--blue-900)' }}>What this tells you.</strong>{' '}
         A hit means the model flagged risk and the stock actually fell more than 30%. Across all four backtested years, the model&apos;s top-{TOP_N} picks hit on most of them, with the worst predictions corresponding to firms in measurable distress. The misses tend to cluster in firms that look stressed on accounting alone but were rescued by a sector tailwind (AI for chips, reopening for travel).
+      </div>
+
+      <div style={{ marginTop: 'var(--sp-8)' }}>
+        <SectorHeatmap />
       </div>
     </div>
   )

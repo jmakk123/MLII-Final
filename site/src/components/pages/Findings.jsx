@@ -1,4 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import OutcomeBreakdown from '../visuals/OutcomeBreakdown'
+import PRCalibration from '../visuals/PRCalibration'
+import SurvivorshipFunnel from '../visuals/SurvivorshipFunnel'
 
 const RESULTS = [
   { model: 'Vol-Only',         mae: 0.1386, rmse: 0.1820, r2: 0.2459, prauc: 0.8290, brier: 0.4938, spearman: 0.6367, topDec: 0.4299, winner: false },
@@ -185,6 +188,18 @@ export default function Findings({ navigate }) {
         <ModelChart data={SPEAR_DATA} domain={[.60, .68]}   label="Spearman (within-year)" higherBetter={true} />
         <ModelChart data={BRIER_DATA} domain={[0, .55]}     label="Brier"           higherBetter={false} />
       </div>
+
+      <div className="divider" />
+
+      {/* Diagnostic plots */}
+      <div className="section-label">Diagnostic Plots · Precision-Recall and Calibration</div>
+      <PRCalibration />
+
+      {/* Outcome breakdown */}
+      <OutcomeBreakdown />
+
+      {/* Survivorship funnel */}
+      <SurvivorshipFunnel />
 
       <div className="divider" />
 

@@ -3,6 +3,7 @@ import {
   Presentation, Gamepad2, GitFork, Sun, Moon, PanelLeftClose,
   Table, GitCompare, AlertTriangle, Rewind,
 } from 'lucide-react'
+import Monogram from './visuals/Monogram'
 
 /* Home link sits above the groups, like Linear's Inbox or Stripe's Home. */
 const HOME = { id: 'overview', label: 'Overview', Icon: LayoutDashboard }
@@ -67,14 +68,7 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
       <div style={{ padding: 'var(--sp-5) var(--sp-4) var(--sp-4)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--sp-2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', minWidth: 0 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: 'var(--r-md)',
-              background: 'var(--blue-900)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <BarChart2 size={15} color="var(--surface)" />
-            </div>
+            <Monogram size={28} />
             <span style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-1)', letterSpacing: 'var(--ls-tight)', whiteSpace: 'nowrap' }}>
               DrawdownSignal
             </span>
@@ -96,9 +90,6 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
           >
             {isDark ? <Sun size={14} /> : <Moon size={14} />}
           </button>
-        </div>
-        <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', marginTop: 'var(--sp-2)' }}>
-          ML II · UChicago MS-ADS 2026
         </div>
       </div>
 

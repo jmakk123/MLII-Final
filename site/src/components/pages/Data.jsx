@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import TimelineRibbon from '../visuals/TimelineRibbon'
 
 const SOURCES = [
   {
@@ -165,16 +166,7 @@ export default function Data() {
           </div>
         </div>
         <div style={{ textAlign: 'center', color: 'var(--slate-300)', fontSize: '1.1rem' }}>↓</div>
-        <div>
-          <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '.5rem' }}>
-            Time-Blocked Split
-          </div>
-          <div className="split-row">
-            <div className="split-block train"><div className="split-name">Train</div><div className="split-years">2003 to 2017</div><div className="split-n">54,316 firm-years</div></div>
-            <div className="split-block val"><div className="split-name">Validation</div><div className="split-years">2018 to 2019</div><div className="split-n">7,196 firm-years</div></div>
-            <div className="split-block test"><div className="split-name">Test</div><div className="split-years">2020 to 2023</div><div className="split-n">15,311 firm-years</div></div>
-          </div>
-        </div>
+        <TimelineRibbon />
       </div>
 
       <div className="divider" />

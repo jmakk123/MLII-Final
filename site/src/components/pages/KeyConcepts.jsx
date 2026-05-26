@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
-import { useMemo } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, ReferenceLine, Area, AreaChart } from 'recharts'
+import DrawdownAnimation from '../visuals/DrawdownAnimation'
 
 const EXISTING = [
   { icon: '〜', name: 'Volatility', def: 'Measures how much a stock bounces around day-to-day. High vol means unpredictable price moves.', ex: 'A stock moving plus or minus 3% every day has high volatility.' },
@@ -18,51 +17,7 @@ const GAPS = [
   { bad: false, title: 'Why not just predict bankruptcy?', body: 'Bankruptcies are rare (387 in our dataset). Rare events are hard to model reliably. A large drawdown is much more common, and just as useful as an early warning signal.' },
 ]
 
-/* Build a realistic-looking 12-month price path:
-   - Starts at 100
-   - Rises with mild noise to a peak around month 5
-   - Sharp drawdown event in months 6-9
-   - Partial recovery by month 12
-   - 60 data points (5 per month) for a smooth continuous line
-*/
-function buildPricePath() {
-  const points = []
-  const N = 60   // ~5 per month
-  let price = 100
-  let trend = 0
-  // Seeded pseudo-random for repeatability
-  let seed = 7
-  const rand = () => {
-    seed = (seed * 16807) % 2147483647
-    return (seed / 2147483647 - 0.5) * 2   // -1..1
-  }
-  for (let i = 0; i < N; i++) {
-    const phase = i / (N - 1)
-    let drift
-    if (phase < 0.45) drift = 0.55              // rising phase
-    else if (phase < 0.75) drift = -1.7         // crash phase
-    else drift = 0.35                            // recovery
-    const noise = rand() * 0.9
-    trend = 0.65 * trend + 0.35 * (drift + noise)
-    price = Math.max(20, price + trend)
-    points.push({
-      i,
-      month: i / 5,    // month index
-      price: Number(price.toFixed(2)),
-    })
-  }
-  return points
-}
-
 export default function KeyConcepts({ navigate }) {
-  const path = useMemo(buildPricePath, [])
-  // Peak and trough
-  const peak = path.reduce((acc, p) => (p.price > acc.price ? p : acc), path[0])
-  const troughAfterPeak = path
-    .filter((p) => p.i >= peak.i)
-    .reduce((acc, p) => (p.price < acc.price ? p : acc), { price: Infinity, i: peak.i })
-  const drawdownPct = ((troughAfterPeak.price - peak.price) / peak.price) * 100
-
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Concepts</div>
@@ -77,81 +32,7 @@ export default function KeyConcepts({ navigate }) {
         We predict this number <em>before</em> it happens, using only information available at the start of the year.
       </p>
 
-      {/* Realistic continuous price path */}
-      <div className="card card-p" style={{ marginBottom: 'var(--sp-8)' }}>
-        <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>
-          Stock price over 12 months, illustrative
-        </div>
-        <ResponsiveContainer width="100%" height={240}>
-          <AreaChart data={path} margin={{ top: 16, right: 16, bottom: 8, left: 8 }}>
-            <defs>
-              <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--blue-500)" stopOpacity={0.25} />
-                <stop offset="100%" stopColor="var(--blue-500)" stopOpacity={0.0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-            <XAxis
-              dataKey="month"
-              type="number"
-              domain={[0, 12]}
-              ticks={[0, 3, 6, 9, 12]}
-              tickFormatter={(v) => ['Jan','Apr','Jul','Oct','Dec'][[0,3,6,9,12].indexOf(v)] ?? ''}
-              tick={{ fontSize: 11, fill: 'var(--text-4)', fontFamily: 'var(--mono)' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tickFormatter={(v) => `$${v}`}
-              domain={['auto', 'auto']}
-              tick={{ fontSize: 11, fill: 'var(--text-4)', fontFamily: 'var(--mono)' }}
-              axisLine={false}
-              tickLine={false}
-              width={42}
-            />
-            <Tooltip
-              labelFormatter={(v) => `month ${v.toFixed(1)}`}
-              formatter={(v) => [`$${v}`, 'Price']}
-              cursor={{ stroke: 'var(--blue-500)', strokeWidth: 1, strokeDasharray: '4 4', strokeOpacity: 0.6 }}
-              contentStyle={{
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                fontSize: 12,
-                fontFamily: 'var(--mono)',
-                color: 'var(--text-2)',
-                boxShadow: 'var(--shadow-md)',
-              }}
-            />
-            <ReferenceLine y={peak.price} stroke="var(--amber)" strokeDasharray="4 3" strokeOpacity={0.6} />
-            <ReferenceLine y={troughAfterPeak.price} stroke="var(--red)" strokeDasharray="4 3" strokeOpacity={0.6} />
-            <Area
-              type="monotone"
-              dataKey="price"
-              stroke="var(--blue-500)"
-              strokeWidth={2}
-              fill="url(#priceFill)"
-              isAnimationActive={true}
-              animationDuration={1200}
-            />
-            <ReferenceDot x={peak.month} y={peak.price} r={6} fill="var(--amber)" stroke="var(--surface)" strokeWidth={2} />
-            <ReferenceDot x={troughAfterPeak.month} y={troughAfterPeak.price} r={6} fill="var(--red)" stroke="var(--surface)" strokeWidth={2} />
-          </AreaChart>
-        </ResponsiveContainer>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', color: 'var(--text-3)', marginTop: 'var(--sp-2)', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--amber)' }} />
-            Peak ${peak.price.toFixed(0)} around month {peak.month.toFixed(1)}
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--red)' }} />
-            Trough ${troughAfterPeak.price.toFixed(0)} around month {troughAfterPeak.month.toFixed(1)}
-          </span>
-          <span style={{ fontFamily: 'var(--mono)', color: 'var(--red)', fontWeight: 600 }}>
-            Drawdown = {drawdownPct.toFixed(0)}%
-          </span>
-        </div>
-      </div>
+      <DrawdownAnimation />
 
       <div className="divider" />
 

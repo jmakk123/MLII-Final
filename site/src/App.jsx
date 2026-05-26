@@ -4,6 +4,7 @@ import { Menu } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import StickyHeader from './components/StickyHeader'
 import ShortcutsOverlay from './components/ShortcutsOverlay'
+import ScrollProgress from './components/visuals/ScrollProgress'
 import Footer from './components/Footer'
 
 /* Lazy-loaded pages so initial bundle stays small.
@@ -166,6 +167,7 @@ export default function App() {
       )}
 
       <div className="main-content" ref={scrollRef}>
+        <ScrollProgress scrollRef={scrollRef} />
         <StickyHeader page={page} scrollRef={scrollRef} />
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
