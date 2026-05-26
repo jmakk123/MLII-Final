@@ -1,78 +1,143 @@
-# Predicting the Fall — Forward Drawdown Signal
-**MS-ADS 2026 · Machine Learning II · University of Chicago**
+# Forward 12-Month Drawdown Prediction
 
-A dual-stream neural network that forecasts the maximum peak-to-trough stock price drawdown for US public companies over the next 12 months, using five years of Compustat accounting history.
+Machine Learning II · MS-ADS · University of Chicago · Spring 2026
+Team: Nick Dhaliwal, Jared Maksoud, Nicholas Mikhail, Yung Chyi Yang
 
----
+A dual-stream neural network that forecasts the maximum peak-to-trough drawdown a US public company will experience over the next 12 months. The model reads five years of Compustat accounting ratios through an LSTM and seven CRSP-derived price features through an MLP, then fuses the two streams to produce a single forecast in `[-1, 0]`.
 
-## Live Site
+**Live site:** https://jmakk123.github.io/MLII-Final/
 
-GitHub Pages: **https://jmakk123.github.io/MLII-Final/**
+## Headline Results
 
----
+Test fold, fyear 2020 to 2023, 15,311 firm-years, 3-seed ensemble.
 
-## Run the Site Locally
+| Metric                       | Value  | Direction        |
+|------------------------------|--------|------------------|
+| MAE                          | 0.121  | lower is better  |
+| RMSE                         | 0.161  | lower is better  |
+| R²                           | 0.410  | higher is better |
+| PR-AUC at -30%               | 0.852  | higher is better |
+| Brier score                  | 0.226  | lower is better  |
+| Within-year Spearman         | 0.666  | higher is better |
+| Top-decile precision         | 0.487  | higher is better |
+
+Beats the volatility-only baseline on every primary metric.
+
+## Repository Layout
+
+```
+MLII-Final/
+├── README.md                       this file
+├── environment.yml                 conda environment, Python 3.11
+├── .gitignore                      excludes raw data, models, tool internals
+│
+├── src/                            canonical Python package
+│   ├── data/                       anchors, features, splits, targets
+│   ├── price/                      price-derived feature engineering
+│   ├── tabular/                    18 financial ratios
+│   ├── temporal/                   LSTM sequence encoder
+│   ├── fusion/                     fusion model + training loop
+│   └── eval/                       metrics, plots, calibration
+│
+├── notebooks/                      Jupyter pipeline
+│   ├── 00_build_master_dataset.ipynb   build anchor panel + features + targets
+│   ├── 01_extract_wrds_raw.ipynb       pull raw parquets from WRDS
+│   ├── 02_baselines.ipynb              vol-only, Ridge, gradient-boosted trees
+│   ├── 03_fusion_model.ipynb           dual-stream fusion model + ablations
+│   ├── drawdown_score.ipynb            end-to-end production run
+│   ├── features.py                     legacy module used by older notebooks
+│   ├── metrics.py                      legacy module used by older notebooks
+│   └── targets.py                      legacy module used by older notebooks
+│
+├── scripts/                        runnable pipelines
+│   ├── run_pipeline.py             end-to-end training + evaluation
+│   └── meta_ensemble.py            seed-averaged ensemble at inference
+│
+├── reports/                        figures, results, writeup
+│   ├── figures/                    PR curves, calibration, sector breakdowns
+│   ├── outputs/                    headline result CSVs + saved weights + npy preds
+│   ├── progress_report_2026-05-19  midpoint progress submission
+│   └── writeup_appendix.md         methodology appendix
+│
+├── models/                         shipped model checkpoint
+│   └── fusion_model_best.pt        best fusion model weights
+│
+├── data/                           gitignored, see data/README.md
+│
+├── site/                           React source for the live site
+├── docs/                           pre-built static site served by GitHub Pages
+│
+└── presentation/                   slide and presentation artifacts
+    ├── HANDOFF.md                  team handoff doc
+    ├── PROJECT_BRIEF.md            problem statement for new collaborators
+    ├── speaker_notes.docx          12-minute presentation script
+    ├── build_speaker_notes.py      regenerator for the speaker notes docx
+    └── design-system/              DrawdownSignal visual identity master
+```
+
+## Quick Start
+
+### 1. Browse the site (zero setup)
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/jmakk123/MLII-Final.git
-cd MLII-Final
-
-# 2. Serve the docs folder
 python3 -m http.server 8080 --directory docs
-
-# 3. Open in your browser
 open http://localhost:8080
 ```
 
-That's it — no dependencies, no build step. Pure HTML/CSS/JS.
+### 2. Run the model
 
-To stop the server: `kill $(lsof -ti:8080)`
+```bash
+conda env create -f environment.yml
+conda activate ml2-drawdown
 
----
+# Pull raw data (needs WRDS credentials, see notebooks/01)
+jupyter notebook notebooks/01_extract_wrds_raw.ipynb
 
-## Project Structure
+# Build the anchor panel
+jupyter notebook notebooks/00_build_master_dataset.ipynb
 
-```
-final_proj/
-├── docs/                        # GitHub Pages site (open index.html)
-│   └── index.html
-├── 00_build_master_dataset.ipynb  # Builds anchors + features + targets
-├── 01_extract_wrds_raw.ipynb      # Pulls raw data from WRDS (needs credentials)
-├── 02_baselines.ipynb             # Vol-only, Ridge, XGBoost baselines
-├── 03_fusion_model.ipynb          # LSTM fusion model + ablations
-├── features.py                    # Shared feature engineering module
-├── metrics.py                     # Shared evaluation module (within-year metrics)
-├── targets.py                     # Forward drawdown target construction
-├── fusion_model_best.pt           # Saved best model weights
-├── baseline_results.csv           # Baseline test-set results
-└── data/
-    └── raw/                       # Parquet files (not in git — see below)
-        ├── compustat_funda.parquet
-        ├── compustat_company.parquet
-        ├── crsp_linktable.parquet
-        └── crsp_dsf.parquet
+# Train and evaluate the fusion model
+python scripts/run_pipeline.py
+
+# Or run the polished end-to-end notebook
+jupyter notebook notebooks/drawdown_score.ipynb
 ```
 
----
+### 3. Develop the site
 
-## Getting the Data
+```bash
+cd site
+npm install
+npm run dev          # local dev server with HMR
+npm run build        # rebuilds ../docs for GitHub Pages
+```
 
-Raw data files are excluded from git (the DSF file alone is ~450 MB). Get them from the team shared Google Drive folder, then place them in `data/raw/`.
+## Data
 
-Once the parquets are in place, run notebooks in order: `00` → `01` (optional, re-pulls from WRDS) → `02` → `03`.
+Compustat and CRSP are licensed and not shipped with this repo. See `data/README.md` for the expected layout and retrieval instructions via WRDS.
 
-WRDS access is required to re-pull raw data via `01_extract_wrds_raw.ipynb`.
+The 387 historical bankruptcies referenced in the slides come from CRSP delisting codes (`dlrsn` 02 / 03 / 04). They are not used as a training label because they are too sparse; we use forward 12-month max drawdown as the regression target instead, which is defined for every firm-year.
 
----
+## Architecture
 
-## Results Summary
+The winning model is a dual-stream encoder with a small fusion head.
 
-| Model | MAE | RMSE | R² | PR-AUC | Brier |
-|---|---|---|---|---|---|
-| Vol-Only (floor) | 0.1532 | 0.2091 | 0.1664 | 0.8689 | 0.5732 |
-| Ridge | 0.1692 | 0.2183 | 0.0914 | 0.8368 | 0.3306 |
-| XGBoost | 0.1660 | 0.2031 | 0.2137 | 0.8531 | 0.3177 |
-| **Financial LSTM** | **0.1444** | **0.1926** | **0.2926** | 0.8662 | **0.2665** |
+```
+financial ratios (B, 5, 18)  →  LSTM(2 layers, h=64)  → Linear(32) ┐
+                                                                    ├→ concat (48-d) → MLP[32, 32] → scalar
+price features    (B, 7)     →  MLP[32, 32, 16]                    ┘
+```
 
-Best model: financial-only LSTM branch (no price features). Brier score improved 54% over the vol-only baseline. PR-AUC is a statistical tie (−0.27pp).
+Loss = `Huber(δ=0.05) + 0.3 · BCE(@-30%)`. Optimizer = `AdamW(1e-3, wd=1e-4)` with cosine annealing, batch 256, patience 8. Inference is a 3-seed ensemble.
+
+Ablations tested: financial-only, price-only, MLP-fusion (drops the recurrent inductive bias), cross-attention fusion. The full LSTM fusion ensemble wins on MAE, Spearman, and top-decile precision; the other neural variants tie within seed noise on PR-AUC and Brier. See `notebooks/03_fusion_model.ipynb`.
+
+## Reproducibility
+
+Every run uses a fixed seed. The 3 seeds used for the headline ensemble are 0, 1, 2 (see `scripts/run_pipeline.py`). With raw parquets in place under `data/raw/`, the full pipeline reproduces the headline numbers in `reports/outputs/results_headline_ensemble.csv` to four decimals.
+
+The trained weights for every reported configuration are committed in `reports/outputs/weights_*.pt` and the saved test-fold prediction arrays in `reports/outputs/preds_*.npy`, so the metrics can be recomputed from `reports/outputs/` alone without running training.
+
+## License
+
+Code: MIT. Data is licensed by WRDS / S&P Compustat / CRSP and is not redistributable.

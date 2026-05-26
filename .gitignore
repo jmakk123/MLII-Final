@@ -1,11 +1,37 @@
-anchors.parquet
-features.parquet
-crsp_dsf.parquet
-crsp_msf.parquet
-compustat_funda.parquet
-data/
+# Local data — too large for git, see data/README.md for retrieval steps
+data/raw/
+data/processed/
+data/cache/
 *.parquet
+american_bankruptcy_dataset.csv
+
+# Tool internals (Claude Code, etc.)
+.claude/
+
+# Python
 __pycache__/
+*.py[cod]
+*.pyc
 .ipynb_checkpoints/
-.DS_Store
+.pytest_cache/
+*.egg-info/
+.mypy_cache/
+
+# Environments
 .venv/
+.env
+.env.local
+venv/
+
+# Node (site)
+node_modules/
+.npm/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
