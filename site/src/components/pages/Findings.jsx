@@ -2,6 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import OutcomeBreakdown from '../visuals/OutcomeBreakdown'
 import PRCalibration from '../visuals/PRCalibration'
 import SurvivorshipFunnel from '../visuals/SurvivorshipFunnel'
+import ErrorDistribution from '../visuals/ErrorDistribution'
 
 const RESULTS = [
   { model: 'Vol-Only',         mae: 0.1386, rmse: 0.1820, r2: 0.2459, prauc: 0.8290, brier: 0.4938, spearman: 0.6367, topDec: 0.4299, winner: false },
@@ -195,7 +196,10 @@ export default function Findings({ navigate }) {
       <div className="section-label">Diagnostic Plots · Precision-Recall and Calibration</div>
       <PRCalibration />
 
-      {/* Outcome breakdown */}
+      {/* Error distribution gives texture to the MAE / RMSE headlines */}
+      <ErrorDistribution />
+
+      {/* Outcome breakdown as a flow */}
       <OutcomeBreakdown />
 
       {/* Survivorship funnel */}
