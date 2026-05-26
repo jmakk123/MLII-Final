@@ -36,7 +36,7 @@ const PAGES = {
   activity:    Activity,
 }
 
-const PAGE_ORDER = ['predictions', 'compare', 'risks', 'backtest', 'overview', 'intro', 'data', 'models', 'findings', 'usecases', 'slides', 'activity']
+const PAGE_ORDER = ['overview', 'predictions', 'compare', 'risks', 'backtest', 'intro', 'data', 'models', 'findings', 'usecases', 'slides', 'activity']
 
 const SB_KEY    = 'ds.sidebar.open'
 const THEME_KEY = 'ds.theme'

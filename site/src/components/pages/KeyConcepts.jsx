@@ -195,7 +195,7 @@ export default function KeyConcepts({ navigate }) {
       <div className="info-box">
         <strong style={{ color: 'var(--blue-900)' }}>Ready to go deeper?</strong>{' '}
         Head to{' '}
-        <span style={{ color: 'var(--blue-500)', cursor: 'pointer', fontWeight: 500 }} onClick={() => navigate('data')}>Data & Methodology</span>
+        <span style={{ color: 'var(--blue-500)', cursor: 'pointer', fontWeight: 500 }} onClick={() => navigate('data')}>Data</span>
         {' '}to see how we built the dataset, or jump to{' '}
         <span style={{ color: 'var(--blue-500)', cursor: 'pointer', fontWeight: 500 }} onClick={() => navigate('findings')}>Findings</span>
         {' '}to see the results.

@@ -19,7 +19,7 @@ function ddColor(v) {
   return 'var(--green)'
 }
 
-export default function TopRisks({ init }) {
+export default function TopRisks({ init, navigate }) {
   const [year, setYear]   = useState(init?.year ?? YEARS[0])
   const [count, setCount] = useState(25)
 
@@ -152,7 +152,7 @@ export default function TopRisks({ init }) {
 
       <div className="info-box" style={{ marginTop: 'var(--sp-5)', fontSize: 'var(--text-xs)' }}>
         <strong style={{ color: 'var(--blue-900)' }}>How to read this list.</strong>{' '}
-        Rows are sorted by predicted forward 12-month drawdown (most negative first). "Hit" means the model flagged risk and the stock actually fell &gt;30%. "False alarm" means the model flagged risk but the stock held up. For the full prediction set or to filter by sector and outcome, see <em>Predictions</em>.
+        Rows are sorted by predicted forward 12-month drawdown (most negative first). "Hit" means the model flagged risk and the stock actually fell &gt;30%. "False alarm" means the model flagged risk but the stock held up. For the full prediction set or to filter by sector and outcome, open <span onClick={() => navigate && navigate('predictions')} style={{ color: 'var(--blue-700)', cursor: 'pointer', textDecoration: 'underline', fontWeight: 500 }}>Predictions</span>.
       </div>
     </div>
   )

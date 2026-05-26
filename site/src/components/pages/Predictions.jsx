@@ -528,7 +528,7 @@ function FirmDetailBody({ row, onClose, navigate }) {
       {/* Methodology link */}
       <div className="info-box" style={{ fontSize: 'var(--text-xs)' }}>
         <strong style={{ color: 'var(--blue-900)' }}>How this prediction was made.</strong>{' '}
-        The Financial LSTM ensemble (3 seeds) read five years of accounting ratios plus seven price-derived features for {row.n} as of {row.d}, then produced a single forward 12-month max drawdown forecast. Architecture lives in Models &amp; Process; headline metrics in Findings.
+        The Financial LSTM ensemble (3 seeds) read five years of accounting ratios plus seven price-derived features for {row.n} as of {row.d}, then produced a single forward 12-month max drawdown forecast. Architecture lives in Models; headline metrics in Findings.
       </div>
     </div>
   )

@@ -98,7 +98,7 @@ const COL_WINNERS = {
   topDec:   bestIndex(RESULTS, 'topDec', true),
 }
 
-export default function Findings() {
+export default function Findings({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Findings</div>
@@ -206,7 +206,7 @@ export default function Findings() {
       </div>
 
       <p style={{ fontSize: '.85rem', color: 'var(--slate-600)', lineHeight: 1.7 }}>
-        Concrete uses include credit-risk monitoring (banks flag rising drawdown as a watchlist signal), portfolio hedging (size puts proportional to drawdown score), VC screening (gate follow-on capital on worsening comps), and quant strategies (long the best decile, short the worst within sector). Detail in <a href="#" onClick={(e) => { e.preventDefault() }} style={{ color: 'var(--blue-700)' }}>Use Cases</a>.
+        Concrete uses include credit-risk monitoring (banks flag rising drawdown as a watchlist signal), portfolio hedging (size puts proportional to drawdown score), VC screening (gate follow-on capital on worsening comps), and quant strategies (long the best decile, short the worst within sector). Detail in <span onClick={() => navigate && navigate('usecases')} style={{ color: 'var(--blue-700)', cursor: 'pointer', textDecoration: 'underline' }}>Use Cases</span>.
       </p>
     </div>
   )
