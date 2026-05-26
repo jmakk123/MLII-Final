@@ -53,9 +53,9 @@ function getInitialTheme() {
 }
 
 const NUM_KEY_PAGE = {
-  '1': 'predictions', '2': 'compare', '3': 'risks', '4': 'backtest',
-  '5': 'overview', '6': 'intro', '7': 'data', '8': 'models',
-  '9': 'findings',
+  '1': 'overview',
+  '2': 'predictions', '3': 'compare', '4': 'risks', '5': 'backtest',
+  '6': 'intro', '7': 'data', '8': 'models', '9': 'findings',
 }
 
 export default function App() {

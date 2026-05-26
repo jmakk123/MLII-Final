@@ -197,7 +197,7 @@ export default function Models() {
 
   return (
     <div className="page-wrap">
-      <div className="eyebrow">03 / Models & Process</div>
+      <div className="eyebrow">Project · Models</div>
       <h1 className="page-title">Eight models.<br />One winner.</h1>
       <p className="page-sub">Three baselines, four ablations, and one full fusion model. Click any model to see its architecture, tradeoffs, and verdict for our use case.</p>
 

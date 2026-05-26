@@ -269,7 +269,7 @@ export default function Overview({ navigate }) {
     <div className="page-wrap">
       <div className="hero-wrap">
         <div className="hero-mesh" aria-hidden />
-        <div className="eyebrow" style={{ position: 'relative', zIndex: 1 }}>01 / Overview</div>
+        <div className="eyebrow" style={{ position: 'relative', zIndex: 1 }}>Overview</div>
         <h1 className="page-title hero-title" style={{ position: 'relative', zIndex: 1 }}>
           <HeroWord word="Predicting" delay={0.05} />
           <br />

@@ -65,7 +65,7 @@ export default function KeyConcepts({ navigate }) {
 
   return (
     <div className="page-wrap">
-      <div className="eyebrow">Key Concepts</div>
+      <div className="eyebrow">Project · Concepts</div>
       <h1 className="page-title">Not a finance person?<br /><span style={{ color: 'var(--blue-700)' }}>No problem.</span></h1>
       <p className="page-sub">Everything you need to follow along, defined in plain English.</p>
 

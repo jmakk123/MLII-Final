@@ -4,32 +4,63 @@ import {
   Table, GitCompare, AlertTriangle, Rewind,
 } from 'lucide-react'
 
+/* Home link sits above the groups, like Linear's Inbox or Stripe's Home. */
+const HOME = { id: 'overview', label: 'Overview', Icon: LayoutDashboard }
+
 const GROUPS = [
   {
     label: 'Model',
     items: [
-      { id: 'predictions', label: 'Predictions',  Icon: Table },
-      { id: 'compare',     label: 'Compare',      Icon: GitCompare },
-      { id: 'risks',       label: 'Top Risks',    Icon: AlertTriangle },
-      { id: 'backtest',    label: 'Backtest',     Icon: Rewind },
+      { id: 'predictions', label: 'Predictions', Icon: Table },
+      { id: 'compare',     label: 'Compare',     Icon: GitCompare },
+      { id: 'risks',       label: 'Top Risks',   Icon: AlertTriangle },
+      { id: 'backtest',    label: 'Backtest',    Icon: Rewind },
     ],
   },
   {
     label: 'Project',
     items: [
-      { id: 'overview',  label: 'Overview',           Icon: LayoutDashboard },
-      { id: 'intro',     label: 'Key Concepts',       Icon: BookOpen },
-      { id: 'data',      label: 'Data & Methodology', Icon: Database },
-      { id: 'models',    label: 'Models & Process',   Icon: Cpu },
-      { id: 'findings',  label: 'Findings',           Icon: BarChart2 },
-      { id: 'usecases',  label: 'Use Cases',          Icon: Briefcase },
-      { id: 'slides',    label: 'Quick Recap',        Icon: Presentation },
+      { id: 'intro',    label: 'Concepts',  Icon: BookOpen },
+      { id: 'data',     label: 'Data',      Icon: Database },
+      { id: 'models',   label: 'Models',    Icon: Cpu },
+      { id: 'findings', label: 'Findings',  Icon: BarChart2 },
+      { id: 'usecases', label: 'Use Cases', Icon: Briefcase },
+      { id: 'slides',   label: 'Recap',     Icon: Presentation },
     ],
   },
 ]
 
 export default function Sidebar({ current, navigate, onClose, theme, onToggleTheme }) {
   const isDark = theme === 'dark'
+
+  const renderItem = ({ id, label, Icon }) => {
+    const active = current === id
+    return (
+      <button
+        key={id}
+        onClick={() => navigate(id)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
+          width: '100%', padding: 'var(--sp-2) var(--sp-4)',
+          background: active ? 'var(--blue-50)' : 'transparent',
+          border: 'none',
+          borderLeft: `2px solid ${active ? 'var(--blue-500)' : 'transparent'}`,
+          color: active ? 'var(--blue-700)' : 'var(--text-3)',
+          fontSize: 'var(--text-sm)',
+          fontWeight: active ? 600 : 400,
+          cursor: 'pointer', textAlign: 'left',
+          fontFamily: 'var(--sans)',
+          transition: 'all .15s',
+        }}
+        onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
+        onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
+      >
+        <Icon size={15} style={{ flexShrink: 0 }} />
+        {label}
+      </button>
+    )
+  }
+
   return (
     <aside className="sidebar">
       {/* Logo + theme toggle */}
@@ -71,8 +102,14 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
         </div>
       </div>
 
-      {/* Grouped nav */}
-      <nav style={{ flex: 1, overflowY: 'auto', padding: 'var(--sp-2) 0' }}>
+      {/* Nav */}
+      <nav style={{ flex: 1, overflowY: 'auto', padding: 'var(--sp-3) 0' }}>
+        {/* Home: Overview, lifted above all groups */}
+        {renderItem(HOME)}
+
+        {/* Visual hairline before first group */}
+        <div style={{ height: 1, background: 'var(--border)', margin: 'var(--sp-3) var(--sp-4)' }} />
+
         {GROUPS.map((grp, gi) => (
           <div key={grp.label} style={{ marginBottom: gi < GROUPS.length - 1 ? 'var(--sp-2)' : 0 }}>
             <div style={{
@@ -81,58 +118,15 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
               letterSpacing: 'var(--ls-wider)',
               textTransform: 'uppercase',
               color: 'var(--text-4)',
-              padding: 'var(--sp-3) var(--sp-4) var(--sp-1)',
+              padding: 'var(--sp-2) var(--sp-4) var(--sp-1)',
             }}>
               {grp.label}
             </div>
-            {grp.items.map(({ id, label, Icon, soon }) => {
-              const active = current === id
-              const disabled = !!soon
-              return (
-                <button
-                  key={id}
-                  onClick={() => !disabled && navigate(id)}
-                  disabled={disabled}
-                  title={disabled ? 'Coming next' : undefined}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
-                    width: '100%', padding: 'var(--sp-2) var(--sp-4)',
-                    background: active ? 'var(--blue-50)' : 'transparent',
-                    border: 'none',
-                    borderLeft: `2px solid ${active ? 'var(--blue-500)' : 'transparent'}`,
-                    color: active ? 'var(--blue-700)' : (disabled ? 'var(--text-4)' : 'var(--text-3)'),
-                    fontSize: 'var(--text-sm)',
-                    fontWeight: active ? 600 : 400,
-                    cursor: disabled ? 'not-allowed' : 'pointer',
-                    textAlign: 'left',
-                    fontFamily: 'var(--sans)',
-                    transition: 'all .15s',
-                    opacity: disabled ? 0.55 : 1,
-                  }}
-                  onMouseEnter={e => { if (!active && !disabled) { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
-                  onMouseLeave={e => { if (!active && !disabled) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
-                >
-                  <Icon size={15} style={{ flexShrink: 0 }} />
-                  {label}
-                  {disabled && (
-                    <span style={{
-                      marginLeft: 'auto',
-                      fontFamily: 'var(--mono)',
-                      fontSize: '9px',
-                      fontWeight: 600,
-                      color: 'var(--text-4)',
-                      letterSpacing: 'var(--ls-wide)',
-                    }}>
-                      SOON
-                    </span>
-                  )}
-                </button>
-              )
-            })}
+            {grp.items.map(renderItem)}
           </div>
         ))}
 
-        {/* Activity, separated visually */}
+        {/* Activity, visually separated */}
         <div style={{
           fontSize: 'var(--text-2xs)',
           fontWeight: 600,

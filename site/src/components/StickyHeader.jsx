@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 
 const PAGE_META = {
-  predictions: { eyebrow: 'Model · Predictions',    title: 'Drawdown Predictions' },
-  compare:     { eyebrow: 'Model · Compare',         title: 'Compare Firms' },
-  risks:       { eyebrow: 'Model · Top Risks',       title: 'Top Predicted Drawdowns' },
-  backtest:    { eyebrow: 'Model · Backtest',        title: 'Backtest by Year' },
-  overview:    { eyebrow: '01 / Overview',           title: 'Predicting the Fall' },
-  intro:       { eyebrow: 'Key Concepts',            title: 'Key Concepts' },
-  data:        { eyebrow: '02 / Data & Methodology', title: 'From raw filings to tensors' },
-  models:      { eyebrow: '03 / Models & Process',   title: 'Eight models, one winner' },
-  findings:    { eyebrow: '04 / Findings',           title: 'Findings' },
-  usecases:    { eyebrow: '05 / Use Cases',          title: 'Who uses a drawdown signal' },
-  slides:      { eyebrow: '06 / Quick Recap',        title: 'Quick Recap' },
-  activity:    { eyebrow: '07 / Activity',           title: 'DrawdownMarket' },
+  overview:    { eyebrow: 'Overview',                  title: 'Predicting the Fall' },
+  predictions: { eyebrow: 'Model · Predictions',       title: 'Drawdown Predictions' },
+  compare:     { eyebrow: 'Model · Compare',           title: 'Compare Firms' },
+  risks:       { eyebrow: 'Model · Top Risks',         title: 'Top Predicted Drawdowns' },
+  backtest:    { eyebrow: 'Model · Backtest',          title: 'Backtest by Year' },
+  intro:       { eyebrow: 'Project · Concepts',        title: 'Key Concepts' },
+  data:        { eyebrow: 'Project · Data',            title: 'From raw filings to tensors' },
+  models:      { eyebrow: 'Project · Models',          title: 'Eight models, one winner' },
+  findings:    { eyebrow: 'Project · Findings',        title: 'Findings' },
+  usecases:    { eyebrow: 'Project · Use Cases',       title: 'Who uses a drawdown signal' },
+  slides:      { eyebrow: 'Project · Recap',           title: 'Quick Recap' },
+  activity:    { eyebrow: 'Activity · DrawdownMarket', title: 'DrawdownMarket' },
 }
 
 /* Shows a sticky bar at the top of main-content once the user has

@@ -101,7 +101,7 @@ const COL_WINNERS = {
 export default function Findings() {
   return (
     <div className="page-wrap">
-      <div className="eyebrow">04 / Findings</div>
+      <div className="eyebrow">Project · Findings</div>
       <h1 className="page-title">Findings.</h1>
       <p className="page-sub">Test fold, fyear 2020 to 2023, 15,311 firm-years. Numbers are the seed-ensemble row from our final pipeline run. The Financial LSTM (full fusion) wins the primary metrics; baselines hold their own on a few individual rank measures within seed noise.</p>
 

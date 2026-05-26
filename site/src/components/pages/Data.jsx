@@ -128,7 +128,7 @@ function HoverBox({ box, color, hi }) {
 export default function Data() {
   return (
     <div className="page-wrap">
-      <div className="eyebrow">02 / Data & Methodology</div>
+      <div className="eyebrow">Project · Data</div>
       <h1 className="page-title">From raw filings<br />to tensors.</h1>
       <p className="page-sub">
         Two databases, one pipeline. 76,990 anchor rows across fyear 2003 to 2024, each with five years of accounting history and one year of price context. Strict time-blocked train, validation, and test folds. Train-fold-only scaling. No information leaks from the future.

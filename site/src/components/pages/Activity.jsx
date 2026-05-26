@@ -340,7 +340,7 @@ export default function Activity() {
     return (
       <div className="game-wrap" style={{ position: 'relative' }}>
         <CelebrationOverlay />
-        <div className="eyebrow">07 / Activity</div>
+        <div className="eyebrow">Activity · DrawdownMarket</div>
         <div className="gameover" style={{ position: 'relative', zIndex: 2 }}>
           <div className="trophy-bounce" style={{ display: 'inline-block', marginBottom: 'var(--sp-3)' }}>
             <Trophy size={64} color="var(--amber)" />
@@ -406,7 +406,7 @@ export default function Activity() {
   return (
     <div className="game-wrap" style={{ position: 'relative' }}>
       <FinalRoundIntro show={showFinalIntro} />
-      <div className="eyebrow">07 / Activity</div>
+      <div className="eyebrow">Activity · DrawdownMarket</div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--sp-2)', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
         <h1 style={{
           fontFamily: 'var(--display)',
