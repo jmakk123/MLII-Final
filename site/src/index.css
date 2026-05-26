@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+/* Fonts ship via @fontsource-variable/geist + geist-mono, loaded in main.jsx.
+   No external font CDN requests. Variable fonts cover the full weight range
+   we need (300 to 800) in a single small woff2 per family. */
 
 /* ===========================================================
    Reset
@@ -14,16 +16,15 @@
    Color contrast: WCAG AA 4.5:1 for body, 3:1 for large text
    =========================================================== */
 :root {
-  /* Fonts — researched pairing
-     Inter (body)         : industry standard, designed for screens, x-height
-                            and tabular numerals tuned for UI work
-     Space Grotesk (display): geometric sans with personality, used by Linear,
-                            Polymarket, Vercel. Pairs cleanly with Inter
-     JetBrains Mono (code) : programming-grade mono with ligatures, readable
-                            at small sizes */
-  --sans:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --mono:    'JetBrains Mono', 'SF Mono', Consolas, ui-monospace, monospace;
+  /* Fonts — Geist family (self-hosted via @fontsource-variable).
+     One sans family with a matching mono variant, designed for data and
+     developer tools. Used by Vercel, v0, Cursor. The same family covers
+     body and display via different weights, so the visual identity is
+     cohesive. Bulletproof: no external CDN dependency, no privacy concern,
+     works behind firewalls and with ad blockers. */
+  --sans:    'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'Geist Variable', system-ui, -apple-system, sans-serif;
+  --mono:    'Geist Mono Variable', 'SF Mono', Consolas, ui-monospace, monospace;
 
   /* Type scale (base 16px) */
   --text-2xs: 0.6875rem;   /* 11 */
