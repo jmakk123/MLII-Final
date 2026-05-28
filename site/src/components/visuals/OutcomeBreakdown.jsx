@@ -108,7 +108,6 @@ export default function OutcomeBreakdown() {
           fontSize={11}
           fontWeight={600}
           fill="var(--text-3)"
-          textTransform="uppercase"
         >MODEL CALLED</text>
         <text x={rightX + barW / 2} y={padT - 10}
           textAnchor="middle"
@@ -146,7 +145,7 @@ export default function OutcomeBreakdown() {
         >Risky</text>
         <text x={leftX - 10} y={(lRiskyTop + lRiskyBot) / 2 + 12}
           textAnchor="end" fontFamily="var(--mono)" fontSize={11}
-          fill="var(--text-3)" fontVariantNumeric="tabular-nums"
+          fill="var(--text-3)" style={{ fontVariantNumeric: 'tabular-nums' }}
         >{saidRisky.toLocaleString()} · {((saidRisky / total) * 100).toFixed(0)}%</text>
 
         <text x={leftX - 10} y={(lSafeTop + lSafeBot) / 2 - 4}
@@ -155,7 +154,7 @@ export default function OutcomeBreakdown() {
         >Safe</text>
         <text x={leftX - 10} y={(lSafeTop + lSafeBot) / 2 + 12}
           textAnchor="end" fontFamily="var(--mono)" fontSize={11}
-          fill="var(--text-3)" fontVariantNumeric="tabular-nums"
+          fill="var(--text-3)" style={{ fontVariantNumeric: 'tabular-nums' }}
         >{saidSafe.toLocaleString()} · {((saidSafe / total) * 100).toFixed(0)}%</text>
 
         {/* Right bar segments */}
@@ -171,7 +170,7 @@ export default function OutcomeBreakdown() {
         >Crashed &gt;30%</text>
         <text x={rightX + barW + 10} y={(rCrashedTop + rCrashedBot) / 2 + 12}
           fontFamily="var(--mono)" fontSize={11}
-          fill="var(--text-3)" fontVariantNumeric="tabular-nums"
+          fill="var(--text-3)" style={{ fontVariantNumeric: 'tabular-nums' }}
         >{crashed.toLocaleString()} · {((crashed / total) * 100).toFixed(0)}%</text>
 
         <text x={rightX + barW + 10} y={(rHeldTop + rHeldBot) / 2 - 4}
@@ -180,7 +179,7 @@ export default function OutcomeBreakdown() {
         >Held up</text>
         <text x={rightX + barW + 10} y={(rHeldTop + rHeldBot) / 2 + 12}
           fontFamily="var(--mono)" fontSize={11}
-          fill="var(--text-3)" fontVariantNumeric="tabular-nums"
+          fill="var(--text-3)" style={{ fontVariantNumeric: 'tabular-nums' }}
         >{held.toLocaleString()} · {((held / total) * 100).toFixed(0)}%</text>
       </svg>
 

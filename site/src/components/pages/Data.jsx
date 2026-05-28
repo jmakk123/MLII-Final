@@ -141,6 +141,9 @@ function ClickBox({ box, hi, isOpen, onToggle }) {
 export default function Data() {
   const [openId, setOpenId] = useState(null)
   const toggle = (id) => setOpenId(curr => curr === id ? null : id)
+  const openRatio = openId && openId.startsWith('r-')
+    ? RATIOS.find(r => `r-${r.name}` === openId)
+    : null
   return (
     <div className="page-wrap">
       <h1 className="page-title">Data and Methodology</h1>
@@ -231,23 +234,20 @@ export default function Data() {
           />
         ))}
       </div>
-      {(() => {
-        const opened = RATIOS.find(r => openId === `r-${r.name}`)
-        return opened ? (
-          <div style={{
-            padding: 'var(--sp-3) var(--sp-4)',
-            background: 'var(--bg-2)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--r-md)',
-            fontSize: 'var(--text-xs)',
-            color: 'var(--text-2)',
-            lineHeight: 'var(--lh-relaxed)',
-            marginBottom: 'var(--sp-3)',
-          }}>
-            <strong style={{ fontFamily: 'var(--mono)', color: 'var(--text-1)' }}>{opened.name}</strong> &nbsp;{opened.desc}
-          </div>
-        ) : null
-      })()}
+      {openRatio && (
+        <div style={{
+          padding: 'var(--sp-3) var(--sp-4)',
+          background: 'var(--bg-2)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--r-md)',
+          fontSize: 'var(--text-xs)',
+          color: 'var(--text-2)',
+          lineHeight: 'var(--lh-relaxed)',
+          marginBottom: 'var(--sp-3)',
+        }}>
+          <strong style={{ fontFamily: 'var(--mono)', color: 'var(--text-1)' }}>{openRatio.name}</strong>{' '}{openRatio.desc}
+        </div>
+      )}
       <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', lineHeight: 'var(--lh-relaxed)' }}>
         Drawn from Altman 1968, Ohlson 1980, Zmijewski 1984, plus standard margin, turnover, and leverage ratios from Lombardo et al. 2022 and Pellegrino et al. 2024. The same five-year sequence per anchor feeds both the recurrent and feed-forward financial encoders.
       </p>
