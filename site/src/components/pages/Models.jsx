@@ -104,51 +104,6 @@ const MODELS = [
   },
 ]
 
-const FEATURES = [
-  { name: 'pf_vol',          desc: 'Trailing 12-month annualized volatility computed from daily returns. Strongest single predictor of forward drawdown because volatile firms have wider price paths by construction.' },
-  { name: 'lag0_r_oper_margin', desc: 'Most recent fiscal-year operating margin (EBIT / Sale). Negative margins flag firms burning through cash, a strong drawdown signal.' },
-  { name: 'pf_max_dd',       desc: 'Maximum peak-to-trough drawdown over the prior 12 months. Captures recent distress momentum; firms already in drawdown often continue.' },
-  { name: 'lag0_r_tl_ta',    desc: 'Most recent fiscal-year leverage (total liabilities / total assets). High leverage amplifies drawdowns because equity absorbs all the loss after creditors are paid.' },
-  { name: 'pf_log_dv',       desc: 'Log of average daily dollar volume. Illiquid stocks have wider drawdowns because small flows can move price significantly.' },
-  { name: 'lag0_r_ebit_ta',  desc: 'Most recent EBIT / total assets (Altman X3, profitability). Low or negative profitability is a classic distress signal.' },
-  { name: 'pf_beta',         desc: 'Equity beta vs equal-weighted market portfolio. High-beta firms amplify market drawdowns.' },
-  { name: 'lag0_r_ni_ta',    desc: 'Most recent ROA (net income / total assets). Persistent losses precede the worst drawdowns.' },
-  { name: 'lag0_r_wc_ta',    desc: 'Working capital / total assets (Altman X1, liquidity). Negative working capital flags short-term solvency stress.' },
-  { name: 'lag0_r_re_ta',    desc: 'Retained earnings / total assets (Altman X2, cumulative profitability). Captures lifetime track record of value creation.' },
-  { name: 'lag0_r_mv_tl',    desc: 'Market value / total liabilities (Altman X4). Low ratio means equity is thin compared to debt.' },
-  { name: 'lag0_r_sale_ta',  desc: 'Asset turnover (Altman X5, sales / total assets). Low turnover signals inefficient asset use.' },
-  { name: 'lag0_r_cl_ca',    desc: 'Current liabilities / current assets (Ohlson). > 1 means short-term liabilities exceed liquid assets.' },
-  { name: 'lag0_r_log_at',   desc: 'Log total assets (firm size). Large firms tend to have smaller relative drawdowns.' },
-  { name: 'lag0_r_gross_margin', desc: 'Gross profit / sale. Pricing power and unit economics.' },
-  { name: 'lag0_r_net_margin', desc: 'Net income / sale. Bottom-line profitability after all costs.' },
-  { name: 'lag0_r_ebitda_margin', desc: 'EBITDA / sale (using oibdp as the EBITDA proxy).' },
-  { name: 'lag0_r_opex_ratio', desc: 'Operating expenses / sale.' },
-  { name: 'lag0_r_da_intensity', desc: 'Depreciation and amortization / total assets.' },
-  { name: 'lag0_r_ltdebt_ta', desc: 'Long-term debt / total assets.' },
-  { name: 'lag0_r_inv_turn', desc: 'Inventory turnover (COGS / inventory). NaN for financial firms, imputed via industry-year median.' },
-  { name: 'lag0_r_recv_turn', desc: 'Receivables turnover (sales / receivables). NaN for financial firms, imputed.' },
-  { name: 'pf_ret',          desc: 'Prior 12-month total return. Momentum: stocks that fell tend to keep falling, those that rose tend to keep rising.' },
-  { name: 'pf_skew',         desc: 'Skewness of prior 252-day daily returns. Negative skew signals tail-heavy downside.' },
-  { name: 'pf_kurt',         desc: 'Kurtosis of prior 252-day daily returns. Heavy tails mean drawdowns when they come are larger.' },
-  { name: 'lag1_r_oper_margin', desc: 'Operating margin one fiscal year before the anchor. Year-over-year trend is what the LSTM reads.' },
-  { name: 'lag2_r_oper_margin', desc: 'Operating margin two fiscal years before. Earlier trajectory information.' },
-  { name: 'lag3_r_oper_margin', desc: 'Operating margin three fiscal years before. The LSTM also processes the four older lags of all 18 ratios.' },
-  { name: 'lag4_r_oper_margin', desc: 'Operating margin four fiscal years before. The deepest historical context the model sees.' },
-]
-
-const STEPS = [
-  { num: 1, label: 'Define the target', body: 'Forward 12-month max drawdown as a regression target in [-1, 0]. Considered bankruptcy (too sparse) and stock return (too noisy). Drawdown is continuous, measurable for every firm, and directly useful for risk sizing.' },
-  { num: 2, label: 'Pull the data', body: 'WRDS Compustat (132K firm-years, 1999-2025) + CRSP daily prices (29M rows). Linked via the CCM table.' },
-  { num: 3, label: 'Build the anchor panel', body: 'Anchor each firm-year at fiscal-year-end + 90 days, require 5 prior fyears, drop rows with under 60 trading days of forward data. 76,990 anchors survive.' },
-  { num: 4, label: 'EDA on the target', body: 'Realized base rate at -30% is 51.7%, much higher than the brief expected. Diagnosed as small-cap-heavy universe. Switched to within-year rank metrics as the primary firm-level discrimination signal.' },
-  { num: 5, label: 'Engineer features', body: '18 ratios across 5 years (90 financial) + 7 price-derived features. Winsorize and z-score on training rows only. Encode strict-before windowing as an assertion.' },
-  { num: 6, label: 'Time-blocked split', body: 'Train 2003-2017, val 2018-2019, test 2020-2023. Validation forward window covers COVID by design.' },
-  { num: 7, label: 'Baselines', body: 'Vol-only, Ridge, Gradient-Boosted Trees on the 97-d input. Ridge and GBR beat vol-only meaningfully.' },
-  { num: 8, label: 'Fusion design', body: 'Dual-stream: LSTM on financials, MLP on price, concat head. Test LSTM vs MLP-flatten as the financial encoder; LSTM wins by a hair.' },
-  { num: 9, label: 'Ablations', body: 'Financials-only, price-only, cross-attention. Financials-only is the weakest deep model. Cross-attention does not help at 5 timesteps.' },
-  { num: 10, label: 'Multi-seed + ensemble', body: '3 seeds per config. Average test predictions across seeds for the headline. Reduces selection noise without changing architecture.' },
-]
-
 function ArchDiagram({ model }) {
   return (
     <div className="arch-block" style={{ minHeight: 360 }}>

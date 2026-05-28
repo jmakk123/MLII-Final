@@ -1,4 +1,3 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import OutcomeBreakdown from '../visuals/OutcomeBreakdown'
 import PRCalibration from '../visuals/PRCalibration'
 import SurvivorshipFunnel from '../visuals/SurvivorshipFunnel'
@@ -42,47 +41,6 @@ const MAIN_FINDINGS = [
     statLabel: 'over price-only'
   },
 ]
-
-const PRAUC_DATA  = RESULTS.map(r => ({ name: r.model, val: r.prauc }))
-const MAE_DATA    = RESULTS.map(r => ({ name: r.model, val: r.mae }))
-const SPEAR_DATA  = RESULTS.map(r => ({ name: r.model, val: r.spearman }))
-const BRIER_DATA  = RESULTS.map(r => ({ name: r.model, val: r.brier }))
-
-function ModelChart({ data, domain, label, higherBetter }) {
-  return (
-    <div className="card card-p">
-      <div className="section-label" style={{ marginBottom: '.4rem' }}>{label}</div>
-      <div style={{ fontSize: '.7rem', color: 'var(--slate-400)', fontFamily: 'var(--mono)', marginBottom: '.6rem' }}>
-        {higherBetter ? 'higher = better' : 'lower = better'}
-      </div>
-      <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={data} margin={{ top: 4, right: 4, bottom: 4, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--slate-200)" vertical={false} />
-          <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--slate-500)', fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} interval={0} />
-          <YAxis domain={domain} tick={{ fontSize: 10, fill: 'var(--slate-400)', fontFamily: 'var(--mono)' }} axisLine={false} tickLine={false} width={42} />
-          <Tooltip
-            formatter={(v) => [v.toFixed(4), label]}
-            cursor={{ fill: 'var(--bg-2)', opacity: 0.5 }}
-            contentStyle={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              fontSize: 12,
-              fontFamily: 'var(--mono)',
-              color: 'var(--text-2)',
-              boxShadow: 'var(--shadow-md)'
-            }}
-          />
-          <Bar dataKey="val" radius={[4, 4, 0, 0]}>
-            {data.map(({ name }) => (
-              <Cell key={name} fill={name === 'Financial LSTM' ? 'var(--blue-700)' : 'var(--slate-200)'} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
 
 function bestIndex(arr, key, higher) {
   let bi = 0
