@@ -103,12 +103,11 @@ function FeaturedPredictions({ navigate }) {
         {FEATURED.map((f, i) => (
           <motion.div
             key={f.ticker}
-            className="card"
-            initial={{ opacity: 0, y: 12 }}
+            className="card hover-border"
+            initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
-            whileHover={{ y: -3, boxShadow: 'var(--shadow-md)' }}
+            transition={{ duration: 0.25, delay: i * 0.04 }}
             onClick={() => navigate && navigate('predictions')}
             style={{ padding: 'var(--sp-4)', cursor: 'pointer' }}
           >
@@ -164,9 +163,9 @@ function FeaturedPredictions({ navigate }) {
 function HeroWord({ word, delay = 0, color }) {
   return (
     <motion.span
-      initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       style={{ display: 'inline-block', color: color ?? 'inherit' }}
     >
       {word}
@@ -174,58 +173,57 @@ function HeroWord({ word, delay = 0, color }) {
   )
 }
 
-function IntroCard({ num, accent, accentSoft, eyebrow, title, bullets }) {
+/* Drawdown-curve motif sitting in the hero's right column.
+   Pure SVG, no animation, monochrome. Recurring brand mark. */
+function HeroMotif() {
+  return (
+    <svg viewBox="0 0 220 140" width="100%" style={{ display: 'block', maxHeight: 180 }} aria-hidden>
+      <line x1="0" y1="80" x2="220" y2="80" stroke="var(--border)" strokeDasharray="2 4" />
+      <path
+        d="M 4 78 C 22 60, 38 38, 60 30 C 80 26, 92 30, 100 36 C 112 60, 128 110, 146 122 C 162 130, 180 116, 216 96"
+        fill="none"
+        stroke="var(--text-2)"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="60" cy="30" r="3" fill="var(--amber)" />
+      <circle cx="146" cy="122" r="3" fill="var(--red)" />
+      <text x="216" y="92" textAnchor="end"
+        fontFamily="var(--mono)" fontSize="9"
+        fill="var(--text-4)" letterSpacing="0.06em"
+      >ILLUSTRATIVE</text>
+    </svg>
+  )
+}
+
+function IntroCard({ num, accent, eyebrow, title, bullets }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -2 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
       className="card"
       style={{
         padding: 'var(--sp-5)',
-        borderTop: `3px solid ${accent}`,
+        borderLeft: `2px solid ${accent}`,
         position: 'relative',
-        overflow: 'hidden',
       }}
     >
-      {/* Big number watermark */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          top: 'var(--sp-3)', right: 'var(--sp-3)',
-          fontFamily: 'var(--display)',
-          fontSize: 'var(--text-5xl)',
-          fontWeight: 700,
-          lineHeight: 1,
-          color: accent,
-          opacity: 0.12,
-          letterSpacing: 'var(--ls-tight)',
-          pointerEvents: 'none',
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
-        {num}
-      </div>
       <div style={{
-        display: 'inline-block',
         fontFamily: 'var(--mono)',
         fontSize: 'var(--text-2xs)',
-        fontWeight: 600,
+        fontWeight: 500,
         letterSpacing: 'var(--ls-wider)',
         textTransform: 'uppercase',
-        color: accent,
-        background: accentSoft,
-        padding: '3px 8px',
-        borderRadius: 'var(--r-sm)',
+        color: 'var(--text-4)',
         marginBottom: 'var(--sp-2)',
       }}>
-        {num} · {eyebrow}
+        {num} / {eyebrow}
       </div>
       <div style={{
-        fontFamily: 'var(--display)',
+        fontFamily: 'var(--sans)',
         fontSize: 'var(--text-lg)',
         fontWeight: 600,
         color: 'var(--text-1)',
@@ -268,14 +266,22 @@ export default function Overview({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="hero-wrap">
-        <div className="hero-mesh" aria-hidden />
-        <div className="eyebrow" style={{ position: 'relative', zIndex: 1 }}>Overview</div>
-        <h1 className="page-title hero-title" style={{ position: 'relative', zIndex: 1 }}>
-          <HeroWord word="Predicting" delay={0.05} />
-          <br />
-          <HeroWord word="the" delay={0.15} />{' '}
-          <HeroWord word="Fall" delay={0.25} color="var(--blue-700)" />
-        </h1>
+        <div>
+          <div className="eyebrow">Overview · Forward Drawdown Forecast</div>
+          <h1 className="page-title hero-title">
+            <HeroWord word="Predicting" delay={0.05} />
+            <br />
+            <HeroWord word="the" delay={0.15} />{' '}
+            <em><HeroWord word="Fall." delay={0.25} color="var(--blue-700)" /></em>
+          </h1>
+        </div>
+        <div className="hero-meta">
+          <HeroMotif />
+          <div className="hero-meta-row"><span className="hero-meta-k">Universe</span><span className="hero-meta-v">US public firms</span></div>
+          <div className="hero-meta-row"><span className="hero-meta-k">Horizon</span><span className="hero-meta-v">12 months forward</span></div>
+          <div className="hero-meta-row"><span className="hero-meta-k">Test fold</span><span className="hero-meta-v">15,311 predictions</span></div>
+          <div className="hero-meta-row"><span className="hero-meta-k">Headline MAE</span><span className="hero-meta-v">0.121</span></div>
+        </div>
       </div>
 
       {/* Featured Predictions strip */}
@@ -291,7 +297,6 @@ export default function Overview({ navigate }) {
         <IntroCard
           num="01"
           accent="var(--red)"
-          accentSoft="var(--red-soft)"
           eyebrow="The Problem"
           title="Why drawdown, not bankruptcy or returns"
           bullets={[
@@ -304,7 +309,6 @@ export default function Overview({ navigate }) {
         <IntroCard
           num="02"
           accent="var(--blue-500)"
-          accentSoft="var(--blue-50)"
           eyebrow="The Team"
           title="Machine Learning II, UChicago MS-ADS"
           bullets={[
@@ -317,7 +321,6 @@ export default function Overview({ navigate }) {
         <IntroCard
           num="03"
           accent="var(--amber)"
-          accentSoft="rgba(245,158,11,.08)"
           eyebrow="The EDA Journey"
           title="Three findings that reshaped the project"
           bullets={[
@@ -330,7 +333,6 @@ export default function Overview({ navigate }) {
         <IntroCard
           num="04"
           accent="var(--green)"
-          accentSoft="var(--green-soft)"
           eyebrow="The Deliverable"
           title="The model is the product"
           bullets={[

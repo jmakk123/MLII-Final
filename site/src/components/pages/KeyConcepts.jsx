@@ -46,7 +46,7 @@ export default function KeyConcepts({ navigate }) {
           <motion.div key={name}
             className="concept-card"
             style={ours ? { borderColor: 'var(--blue-500)', background: 'var(--blue-50)' } : {}}
-            whileHover={{ y: -2, boxShadow: 'var(--shadow-md)' }}
+            whileHover={{ borderColor: 'var(--text-3)' }}
             transition={{ duration: .15 }}
           >
             <div style={{ fontSize: 'var(--text-2xl)', marginBottom: 'var(--sp-1)', color: 'var(--text-2)' }}>{icon}</div>

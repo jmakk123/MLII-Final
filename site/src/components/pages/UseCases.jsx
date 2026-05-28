@@ -69,7 +69,7 @@ export default function UseCases() {
       <div className="uc-grid">
         {UCS.map(({ logo, name, type, bg, border, logoStyle, nameColor, rows, desc, use, quote }) => (
           <motion.div key={name} className="uc-card"
-            whileHover={{ y: -3, boxShadow: 'var(--shadow-lg)' }}
+            whileHover={{ borderColor: 'var(--text-3)' }}
             transition={{ duration: .18 }}
           >
             <div className="uc-header" style={{ background: bg, borderBottom: `1px solid ${border}25` }}>
