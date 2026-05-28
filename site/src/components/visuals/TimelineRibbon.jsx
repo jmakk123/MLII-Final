@@ -33,7 +33,7 @@ export default function TimelineRibbon() {
 
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-6)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Time-Blocked Split · 2003 to 2024</div>
+      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Time-blocked split</div>
 
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
         {/* Bands */}

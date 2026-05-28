@@ -25,7 +25,7 @@ function buildHistogram(rows) {
     center: min + (i + 0.5) * w,
     edgeL:  min + i * w,
     edgeR:  min + (i + 1) * w,
-    count: c,
+    count: c
   }))
 
   const sorted = [...errs].sort((a, b) => a - b)
@@ -58,7 +58,7 @@ export default function ErrorDistribution() {
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--sp-3)', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
-        <div className="section-label" style={{ margin: 0 }}>Error Distribution · Predicted minus Realized</div>
+        <div className="section-label" style={{ margin: 0 }}>Error distribution</div>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           MAE <strong style={{ color: 'var(--blue-700)' }}>{mae.toFixed(3)}</strong>
           {'  ·  '}mean <strong style={{ color: 'var(--text-2)' }}>{(mean >= 0 ? '+' : '') + mean.toFixed(3)}</strong>
@@ -149,7 +149,7 @@ export default function ErrorDistribution() {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
         gap: 'var(--sp-2)',
-        marginTop: 'var(--sp-2)',
+        marginTop: 'var(--sp-2)'
       }}>
         <Stat label="Within ±10 pp" value={(within10pp * 100).toFixed(1) + '%'} color="var(--green)" hint="Predictions inside the green core" />
         <Stat label="Within ±20 pp" value={(within20pp * 100).toFixed(1) + '%'} color="var(--amber)" hint="Including the amber zone" />
@@ -182,9 +182,9 @@ function Stat({ label, value, color, hint }) {
       background: 'var(--bg-2)',
       border: '1px solid var(--border)',
       borderRadius: 'var(--r-md)',
-      borderLeft: `3px solid ${color}`,
+      borderLeft: `3px solid ${color}`
     }}>
-      <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', color: 'var(--text-3)' }}>
+      <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-3)' }}>
         {label}
       </div>
       <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-1)', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>

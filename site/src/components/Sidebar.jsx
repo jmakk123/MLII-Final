@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, BookOpen, Database, Cpu, BarChart2, Briefcase,
   Presentation, Gamepad2, GitFork, Sun, Moon, PanelLeftClose,
-  Table, GitCompare, AlertTriangle, Rewind,
+  Table, GitCompare, AlertTriangle, Rewind
 } from 'lucide-react'
 import Monogram from './visuals/Monogram'
 
@@ -16,7 +16,7 @@ const GROUPS = [
       { id: 'compare',     label: 'Compare',     Icon: GitCompare },
       { id: 'risks',       label: 'Top Risks',   Icon: AlertTriangle },
       { id: 'backtest',    label: 'Backtest',    Icon: Rewind },
-    ],
+    ]
   },
   {
     label: 'Project',
@@ -27,7 +27,7 @@ const GROUPS = [
       { id: 'findings', label: 'Findings',  Icon: BarChart2 },
       { id: 'usecases', label: 'Use Cases', Icon: Briefcase },
       { id: 'slides',   label: 'Recap',     Icon: Presentation },
-    ],
+    ]
   },
 ]
 
@@ -51,7 +51,7 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
           fontWeight: active ? 600 : 400,
           cursor: 'pointer', textAlign: 'left',
           fontFamily: 'var(--sans)',
-          transition: 'all .15s',
+          transition: 'all .15s'
         }}
         onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
         onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
@@ -83,7 +83,7 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', color: 'var(--text-3)',
               transition: 'color .15s, border-color .15s, background .15s',
-              flexShrink: 0,
+              flexShrink: 0
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-1)'; e.currentTarget.style.borderColor = 'var(--border-2)' }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.borderColor = 'var(--border)' }}
@@ -106,10 +106,8 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
             <div style={{
               fontSize: 'var(--text-2xs)',
               fontWeight: 600,
-              letterSpacing: 'var(--ls-wider)',
-              textTransform: 'uppercase',
               color: 'var(--text-4)',
-              padding: 'var(--sp-2) var(--sp-4) var(--sp-1)',
+              padding: 'var(--sp-2) var(--sp-4) var(--sp-1)'
             }}>
               {grp.label}
             </div>
@@ -121,12 +119,10 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
         <div style={{
           fontSize: 'var(--text-2xs)',
           fontWeight: 600,
-          letterSpacing: 'var(--ls-wider)',
-          textTransform: 'uppercase',
           color: 'var(--text-4)',
           padding: 'var(--sp-3) var(--sp-4) var(--sp-1)',
           borderTop: '1px solid var(--border)',
-          marginTop: 'var(--sp-2)',
+          marginTop: 'var(--sp-2)'
         }}>
           Activity
         </div>
@@ -141,7 +137,7 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
             color: current === 'activity' ? '#92400E' : 'var(--text-3)',
             fontSize: 'var(--text-sm)', fontWeight: current === 'activity' ? 600 : 400,
             cursor: 'pointer', textAlign: 'left', fontFamily: 'var(--sans)',
-            transition: 'all .15s',
+            transition: 'all .15s'
           }}
           onMouseEnter={e => { if (current !== 'activity') { e.currentTarget.style.background = 'var(--bg-2)'; e.currentTarget.style.color = 'var(--text-1)' } }}
           onMouseLeave={e => { if (current !== 'activity') { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-3)' } }}
@@ -151,7 +147,7 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
           <span style={{
             marginLeft: 'auto', background: 'var(--amber)', color: '#fff',
             fontSize: 'var(--text-2xs)', fontWeight: 700, padding: '2px 6px',
-            borderRadius: 3, letterSpacing: 'var(--ls-wide)'
+            borderRadius: 3
           }}>LIVE</span>
         </button>
       </nav>
@@ -172,7 +168,7 @@ export default function Sidebar({ current, navigate, onClose, theme, onToggleThe
             fontSize: 'var(--text-sm)', fontWeight: 500,
             cursor: 'pointer', fontFamily: 'var(--sans)',
             transition: 'border-color .15s, color .15s, background .15s',
-            marginBottom: 'var(--sp-3)',
+            marginBottom: 'var(--sp-3)'
           }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}

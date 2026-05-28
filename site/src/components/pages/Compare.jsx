@@ -7,7 +7,7 @@ const OUTCOME_LABEL = {
   hit:         { label: 'Hit',         color: 'var(--green)', bg: 'var(--green-soft)' },
   safe:        { label: 'Safe',        color: 'var(--green)', bg: 'var(--green-soft)' },
   miss:        { label: 'Miss',        color: 'var(--red)',   bg: 'var(--red-soft)'   },
-  false_alarm: { label: 'False alarm', color: 'var(--amber)', bg: 'var(--amber-lo)'   },
+  false_alarm: { label: 'False alarm', color: 'var(--amber)', bg: 'var(--amber-lo)'   }
 }
 
 function pctFmt(v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%' }
@@ -35,7 +35,7 @@ export default function Compare({ init }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Compare</div>
-      <h1 className="page-title">Compare<br />Firms</h1>
+      <h1 className="page-title">Compare</h1>
       <p className="page-sub">
         Pick any two firm-year anchors from our test set and see the model&apos;s prediction next to the realized outcome for each. Useful for sanity-checking the model&apos;s contrasts: a leveraged retailer vs a cash-rich enterprise software firm, an airline before COVID vs a defensive stock.
       </p>
@@ -51,7 +51,7 @@ export default function Compare({ init }) {
       {a && b && <CompareSummary a={a} b={b} />}
 
       <div style={{ marginTop: 'var(--sp-6)', display: 'flex', gap: 'var(--sp-2)', flexWrap: 'wrap', alignItems: 'center' }}>
-        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', fontFamily: 'var(--mono)' }}>
           Try
         </span>
         {POPULAR_NAMES.map(n => (
@@ -70,7 +70,7 @@ export default function Compare({ init }) {
               borderRadius: 'var(--r-sm)',
               color: 'var(--text-2)',
               cursor: 'pointer',
-              transition: 'border-color .15s, color .15s',
+              transition: 'border-color .15s, color .15s'
             }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
@@ -110,7 +110,7 @@ function FirmCard({ label, row, onChange, highlightColor }) {
               padding: '3px 9px',
               borderRadius: 'var(--r-sm)',
               background: OUTCOME_LABEL[row.o].bg,
-              color: OUTCOME_LABEL[row.o].color,
+              color: OUTCOME_LABEL[row.o].color
             }}>
               {OUTCOME_LABEL[row.o].label.toUpperCase()}
             </span>
@@ -128,7 +128,7 @@ function FirmCard({ label, row, onChange, highlightColor }) {
 function Stat({ label, value }) {
   return (
     <div>
-      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', fontFamily: 'var(--mono)' }}>
         {label}
       </div>
       <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xl)', fontWeight: 700, color: ddColor(value), fontVariantNumeric: 'tabular-nums', lineHeight: 1.1, marginTop: 2 }}>
@@ -180,7 +180,7 @@ function FirmPicker({ value, onChange }) {
             fontFamily: 'var(--sans)',
             fontSize: 'var(--text-sm)',
             outline: 'none',
-            transition: 'border-color .15s',
+            transition: 'border-color .15s'
           }}
           onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-2)'}
           onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
@@ -193,7 +193,7 @@ function FirmPicker({ value, onChange }) {
               position: 'absolute', top: '50%', right: 6, transform: 'translateY(-50%)',
               width: 22, height: 22, borderRadius: 4,
               background: 'transparent', border: 'none', cursor: 'pointer',
-              color: 'var(--text-3)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--text-3)', display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}
           >
             <X size={12} />
@@ -213,7 +213,7 @@ function FirmPicker({ value, onChange }) {
               border: '1px solid var(--border)',
               borderRadius: 'var(--r-md)',
               boxShadow: 'var(--shadow-md)',
-              maxHeight: 320, overflowY: 'auto',
+              maxHeight: 320, overflowY: 'auto'
             }}
           >
             {results.map((r) => (
@@ -234,7 +234,7 @@ function FirmPicker({ value, onChange }) {
                   fontFamily: 'var(--sans)',
                   fontSize: 'var(--text-sm)',
                   color: 'var(--text-1)',
-                  transition: 'background .12s',
+                  transition: 'background .12s'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-2)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
@@ -289,7 +289,7 @@ function Bar({ value, side, color }) {
   return (
     <div style={{
       position: 'relative', height: 18,
-      background: 'var(--bg-2)', borderRadius: 'var(--r-sm)', overflow: 'hidden',
+      background: 'var(--bg-2)', borderRadius: 'var(--r-sm)', overflow: 'hidden'
     }}>
       <motion.div
         initial={{ width: 0 }}
@@ -299,7 +299,7 @@ function Bar({ value, side, color }) {
           position: 'absolute', top: 0, bottom: 0,
           [side]: 0,
           background: color,
-          borderRadius: 'var(--r-sm)',
+          borderRadius: 'var(--r-sm)'
         }}
       />
       <div style={{
@@ -311,7 +311,7 @@ function Bar({ value, side, color }) {
         fontSize: 'var(--text-2xs)',
         fontWeight: 600,
         color: '#fff',
-        textShadow: '0 0 4px rgba(0,0,0,.3)',
+        textShadow: '0 0 4px rgba(0,0,0,.3)'
       }}>
         {pctFmt(value)}
       </div>

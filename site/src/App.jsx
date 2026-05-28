@@ -34,7 +34,7 @@ const PAGES = {
   findings:    Findings,
   usecases:    UseCases,
   slides:      Presentation,
-  activity:    Activity,
+  activity:    Activity
 }
 
 const PAGE_ORDER = ['overview', 'predictions', 'compare', 'risks', 'backtest', 'intro', 'data', 'models', 'findings', 'usecases', 'slides', 'activity']
@@ -56,7 +56,7 @@ function getInitialTheme() {
 const NUM_KEY_PAGE = {
   '1': 'overview',
   '2': 'predictions', '3': 'compare', '4': 'risks', '5': 'backtest',
-  '6': 'intro', '7': 'data', '8': 'models', '9': 'findings',
+  '6': 'intro', '7': 'data', '8': 'models', '9': 'findings'
 }
 
 export default function App() {
@@ -121,7 +121,7 @@ export default function App() {
   const variants = {
     enter: (dir) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
     center: { opacity: 1, x: 0, transition: { duration: .26, ease: [0.22, 1, 0.36, 1] } },
-    exit: (dir) => ({ opacity: 0, x: dir > 0 ? -24 : 24, transition: { duration: .15, ease: 'easeIn' } }),
+    exit: (dir) => ({ opacity: 0, x: dir > 0 ? -24 : 24, transition: { duration: .15, ease: 'easeIn' } })
   }
 
   return (
@@ -155,7 +155,7 @@ export default function App() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', color: 'var(--text-2)',
             boxShadow: 'var(--shadow-md)',
-            transition: 'border-color .15s, color .15s, transform .1s',
+            transition: 'border-color .15s, color .15s, transform .1s'
           }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}

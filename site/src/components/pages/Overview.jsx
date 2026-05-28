@@ -59,7 +59,7 @@ const OUTCOME_COLORS = {
   hit:  { c: 'var(--green)', bg: 'var(--green-soft)', label: 'Hit' },
   miss: { c: 'var(--red)',   bg: 'var(--red-soft)',   label: 'Miss' },
   safe: { c: 'var(--green)', bg: 'var(--green-soft)', label: 'Safe' },
-  false_alarm: { c: 'var(--amber)', bg: 'var(--amber-lo)', label: 'False alarm' },
+  false_alarm: { c: 'var(--amber)', bg: 'var(--amber-lo)', label: 'False alarm' }
 }
 function pctFmt(v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(0) + '%' }
 
@@ -85,7 +85,7 @@ function FeaturedPredictions({ navigate }) {
             fontSize: 'var(--text-sm)',
             fontWeight: 600,
             cursor: 'pointer',
-            transition: 'opacity .15s, transform .1s',
+            transition: 'opacity .15s, transform .1s'
           }}
           onMouseEnter={(e) => e.currentTarget.style.opacity = '.9'}
           onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
@@ -98,7 +98,7 @@ function FeaturedPredictions({ navigate }) {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: 'var(--sp-3)',
+        gap: 'var(--sp-3)'
       }}>
         {FEATURED.map((f, i) => (
           <motion.div
@@ -124,7 +124,7 @@ function FeaturedPredictions({ navigate }) {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
               <div>
-                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', fontFamily: 'var(--mono)' }}>
                   Predicted
                 </div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', fontWeight: 700, color: ddColor(f.pred), fontVariantNumeric: 'tabular-nums' }}>
@@ -132,7 +132,7 @@ function FeaturedPredictions({ navigate }) {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', fontFamily: 'var(--mono)' }}>
                   Realized
                 </div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', fontWeight: 700, color: ddColor(f.actual), fontVariantNumeric: 'tabular-nums' }}>
@@ -149,7 +149,7 @@ function FeaturedPredictions({ navigate }) {
               padding: '2px 8px',
               borderRadius: 'var(--r-sm)',
               background: OUTCOME_COLORS[f.outcome].bg,
-              color: OUTCOME_COLORS[f.outcome].c,
+              color: OUTCOME_COLORS[f.outcome].c
             }}>
               {OUTCOME_COLORS[f.outcome].label}
             </div>
@@ -191,7 +191,7 @@ function HeroMotif() {
       <circle cx="146" cy="122" r="3" fill="var(--red)" />
       <text x="216" y="92" textAnchor="end"
         fontFamily="var(--mono)" fontSize="9"
-        fill="var(--text-4)" letterSpacing="0.06em"
+        fill="var(--text-4)"
       >ILLUSTRATIVE</text>
     </svg>
   )
@@ -208,17 +208,15 @@ function IntroCard({ num, accent, eyebrow, title, bullets }) {
       style={{
         padding: 'var(--sp-5)',
         borderLeft: `2px solid ${accent}`,
-        position: 'relative',
+        position: 'relative'
       }}
     >
       <div style={{
         fontFamily: 'var(--mono)',
         fontSize: 'var(--text-2xs)',
         fontWeight: 500,
-        letterSpacing: 'var(--ls-wider)',
-        textTransform: 'uppercase',
         color: 'var(--text-4)',
-        marginBottom: 'var(--sp-2)',
+        marginBottom: 'var(--sp-2)'
       }}>
         {num} / {eyebrow}
       </div>
@@ -229,14 +227,14 @@ function IntroCard({ num, accent, eyebrow, title, bullets }) {
         color: 'var(--text-1)',
         letterSpacing: 'var(--ls-tight)',
         marginBottom: 'var(--sp-3)',
-        lineHeight: 'var(--lh-snug)',
+        lineHeight: 'var(--lh-snug)'
       }}>
         {title}
       </div>
       <ul style={{
         paddingLeft: 0,
         listStyle: 'none',
-        margin: 0,
+        margin: 0
       }}>
         {bullets.map((b, i) => (
           <li key={i} style={{
@@ -245,14 +243,14 @@ function IntroCard({ num, accent, eyebrow, title, bullets }) {
             fontSize: 'var(--text-sm)',
             color: 'var(--text-2)',
             lineHeight: 'var(--lh-relaxed)',
-            marginBottom: i < bullets.length - 1 ? 'var(--sp-2)' : 0,
+            marginBottom: i < bullets.length - 1 ? 'var(--sp-2)' : 0
           }}>
             <span style={{
               position: 'absolute',
               left: 0, top: '0.55em',
               width: 6, height: 6, borderRadius: '50%',
               background: accent,
-              flexShrink: 0,
+              flexShrink: 0
             }} />
             {b}
           </li>
@@ -269,10 +267,10 @@ export default function Overview({ navigate }) {
         <div>
           <div className="eyebrow">Overview · Forward Drawdown Forecast</div>
           <h1 className="page-title hero-title">
-            <HeroWord word="Predicting" delay={0.05} />
+            <HeroWord word="Forward" delay={0.05} />{' '}
+            <HeroWord word="Drawdown" delay={0.12} />
             <br />
-            <HeroWord word="the" delay={0.15} />{' '}
-            <HeroWord word="Fall." delay={0.25} color="var(--blue-700)" />
+            <HeroWord word="Forecast" delay={0.2} color="var(--blue-700)" />
           </h1>
         </div>
         <div className="hero-meta">
@@ -440,7 +438,7 @@ export default function Overview({ navigate }) {
                 fontSize: 12,
                 fontFamily: 'var(--mono)',
                 color: 'var(--text-2)',
-                boxShadow: 'var(--shadow-md)',
+                boxShadow: 'var(--shadow-md)'
               }}
             />
             <Bar dataKey="drawdown" radius={[0, 4, 4, 0]}>

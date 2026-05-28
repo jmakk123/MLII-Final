@@ -65,13 +65,13 @@ export default function OutcomeBreakdown() {
     hit:         { top: lRiskyTop,                                 h: (counts.hit         / total) * (innerH - gap) },
     false_alarm: { top: lRiskyTop + (counts.hit / total) * (innerH - gap), h: (counts.false_alarm / total) * (innerH - gap) },
     miss:        { top: lSafeTop,                                  h: (counts.miss        / total) * (innerH - gap) },
-    safe:        { top: lSafeTop + (counts.miss / total) * (innerH - gap), h: (counts.safe        / total) * (innerH - gap) },
+    safe:        { top: lSafeTop + (counts.miss / total) * (innerH - gap), h: (counts.safe        / total) * (innerH - gap) }
   }
   const rightSeg = {
     hit:         { top: rCrashedTop,                                h: (counts.hit         / total) * (innerH - gap) },
     miss:        { top: rCrashedTop + (counts.hit / total) * (innerH - gap), h: (counts.miss        / total) * (innerH - gap) },
     false_alarm: { top: rHeldTop,                                   h: (counts.false_alarm / total) * (innerH - gap) },
-    safe:        { top: rHeldTop + (counts.false_alarm / total) * (innerH - gap), h: (counts.safe        / total) * (innerH - gap) },
+    safe:        { top: rHeldTop + (counts.false_alarm / total) * (innerH - gap), h: (counts.safe        / total) * (innerH - gap) }
   }
 
   const [hover, setHover] = useState(null)
@@ -93,7 +93,7 @@ export default function OutcomeBreakdown() {
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--sp-3)', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
-        <div className="section-label" style={{ margin: 0 }}>Where the Predictions Landed</div>
+        <div className="section-label" style={{ margin: 0 }}>Outcome breakdown</div>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           {total.toLocaleString()} test predictions · accuracy{' '}
           <span style={{ color: 'var(--blue-700)', fontWeight: 700 }}>{(accuracy * 100).toFixed(1)}%</span>
@@ -107,7 +107,6 @@ export default function OutcomeBreakdown() {
           fontFamily="var(--mono)"
           fontSize={11}
           fontWeight={600}
-          letterSpacing="0.06em"
           fill="var(--text-3)"
           textTransform="uppercase"
         >MODEL CALLED</text>
@@ -116,7 +115,6 @@ export default function OutcomeBreakdown() {
           fontFamily="var(--mono)"
           fontSize={11}
           fontWeight={600}
-          letterSpacing="0.06em"
           fill="var(--text-3)"
         >WHAT HAPPENED</text>
 
@@ -191,7 +189,7 @@ export default function OutcomeBreakdown() {
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: 'var(--sp-2)',
-        marginTop: 'var(--sp-3)',
+        marginTop: 'var(--sp-3)'
       }}>
         {FLOWS.map(f => {
           const c = counts[f.key]
@@ -208,11 +206,11 @@ export default function OutcomeBreakdown() {
                 background: isHover ? `color-mix(in srgb, ${f.color} 14%, transparent)` : 'var(--bg-2)',
                 border: `1px solid ${isHover ? f.color : 'var(--border)'}`,
                 transition: 'background .15s, border-color .15s',
-                cursor: 'default',
+                cursor: 'default'
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', fontWeight: 700, color: f.color, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', fontWeight: 700, color: f.color }}>
                   {f.label}
                 </span>
                 <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>

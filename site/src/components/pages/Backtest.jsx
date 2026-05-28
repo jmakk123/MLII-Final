@@ -11,7 +11,7 @@ const NARRATIVE = {
   2020: 'Anchored March 2021. The forward window covered the post-vaccine reopening, supply chain whiplash, and the start of the meme-stock era.',
   2021: 'Anchored March 2022. The forward window includes the 2022 tech sell-off and the start of the Fed rate-hike cycle.',
   2022: 'Anchored March 2023. The forward window spans the AI rally, late-cycle macro uncertainty, and persistent Fed tightening. Note: the most-talked-about regional bank failures of 2023 (SVB, First Republic) sat outside our anchor panel because they delisted before a full 12-month forward window could be priced. This is the survivorship bias documented in Limitations.',
-  2023: 'Anchored March 2024. The forward window covers the AI mania pullback in mid-2024 and the late-cycle macro debate.',
+  2023: 'Anchored March 2024. The forward window covers the AI mania pullback in mid-2024 and the late-cycle macro debate.'
 }
 
 function pctFmt(v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%' }
@@ -38,7 +38,7 @@ export default function Backtest({ init }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Backtest</div>
-      <h1 className="page-title">Backtest<br />by Year</h1>
+      <h1 className="page-title">Backtest</h1>
       <p className="page-sub">
         Pick a year. We pull the model&apos;s 10 most-pessimistic forecasts anchored at that fiscal-year-end, then reveal what actually happened over the following 12 months. The cleanest read of whether the model would have helped you avoid the worst names.
       </p>
@@ -59,7 +59,7 @@ export default function Backtest({ init }) {
               fontSize: 'var(--text-base)',
               fontWeight: 700,
               cursor: 'pointer',
-              transition: 'all .15s',
+              transition: 'all .15s'
             }}
           >
             fyear {y}
@@ -103,14 +103,14 @@ export default function Backtest({ init }) {
                 gap: 'var(--sp-3)',
                 alignItems: 'center',
                 padding: 'var(--sp-3) var(--sp-5)',
-                borderBottom: i < top.length - 1 ? '1px solid var(--border)' : 'none',
+                borderBottom: i < top.length - 1 ? '1px solid var(--border)' : 'none'
               }}
             >
               <div className="num" style={{
                 textAlign: 'right',
                 color: i < 3 ? 'var(--amber)' : 'var(--text-4)',
                 fontWeight: i < 3 ? 700 : 500,
-                fontSize: i < 3 ? 'var(--text-base)' : 'var(--text-sm)',
+                fontSize: i < 3 ? 'var(--text-base)' : 'var(--text-sm)'
               }}>
                 #{i + 1}
               </div>
@@ -124,7 +124,7 @@ export default function Backtest({ init }) {
                   : <XIcon size={16} color="var(--red)"   strokeWidth={3} />}
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>
                   Predicted
                 </div>
                 <div className="num" style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: ddColor(r.p) }}>
@@ -132,7 +132,7 @@ export default function Backtest({ init }) {
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>
                   Realized
                 </div>
                 <div className="num" style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: ddColor(r.a) }}>
@@ -140,7 +140,7 @@ export default function Backtest({ init }) {
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>
                   Error
                 </div>
                 <div className="num" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-3)' }}>
@@ -167,7 +167,7 @@ export default function Backtest({ init }) {
 function BigStat({ label, value, sub, accent }) {
   return (
     <div className="card" style={{ padding: 'var(--sp-4)', borderTop: `3px solid ${accent}` }}>
-      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', fontFamily: 'var(--mono)' }}>
         {label}
       </div>
       <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-2xl)', fontWeight: 700, color: accent, marginTop: 4, fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>

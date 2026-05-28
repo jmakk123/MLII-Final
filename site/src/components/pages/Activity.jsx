@@ -19,38 +19,38 @@ const ROUNDS = [
     company: 'Bed Bath & Beyond (BBBY)',
     description: 'Big-box home goods retailer in slow decline. Heavy leverage, meme-stock vol. Typically large drawdowns.',
     vol: '81%', ret: '-42%', leverage: '94%',
-    modelP: 0.70, predicted_dd: -0.414, actual_dd: -0.598, isBig: true,
+    modelP: 0.70, predicted_dd: -0.414, actual_dd: -0.598, isBig: true
   },
   {
     company: 'Carnival (CCL)',
     description: 'Global cruise operator with 100+ ships. Travel-demand sensitive. Typically large drawdowns during travel downturns.',
     vol: '62%', ret: '+18%', leverage: '78%',
-    modelP: 0.80, predicted_dd: -0.473, actual_dd: -0.477, isBig: true,
+    modelP: 0.80, predicted_dd: -0.473, actual_dd: -0.477, isBig: true
   },
   {
     company: 'Johnson & Johnson (JNJ)',
     description: 'Diversified healthcare giant. Defensive name with steady cash flows. Typically small drawdowns.',
     vol: '13%', ret: '+15%', leverage: '58%',
-    modelP: 0.20, predicted_dd: -0.180, actual_dd: -0.131, isBig: false,
+    modelP: 0.20, predicted_dd: -0.180, actual_dd: -0.131, isBig: false
   },
   {
     company: 'American Airlines (AAL)',
     description: 'Legacy US airline. High operating leverage, sensitive to travel demand and fuel. Typically moderate to large drawdowns.',
     vol: '38%', ret: '-12%', leverage: '87%',
-    modelP: 0.62, predicted_dd: -0.364, actual_dd: -0.413, isBig: true,
+    modelP: 0.62, predicted_dd: -0.364, actual_dd: -0.413, isBig: true
   },
   {
     company: 'NVIDIA (NVDA)',
     description: 'Semiconductor designer riding the AI cycle. High vol, growth-stock dynamics. Typically large drawdowns despite long-term gains.',
     vol: '52%', ret: '-26%', leverage: '42%',
-    modelP: 0.60, predicted_dd: -0.363, actual_dd: -0.448, isBig: true,
+    modelP: 0.60, predicted_dd: -0.363, actual_dd: -0.448, isBig: true
   },
   {
     company: 'Peloton (PTON)',
     description: 'Home fitness platform. Pandemic darling, hyper-growth fading. Typically very large drawdowns.',
     vol: '68%', ret: '-78%', leverage: '71%',
     modelP: 0.85, predicted_dd: -0.516, actual_dd: -0.740, isBig: true,
-    isFinal: true,
+    isFinal: true
   },
 ]
 
@@ -90,7 +90,7 @@ function FinalRoundIntro({ show }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            pointerEvents: 'none',
+            pointerEvents: 'none'
           }}
         >
           <div style={{ textAlign: 'center', color: '#fff' }}>
@@ -106,10 +106,8 @@ function FinalRoundIntro({ show }) {
                 fontFamily: 'var(--mono)',
                 fontSize: 'var(--text-sm)',
                 fontWeight: 700,
-                letterSpacing: 'var(--ls-wider)',
-                textTransform: 'uppercase',
                 color: 'var(--amber)',
-                marginBottom: 12,
+                marginBottom: 12
               }}
             >
               <Zap size={16} fill="var(--amber)" />
@@ -127,7 +125,7 @@ function FinalRoundIntro({ show }) {
                 fontWeight: 700,
                 letterSpacing: '-0.04em',
                 lineHeight: 0.9,
-                textShadow: '0 0 32px rgba(245,158,11,.6), 0 0 64px rgba(245,158,11,.3)',
+                textShadow: '0 0 32px rgba(245,158,11,.6), 0 0 64px rgba(245,158,11,.3)'
               }}
             >
               FINAL ROUND
@@ -141,7 +139,7 @@ function FinalRoundIntro({ show }) {
                 marginTop: 16,
                 fontSize: 'var(--text-lg)',
                 color: 'rgba(255,255,255,.85)',
-                fontFamily: 'var(--sans)',
+                fontFamily: 'var(--sans)'
               }}
             >
               Winner takes all
@@ -159,7 +157,7 @@ function FinalRoundIntro({ show }) {
                   left: 0, right: 0,
                   height: 2,
                   background: 'linear-gradient(90deg, transparent, var(--amber), transparent)',
-                  pointerEvents: 'none',
+                  pointerEvents: 'none'
                 }}
               />
             ))}
@@ -180,7 +178,7 @@ function CelebrationOverlay() {
       top: `${5 + (i * 11) % 90}%`,
       delay: (i * 0.12) % 2.2,
       duration: 1.6 + ((i * 0.17) % 0.6),
-      angle: (-30 + (i * 17) % 60),
+      angle: (-30 + (i * 17) % 60)
     }))
   }, [])
   const confetti = useMemo(() => {
@@ -193,7 +191,7 @@ function CelebrationOverlay() {
       rotate: Math.random() * 720 - 360,
       drift: (Math.random() - 0.5) * 280,
       size: 6 + Math.random() * 6,
-      shape: i % 3,
+      shape: i % 3
     }))
   }, [])
   return (
@@ -208,7 +206,7 @@ function CelebrationOverlay() {
             color: l.color,
             animationDelay: `${l.delay}s`,
             animationDuration: `${l.duration}s`,
-            '--ang': `${l.angle}deg`,
+            '--ang': `${l.angle}deg`
           }}
         />
       ))}
@@ -221,13 +219,13 @@ function CelebrationOverlay() {
             y: ['-5vh', '110vh'],
             x: [0, c.drift],
             rotate: [0, c.rotate],
-            opacity: [0, 1, 1, 0],
+            opacity: [0, 1, 1, 0]
           }}
           transition={{
             duration: c.duration,
             delay: c.delay,
             ease: 'linear',
-            times: [0, 0.05, 0.85, 1],
+            times: [0, 0.05, 0.85, 1]
           }}
           style={{
             position: 'absolute',
@@ -237,7 +235,7 @@ function CelebrationOverlay() {
             height: c.size * (c.shape === 0 ? 1 : 0.4),
             background: c.color,
             borderRadius: c.shape === 2 ? '50%' : 2,
-            boxShadow: `0 0 4px ${c.color}66`,
+            boxShadow: `0 0 4px ${c.color}66`
           }}
         />
       ))}
@@ -351,7 +349,7 @@ export default function Activity() {
             fontWeight: 700,
             color: 'var(--text-1)',
             letterSpacing: 'var(--ls-tight)',
-            marginBottom: 'var(--sp-2)',
+            marginBottom: 'var(--sp-2)'
           }}>
             <span className="rainbow-text glow-text">{winner.name} WINS</span>
           </div>
@@ -361,7 +359,7 @@ export default function Activity() {
             fontWeight: 700,
             color: 'var(--amber)',
             marginBottom: 'var(--sp-2)',
-            fontVariantNumeric: 'tabular-nums',
+            fontVariantNumeric: 'tabular-nums'
           }}>
             {fmt$(winner.bankroll)}
           </div>
@@ -380,16 +378,16 @@ export default function Activity() {
                   background: i === 0 ? 'rgba(245,158,11,.08)' : 'var(--surface)',
                   borderRadius: 'var(--r-md)',
                   padding: 'var(--sp-3)',
-                  boxShadow: i === 0 ? '0 0 24px rgba(245,158,11,.35)' : 'none',
+                  boxShadow: i === 0 ? '0 0 24px rgba(245,158,11,.35)' : 'none'
                 }}
               >
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
                   #{i + 1} · {t.name}
                 </div>
                 <div style={{
                   fontFamily: 'var(--mono)', fontSize: 'var(--text-xl)', fontWeight: 700,
                   color: 'var(--text-1)', marginTop: 'var(--sp-1)',
-                  fontVariantNumeric: 'tabular-nums',
+                  fontVariantNumeric: 'tabular-nums'
                 }}>
                   {fmt$(t.bankroll)}
                 </div>
@@ -413,7 +411,7 @@ export default function Activity() {
           fontSize: 'var(--text-3xl)',
           fontWeight: 700,
           color: 'var(--text-1)',
-          letterSpacing: 'var(--ls-tight)',
+          letterSpacing: 'var(--ls-tight)'
         }}>
           DrawdownMarket
         </h1>
@@ -422,8 +420,7 @@ export default function Activity() {
             background: 'var(--amber)', color: '#fff',
             padding: 'var(--sp-1) var(--sp-3)',
             borderRadius: 'var(--r-sm)',
-            fontSize: 'var(--text-xs)', fontWeight: 700, letterSpacing: 'var(--ls-wider)',
-            textTransform: 'uppercase',
+            fontSize: 'var(--text-xs)', fontWeight: 700
           }}>
             Final · Winner Takes All
           </span>
@@ -435,7 +432,7 @@ export default function Activity() {
 
       <div className="game-topbar">
         <div>
-          <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>Round</div>
+          <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>Round</div>
           <div style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--text-1)', fontVariantNumeric: 'tabular-nums' }}>
             {round + 1} of {ROUNDS.length}
           </div>
@@ -444,20 +441,20 @@ export default function Activity() {
           {ROUNDS.map((_, i) => (
             <div key={i} style={{
               width: 9, height: 9, borderRadius: '50%',
-              background: i < round ? 'var(--blue-500)' : i === round ? 'var(--amber)' : 'var(--border-2)',
+              background: i < round ? 'var(--blue-500)' : i === round ? 'var(--amber)' : 'var(--border-2)'
             }} />
           ))}
         </div>
         <div style={{ display: 'flex', gap: 'var(--sp-4)', alignItems: 'center' }}>
           {TEAMS.map(t => (
             <div key={t.id} style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+              <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>
                 {t.name}
               </div>
               <div style={{
                 fontFamily: 'var(--mono)', fontWeight: 700, fontSize: 'var(--text-base)',
                 color: bankroll[t.id] >= STARTING_BANKROLL ? 'var(--green)' : 'var(--red)',
-                fontVariantNumeric: 'tabular-nums',
+                fontVariantNumeric: 'tabular-nums'
               }}>
                 {fmt$(bankroll[t.id])}
               </div>
@@ -476,7 +473,7 @@ export default function Activity() {
           <div style={{
             fontFamily: 'var(--display)',
             fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-1)',
-            letterSpacing: 'var(--ls-tight)',
+            letterSpacing: 'var(--ls-tight)'
           }}>
             {r.company}
           </div>
@@ -532,10 +529,10 @@ export default function Activity() {
                         borderLeft: '3px solid var(--blue-500)',
                         borderRadius: 'var(--r-md)',
                         padding: 'var(--sp-2) var(--sp-3)',
-                        marginBottom: 'var(--sp-3)',
+                        marginBottom: 'var(--sp-3)'
                       }}
                     >
-                      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--blue-700)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--blue-700)', fontWeight: 600 }}>
                         Model hint
                       </div>
                       <div style={{
@@ -543,7 +540,7 @@ export default function Activity() {
                         fontSize: 'var(--text-base)',
                         fontWeight: 700,
                         color: r.modelP > 0.5 ? 'var(--red)' : 'var(--green)',
-                        marginTop: 2,
+                        marginTop: 2
                       }}>
                         {Math.round(r.modelP * 100)}% chance of big drop
                       </div>
@@ -571,7 +568,7 @@ export default function Activity() {
                         fontWeight: 600,
                         fontFamily: 'var(--sans)',
                         marginBottom: 'var(--sp-3)',
-                        transition: 'background .15s, color .15s',
+                        transition: 'background .15s, color .15s'
                       }}
                     >
                       <Lightbulb size={13} />
@@ -603,7 +600,7 @@ export default function Activity() {
 
                 {!isFinal ? (
                   <>
-                    <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', marginBottom: 'var(--sp-1)' }}>
+                    <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', marginBottom: 'var(--sp-1)' }}>
                       Bet
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 'var(--sp-2)' }}>
@@ -622,7 +619,7 @@ export default function Activity() {
                               fontSize: 'var(--text-2xs)',
                               fontFamily: 'var(--sans)',
                               fontWeight: 600,
-                              opacity: disabled ? .4 : 1,
+                              opacity: disabled ? .4 : 1
                             }}
                           >
                             {c.label}
@@ -633,7 +630,7 @@ export default function Activity() {
                   </>
                 ) : (
                   <div style={{ marginBottom: 'var(--sp-2)' }}>
-                    <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--amber)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontWeight: 700, marginBottom: 4 }}>
+                    <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--amber)', fontWeight: 700, marginBottom: 4 }}>
                       All-in mandatory
                     </div>
                     <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', fontFamily: 'var(--mono)' }}>
@@ -659,7 +656,7 @@ export default function Activity() {
                         color: b.side === 'yes' ? 'var(--red)' : 'var(--green)',
                         textAlign: 'center',
                         fontWeight: 700,
-                        fontVariantNumeric: 'tabular-nums',
+                        fontVariantNumeric: 'tabular-nums'
                       }}
                     >
                       LOCKED: {b.side === 'yes' ? 'BIG DROP' : 'NO DROP'} · {fmt$(amt)}
@@ -704,7 +701,7 @@ export default function Activity() {
             </div>
             <div style={{ display: 'flex', gap: 'var(--sp-6)', flexWrap: 'wrap', marginBottom: 'var(--sp-4)' }}>
               <div>
-                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)' }}>
                   Model predicted
                 </div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-1)', fontVariantNumeric: 'tabular-nums' }}>
@@ -712,7 +709,7 @@ export default function Activity() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)' }}>
+                <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-3)' }}>
                   Actual realized
                 </div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xl)', fontWeight: 700, color: r.isBig ? 'var(--red)' : 'var(--green)', fontVariantNumeric: 'tabular-nums' }}>
@@ -737,7 +734,7 @@ export default function Activity() {
                       background: 'var(--surface)',
                       border: `2px solid ${correct ? 'var(--green)' : 'var(--red)'}`,
                       borderRadius: 'var(--r-md)',
-                      padding: 'var(--sp-3)',
+                      padding: 'var(--sp-3)'
                     }}
                   >
                     <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>{t.name}</div>

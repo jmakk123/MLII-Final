@@ -44,7 +44,7 @@ export default function ShortcutsOverlay({ open, onClose }) {
                 fontSize: 'var(--text-lg)',
                 fontWeight: 700,
                 color: 'var(--text-1)',
-                letterSpacing: 'var(--ls-tight)',
+                letterSpacing: 'var(--ls-tight)'
               }}>
                 Keyboard Shortcuts
               </div>
@@ -55,7 +55,7 @@ export default function ShortcutsOverlay({ open, onClose }) {
                   width: 28, height: 28, borderRadius: 'var(--r-sm)',
                   background: 'transparent', border: '1px solid var(--border)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', color: 'var(--text-3)',
+                  cursor: 'pointer', color: 'var(--text-3)'
                 }}
               >
                 <X size={14} />

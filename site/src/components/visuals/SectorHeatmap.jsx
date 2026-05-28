@@ -43,7 +43,7 @@ export default function SectorHeatmap() {
           rate: hits / top.length,
           n: top.length,
           total: rows.length,
-          hits,
+          hits
         }
       }
     }
@@ -52,7 +52,7 @@ export default function SectorHeatmap() {
 
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Sector × Year Hit Rate · Top 10% Riskiest per Cell</div>
+      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Sector hit rate</div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '180px repeat(4, 1fr)', gap: 4 }}>
         {/* Header row */}
@@ -63,8 +63,7 @@ export default function SectorHeatmap() {
             fontFamily: 'var(--mono)',
             fontSize: 'var(--text-xs)',
             fontWeight: 600,
-            color: 'var(--text-3)',
-            letterSpacing: 'var(--ls-wide)',
+            color: 'var(--text-3)'
           }}>
             {y}
           </div>
@@ -111,7 +110,7 @@ function Row({ sector, si, cells, onHover, hover }) {
         color: 'var(--text-2)',
         padding: '0 var(--sp-2)',
         display: 'flex', alignItems: 'center',
-        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
       }}
         title={sector}
       >
@@ -143,7 +142,7 @@ function Row({ sector, si, cells, onHover, hover }) {
               fontWeight: 700,
               color: rate != null ? '#fff' : 'var(--text-4)',
               cursor: 'default',
-              transition: 'border-color .15s',
+              transition: 'border-color .15s'
             }}
           >
             {rate != null ? `${(rate * 100).toFixed(0)}%` : '—'}

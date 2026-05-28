@@ -7,7 +7,7 @@ const OUTCOME_LABEL = {
   hit:         { label: 'Hit',         color: 'var(--green)', bg: 'var(--green-soft)' },
   safe:        { label: 'Safe',        color: 'var(--green)', bg: 'var(--green-soft)' },
   miss:        { label: 'Miss',        color: 'var(--red)',   bg: 'var(--red-soft)'   },
-  false_alarm: { label: 'False alarm', color: 'var(--amber)', bg: 'var(--amber-lo)'   },
+  false_alarm: { label: 'False alarm', color: 'var(--amber)', bg: 'var(--amber-lo)'   }
 }
 
 const YEARS = Array.from(new Set(predictions.map(r => r.y))).sort((a, b) => b - a)
@@ -36,9 +36,7 @@ export default function TopRisks({ init, navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Top Risks</div>
-      <h1 className="page-title">
-        Top {count} Predicted<br />Drawdowns
-      </h1>
+      <h1 className="page-title">Top Risks</h1>
       <p className="page-sub">
         The firms our model flagged as the deepest forecast drawdowns going into the next 12 months, for the fyear you select below. This is the watchlist a risk team would walk through at a morning meeting.
       </p>
@@ -60,7 +58,7 @@ export default function TopRisks({ init, navigate }) {
                 fontSize: 'var(--text-sm)',
                 fontWeight: 600,
                 cursor: 'pointer',
-                transition: 'all .15s',
+                transition: 'all .15s'
               }}
             >
               {y}
@@ -115,7 +113,7 @@ export default function TopRisks({ init, navigate }) {
                       padding: '2px 8px',
                       borderRadius: 'var(--r-sm)',
                       background: OUTCOME_LABEL[r.o].bg,
-                      color: OUTCOME_LABEL[r.o].color,
+                      color: OUTCOME_LABEL[r.o].color
                     }}>
                       {OUTCOME_LABEL[r.o].label}
                     </span>
@@ -142,7 +140,7 @@ export default function TopRisks({ init, navigate }) {
               fontSize: 'var(--text-xs)',
               fontWeight: 600,
               cursor: 'pointer',
-              transition: 'all .15s',
+              transition: 'all .15s'
             }}
           >
             Top {c}
@@ -161,7 +159,7 @@ export default function TopRisks({ init, navigate }) {
 function Summary({ label, value, sub, accent }) {
   return (
     <div className="card card-p" style={{ minWidth: 160, padding: 'var(--sp-3)' }}>
-      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wide)', fontFamily: 'var(--mono)' }}>
+      <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--text-4)', fontFamily: 'var(--mono)' }}>
         {label}
       </div>
       <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-lg)', fontWeight: 700, color: accent, fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>

@@ -10,7 +10,7 @@ const SOURCES = [
       '11,953 unique firms, NYSE and NASDAQ only',
       '39 columns including 18 line items for our ratios (act, at, ebit, re, lt, sale, ni, dltt, oibdp, etc.)',
       'Filter at pull time: total assets > 0',
-    ],
+    ]
   },
   {
     name: 'Compustat Company',
@@ -19,7 +19,7 @@ const SOURCES = [
       'GICS sector / industry hierarchy for industry analysis',
       'dlrsn delisting codes used to handle bankruptcies and mergers in the target window',
       'IPO dates for newly public firm flags',
-    ],
+    ]
   },
   {
     name: 'CRSP Daily Prices',
@@ -28,7 +28,7 @@ const SOURCES = [
       'Daily adjusted prices for every US-listed common stock',
       'Drives both the realized drawdown target and the 7 price features',
       'cfacpr split factor applied so prices are continuous across corporate actions',
-    ],
+    ]
   },
   {
     name: 'CCM Link Table',
@@ -37,7 +37,7 @@ const SOURCES = [
       'Resolves Compustat firm IDs to CRSP price IDs with date validity windows',
       'Primary link preference (linkprim = P) on ties',
       'Required because the same firm can have different IDs in the two databases',
-    ],
+    ]
   },
 ]
 
@@ -49,7 +49,7 @@ const FE_BOXES = [
       'Working capital, retained earnings, EBIT, market value, asset turnover (Altman X1 to X5)',
       'Leverage, current ratio, ROA, log size (Ohlson and Zmijewski)',
       'Gross / operating / net / EBITDA margins, OpEx ratio, D&A intensity, long-term debt, inventory and receivables turnover',
-    ],
+    ]
   },
   {
     name: '5-Year Sequence',
@@ -58,7 +58,7 @@ const FE_BOXES = [
       'Each anchor pulls fyear-4 through fyear of the 18 ratios',
       'Anchors without all 5 prior years are dropped, not imputed (13% loss, mostly newly public firms)',
       'Lag order is oldest to newest, the natural read order for the LSTM',
-    ],
+    ]
   },
   {
     name: '7 Price Features',
@@ -67,7 +67,7 @@ const FE_BOXES = [
       'Annualized vol, 12-month return, return skew and kurtosis, max prior drawdown',
       'Beta vs equal-weighted market portfolio, log average daily dollar volume',
       'Window ends strictly before anchor_date; an assertion enforces no look-ahead leakage',
-    ],
+    ]
   },
   {
     name: '97-d Concatenated',
@@ -76,7 +76,7 @@ const FE_BOXES = [
       '90 flattened financial features plus 7 price features',
       'Winsorize at 1st and 99th pct, z-score, statistics frozen on training rows only',
       'Same 97-d vector feeds the Ridge and gradient-boosted baselines for fair comparison',
-    ],
+    ]
   },
 ]
 
@@ -113,7 +113,7 @@ function HoverBox({ box, color, hi }) {
               borderRadius: 8,
               padding: '.7rem .85rem',
               boxShadow: '0 4px 16px rgba(0,0,0,.08)',
-              zIndex: 10,
+              zIndex: 10
             }}
           >
             <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '.74rem', color: 'var(--slate-600)', lineHeight: 1.55 }}>
@@ -130,16 +130,16 @@ export default function Data() {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Data</div>
-      <h1 className="page-title">From raw filings<br />to tensors.</h1>
+      <h1 className="page-title">Data</h1>
       <p className="page-sub">
         Two databases, one pipeline. 76,990 anchor rows across fyear 2003 to 2024, each with five years of accounting history and one year of price context. Strict time-blocked train, validation, and test folds. Train-fold-only scaling. No information leaks from the future.
       </p>
 
       {/* Pipeline */}
-      <div className="section-label">Data pipeline</div>
+      <div className="section-label">Pipeline</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
         <div>
-          <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '.5rem' }}>
+          <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', letterSpacing: '.1em', marginBottom: '.5rem' }}>
             Raw Sources · hover for details
           </div>
           <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -153,7 +153,7 @@ export default function Data() {
         </div>
         <div style={{ textAlign: 'center', color: 'var(--slate-300)', fontSize: '1.1rem' }}>↓</div>
         <div>
-          <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: '.5rem' }}>
+          <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', letterSpacing: '.1em', marginBottom: '.5rem' }}>
             Feature Engineering · hover for details
           </div>
           <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -174,7 +174,7 @@ export default function Data() {
       {/* Target construction + leakage */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignItems: 'start', marginBottom: '2rem' }}>
         <div>
-          <div className="section-label">Target construction</div>
+          <div className="section-label">Target</div>
           <ul style={{ fontSize: '.82rem', color: 'var(--slate-600)', lineHeight: 1.7, paddingLeft: '1.1rem', margin: 0 }}>
             <li>Anchor date is fiscal-year-end plus 90 days, modeling the realistic 10-K filing lag.</li>
             <li>Forward window is 365 calendar days of CRSP adjusted prices, requiring at least 60 trading days of data.</li>
@@ -183,7 +183,7 @@ export default function Data() {
           </ul>
         </div>
         <div>
-          <div className="section-label">No future data leaking in</div>
+          <div className="section-label">Leakage controls</div>
           <div className="info-box">
             <strong style={{ color: 'var(--blue-900)' }}>Train-only scaling.</strong> Winsorize cutoffs and z-score means and stds are computed on training rows only, then frozen and applied to validation and test.
             <br /><br />
@@ -193,7 +193,7 @@ export default function Data() {
       </div>
 
       {/* COVID + post-COVID handling */}
-      <div className="section-label">COVID and post-COVID handling</div>
+      <div className="section-label">COVID handling</div>
       <div className="info-box" style={{ marginBottom: '1rem' }}>
         <strong style={{ color: 'var(--blue-900)' }}>The validation fold is the COVID stress fold by design.</strong>{' '}
         Fyear 2018 anchors land at March 2019 with a forward window running into March 2020. Fyear 2019 anchors run into March 2021. The COVID crash sits inside validation, so any model that overfits to calm regimes gets killed during model selection.
@@ -207,7 +207,7 @@ export default function Data() {
 
       <div className="divider" />
 
-      <div className="section-label">The 18 Financial Ratios · hover any tag for definition</div>
+      <div className="section-label">Financial ratios</div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.4rem', marginBottom: 'var(--sp-3)' }}>
         {RATIOS.map(r => <RatioTag key={r.name} ratio={r} />)}
       </div>
@@ -272,7 +272,7 @@ function RatioTag({ ratio }) {
               lineHeight: 'var(--lh-relaxed)',
               fontFamily: 'var(--sans)',
               whiteSpace: 'normal',
-              textAlign: 'left',
+              textAlign: 'left'
             }}
           >
             {ratio.desc}

@@ -23,7 +23,7 @@ export default function SurvivorshipFunnel() {
 
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Survivorship Funnel · How 132K Firm-Years Become 15,311 Test Rows</div>
+      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Survivorship funnel</div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
         {STAGES.map((s, i) => {
@@ -44,7 +44,7 @@ export default function SurvivorshipFunnel() {
                     padding: '4px 0 8px 0',
                     fontFamily: 'var(--mono)',
                     fontSize: 'var(--text-2xs)',
-                    color: 'var(--text-4)',
+                    color: 'var(--text-4)'
                   }}
                 >
                   <span style={{ width: 1, height: 14, background: 'var(--border-2)', marginLeft: 8 }} />
@@ -66,7 +66,7 @@ export default function SurvivorshipFunnel() {
                   display: 'grid',
                   gridTemplateColumns: '1fr 160px',
                   gap: 'var(--sp-4)',
-                  alignItems: 'center',
+                  alignItems: 'center'
                 }}
               >
                 {/* Left: label + bar */}
@@ -77,7 +77,7 @@ export default function SurvivorshipFunnel() {
                     fontWeight: 600,
                     color: 'var(--text-1)',
                     marginBottom: 4,
-                    letterSpacing: 'var(--ls-tight)',
+                    letterSpacing: 'var(--ls-tight)'
                   }}>
                     {s.label}
                   </div>
@@ -88,7 +88,7 @@ export default function SurvivorshipFunnel() {
                     height: 26,
                     background: 'var(--bg-2)',
                     borderRadius: 'var(--r-sm)',
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                   }}>
                     <motion.div
                       initial={{ width: 0 }}
@@ -98,7 +98,7 @@ export default function SurvivorshipFunnel() {
                       style={{
                         height: '100%',
                         background: `linear-gradient(90deg, ${s.color}, color-mix(in srgb, ${s.color} 70%, var(--text-1) 30%))`,
-                        borderRadius: 'var(--r-sm)',
+                        borderRadius: 'var(--r-sm)'
                       }}
                     />
                   </div>
@@ -107,7 +107,7 @@ export default function SurvivorshipFunnel() {
                     fontSize: 'var(--text-xs)',
                     color: 'var(--text-3)',
                     lineHeight: 'var(--lh-relaxed)',
-                    marginTop: 6,
+                    marginTop: 6
                   }}>
                     {s.caption}
                   </div>
@@ -122,7 +122,7 @@ export default function SurvivorshipFunnel() {
                     color: 'var(--text-1)',
                     fontVariantNumeric: 'tabular-nums',
                     lineHeight: 1,
-                    letterSpacing: 'var(--ls-tight)',
+                    letterSpacing: 'var(--ls-tight)'
                   }}>
                     {s.n.toLocaleString()}
                   </div>
@@ -130,9 +130,7 @@ export default function SurvivorshipFunnel() {
                     fontFamily: 'var(--mono)',
                     fontSize: 'var(--text-2xs)',
                     color: 'var(--text-4)',
-                    marginTop: 4,
-                    letterSpacing: 'var(--ls-wide)',
-                    textTransform: 'uppercase',
+                    marginTop: 4
                   }}>
                     {((s.n / max) * 100).toFixed(1)}% of raw
                   </div>

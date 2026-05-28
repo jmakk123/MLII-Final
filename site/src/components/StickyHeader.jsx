@@ -12,7 +12,7 @@ const PAGE_META = {
   findings:    { eyebrow: 'Project · Findings',        title: 'Findings' },
   usecases:    { eyebrow: 'Project · Use Cases',       title: 'Who uses a drawdown signal' },
   slides:      { eyebrow: 'Project · Recap',           title: 'Quick Recap' },
-  activity:    { eyebrow: 'Activity · DrawdownMarket', title: 'DrawdownMarket' },
+  activity:    { eyebrow: 'Activity · DrawdownMarket', title: 'DrawdownMarket' }
 }
 
 /* Shows a sticky bar at the top of main-content once the user has

@@ -40,7 +40,7 @@ const Arrow = ({ from, to, delay = 0 }) => {
           duration: 1.6,
           ease: 'easeInOut',
           repeat: Infinity,
-          repeatDelay: 1.2,
+          repeatDelay: 1.2
         }}
       />
     </g>
@@ -61,7 +61,7 @@ export default function ArchitectureFlow() {
 
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-6)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Architecture · data flow</div>
+      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Architecture</div>
       <svg viewBox={`0 0 ${W} ${H + 20}`} width="100%" style={{ display: 'block' }}>
         <defs>
           <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5"

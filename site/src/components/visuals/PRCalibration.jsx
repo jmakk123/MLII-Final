@@ -17,7 +17,7 @@ function buildPRCurve(rows) {
     if (i % stride === 0 || i === items.length - 1) {
       out.push({
         recall: totalPos > 0 ? tp / totalPos : 0,
-        precision: tp / (tp + fp),
+        precision: tp / (tp + fp)
       })
     }
   }
@@ -34,7 +34,7 @@ function buildCalibration(rows, nBins = 12) {
     out.push({
       pred: slice.reduce((s, x) => s + x.p, 0) / slice.length,
       actual: slice.reduce((s, x) => s + x.a, 0) / slice.length,
-      n: slice.length,
+      n: slice.length
     })
   }
   return out
@@ -60,7 +60,7 @@ function PRPanel({ curve, baseRate, prauc = 0.852 }) {
   return (
     <div className="card card-p">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-        <div className="section-label" style={{ margin: 0 }}>Precision-Recall Curve</div>
+        <div className="section-label" style={{ margin: 0 }}>Precision-recall curve</div>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           PR-AUC <strong style={{ color: 'var(--blue-700)' }}>{prauc.toFixed(3)}</strong>
         </span>
@@ -191,7 +191,7 @@ function CalibrationPanel({ calib }) {
   return (
     <div className="card card-p">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-        <div className="section-label" style={{ margin: 0 }}>Regression Calibration</div>
+        <div className="section-label" style={{ margin: 0 }}>Calibration</div>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           12 equal-frequency bins
         </span>

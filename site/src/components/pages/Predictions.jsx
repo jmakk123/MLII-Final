@@ -10,7 +10,7 @@ const RATIO_LABELS = {
   r_tl_ta:       { label: 'Leverage',          desc: 'Total liabilities divided by total assets. Higher means more debt relative to assets.' },
   r_ebit_ta:     { label: 'EBIT / Total assets', desc: 'Operating profitability against the asset base. Altman X3.' },
   r_re_ta:       { label: 'Retained earnings ratio', desc: 'Retained earnings divided by total assets. Cumulative profitability.' },
-  r_log_at:      { label: 'Firm size (log assets)', desc: 'Log of total assets. Higher means larger firm.' },
+  r_log_at:      { label: 'Firm size (log assets)', desc: 'Log of total assets. Higher means larger firm.' }
 }
 
 const SECTORS = Array.from(new Set(predictions.map(r => r.s))).sort()
@@ -27,7 +27,7 @@ const OUTCOME_LABEL = {
   hit:         { label: 'Hit',         color: 'var(--green)',  bg: 'var(--green-soft)' },
   safe:        { label: 'Safe',        color: 'var(--green)',  bg: 'var(--green-soft)' },
   miss:        { label: 'Miss',        color: 'var(--red)',    bg: 'var(--red-soft)'   },
-  false_alarm: { label: 'False alarm', color: 'var(--amber)',  bg: 'var(--amber-lo)'   },
+  false_alarm: { label: 'False alarm', color: 'var(--amber)',  bg: 'var(--amber-lo)'   }
 }
 
 const PAGE_SIZE = 75
@@ -109,7 +109,7 @@ export default function Predictions({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Predictions</div>
-      <h1 className="page-title">Drawdown<br />Predictions</h1>
+      <h1 className="page-title">Predictions</h1>
       <p className="page-sub">
         Every prediction the model made on the test fold. 15,311 firm-years across 2020 to 2023, 4,561 unique firms. Search a company, filter by sector or year, click any row for detail.
       </p>
@@ -121,7 +121,7 @@ export default function Predictions({ navigate }) {
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{
               position: 'absolute', top: '50%', left: 12, transform: 'translateY(-50%)',
-              color: 'var(--text-4)',
+              color: 'var(--text-4)'
             }} />
             <input
               type="search"
@@ -138,7 +138,7 @@ export default function Predictions({ navigate }) {
                 fontFamily: 'var(--sans)',
                 fontSize: 'var(--text-sm)',
                 outline: 'none',
-                transition: 'border-color .15s',
+                transition: 'border-color .15s'
               }}
               onFocus={(e) => e.target.style.borderColor = 'var(--blue-500)'}
               onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
@@ -163,7 +163,7 @@ export default function Predictions({ navigate }) {
 
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
-        marginBottom: 'var(--sp-2)', color: 'var(--text-3)', fontSize: 'var(--text-xs)',
+        marginBottom: 'var(--sp-2)', color: 'var(--text-3)', fontSize: 'var(--text-xs)'
       }}>
         <span>
           {filtered.length.toLocaleString()} prediction{filtered.length !== 1 ? 's' : ''} match
@@ -208,7 +208,7 @@ export default function Predictions({ navigate }) {
                       padding: '2px 8px',
                       borderRadius: 'var(--r-sm)',
                       background: OUTCOME_LABEL[r.o].bg,
-                      color: OUTCOME_LABEL[r.o].color,
+                      color: OUTCOME_LABEL[r.o].color
                     }}>
                       {OUTCOME_LABEL[r.o].label}
                     </span>
@@ -239,7 +239,7 @@ export default function Predictions({ navigate }) {
                 fontSize: 'var(--text-sm)',
                 fontWeight: 500,
                 cursor: 'pointer',
-                transition: 'border-color .15s, color .15s',
+                transition: 'border-color .15s, color .15s'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
@@ -272,7 +272,7 @@ function FilterSelect({ value, onChange, label, children }) {
         fontSize: 'var(--text-sm)',
         cursor: 'pointer',
         outline: 'none',
-        transition: 'border-color .15s',
+        transition: 'border-color .15s'
       }}
     >
       {children}
@@ -295,7 +295,7 @@ function FirmDetailDrawer({ row, onClose, navigate }) {
               position: 'fixed', inset: 0,
               background: 'rgba(0, 0, 0, 0.45)',
               backdropFilter: 'blur(4px)',
-              zIndex: 80,
+              zIndex: 80
             }}
           />
           <motion.aside
@@ -311,7 +311,7 @@ function FirmDetailDrawer({ row, onClose, navigate }) {
               borderLeft: '1px solid var(--border)',
               zIndex: 90,
               overflowY: 'auto',
-              boxShadow: 'var(--shadow-lg)',
+              boxShadow: 'var(--shadow-lg)'
             }}
           >
             <FirmDetailBody row={row} onClose={onClose} navigate={navigate} />
@@ -342,7 +342,7 @@ function FirmDetailBody({ row, onClose, navigate }) {
             fontWeight: 700,
             color: 'var(--text-1)',
             letterSpacing: 'var(--ls-tight)',
-            lineHeight: 'var(--lh-snug)',
+            lineHeight: 'var(--lh-snug)'
           }}>
             {row.n}
           </h2>
@@ -358,7 +358,7 @@ function FirmDetailBody({ row, onClose, navigate }) {
             background: 'transparent', border: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', color: 'var(--text-3)',
-            transition: 'color .15s, border-color .15s',
+            transition: 'color .15s, border-color .15s'
           }}
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-1)'; e.currentTarget.style.borderColor = 'var(--border-2)' }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-3)'; e.currentTarget.style.borderColor = 'var(--border)' }}
@@ -377,7 +377,7 @@ function FirmDetailBody({ row, onClose, navigate }) {
             fontWeight: 700,
             color: ddColor(row.p),
             fontVariantNumeric: 'tabular-nums',
-            lineHeight: 1.1,
+            lineHeight: 1.1
           }}>
             {pctFmt(row.p)}
           </div>
@@ -393,7 +393,7 @@ function FirmDetailBody({ row, onClose, navigate }) {
             fontWeight: 700,
             color: ddColor(row.a),
             fontVariantNumeric: 'tabular-nums',
-            lineHeight: 1.1,
+            lineHeight: 1.1
           }}>
             {pctFmt(row.a)}
           </div>
@@ -415,7 +415,7 @@ function FirmDetailBody({ row, onClose, navigate }) {
           fontSize: 'var(--text-sm)',
           fontWeight: 700,
           borderRadius: 'var(--r-md)',
-          border: `1px solid ${verdict.color}`,
+          border: `1px solid ${verdict.color}`
         }}>
           {verdict.label.toUpperCase()}
         </div>
@@ -466,7 +466,7 @@ function FirmDetailBody({ row, onClose, navigate }) {
                     borderRadius: 6,
                     fontSize: 12,
                     fontFamily: 'var(--mono)',
-                    color: 'var(--text-2)',
+                    color: 'var(--text-2)'
                   }}
                 />
                 <ReferenceLine y={100} stroke="var(--text-4)" strokeDasharray="2 4" />
@@ -551,7 +551,7 @@ function RatioBar({ r }) {
           <div key={q} style={{
             position: 'absolute', top: 0, bottom: 0,
             left: `${q}%`, width: 1,
-            background: 'var(--border-2)',
+            background: 'var(--border-2)'
           }} />
         ))}
         <motion.div
@@ -562,7 +562,7 @@ function RatioBar({ r }) {
             height: '100%',
             background: 'var(--blue-500)',
             opacity: 0.85,
-            borderRadius: 999,
+            borderRadius: 999
           }}
         />
         {/* Marker at firm's exact percentile */}
@@ -575,7 +575,7 @@ function RatioBar({ r }) {
             width: 3,
             background: 'var(--blue-700)',
             borderRadius: 2,
-            transform: 'translateX(-1.5px)',
+            transform: 'translateX(-1.5px)'
           }}
         />
       </div>
@@ -598,7 +598,7 @@ function CrossLink({ Icon, label, onClick }) {
         fontSize: 'var(--text-xs)',
         fontWeight: 500,
         cursor: 'pointer',
-        transition: 'border-color .15s, color .15s, background .15s',
+        transition: 'border-color .15s, color .15s, background .15s'
       }}
       onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
       onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
@@ -625,7 +625,7 @@ function DrawdownBar({ value, label }) {
           style={{
             height: '100%',
             background: ddColor(value),
-            borderRadius: 999,
+            borderRadius: 999
           }}
         />
         {/* -30% reference */}
@@ -634,7 +634,7 @@ function DrawdownBar({ value, label }) {
           left: '30%',
           width: 1,
           background: 'var(--text-4)',
-          opacity: 0.5,
+          opacity: 0.5
         }} />
       </div>
     </div>

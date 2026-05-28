@@ -13,7 +13,7 @@ const UCS = [
     ],
     desc: 'Investment banks already monitor loan books via quarterly statements and rating-agency feeds, both of which lag real distress by months. The drawdown signal moves at the speed of accounting filings (annually) and price action (daily), so a deteriorating borrower triggers a credit review weeks earlier than standard processes.',
     use: 'Wire the signal into the credit risk monitoring system. Any borrower whose predicted forward drawdown worsens by more than 15 pp quarter over quarter, or breaches -30% in absolute terms, is auto-escalated to the credit committee.',
-    quote: '"Flag any borrower whose signal worsens by more than 15 pp QoQ for immediate review."',
+    quote: '"Flag any borrower whose signal worsens by more than 15 pp QoQ for immediate review."'
   },
   {
     logo: 'ZC', name: 'Z Combinator', type: 'Venture Capital · Portfolio Screening',
@@ -27,7 +27,7 @@ const UCS = [
     ],
     desc: 'Venture firms cannot run the model directly on private startups, since their financial filings are not public. They can run it on listed comparable companies, however, to gauge category-level risk before committing follow-on capital to a private bet in the same vertical.',
     use: 'For each portfolio company at Series B or later, identify 3 to 5 public comps and run them through the signal. If two or more comps land in the bottom two drawdown deciles, the follow-on round gets a sector-risk review before partner approval.',
-    quote: '"Screen public comps in the bottom-two drawdown deciles before committing to the next tranche."',
+    quote: '"Screen public comps in the bottom-two drawdown deciles before committing to the next tranche."'
   },
   {
     logo: '2Σ', name: 'Two Stigma', type: 'Quantitative Hedge Fund',
@@ -41,7 +41,7 @@ const UCS = [
     ],
     desc: 'Quantitative funds want signals that are both reliable enough to bet on and orthogonal to existing factors (vol, value, momentum). The within-year rank correlation of 0.67 is high enough to build a sector-neutral long-short book, and the lift over vol-only means the signal carries information beyond pure market risk.',
     use: 'Quarterly rebalance: rank the universe by predicted drawdown within each GICS sector, short the worst decile and long the best decile, sector-neutral. Anchor rebalances at 10-K filing dates so feature inputs are fresh.',
-    quote: '"Rotate shorts quarterly using the worst-predicted decile; rebalance at 10-K anchor dates."',
+    quote: '"Rotate shorts quarterly using the worst-predicted decile; rebalance at 10-K anchor dates."'
   },
   {
     logo: '🎩', name: 'The Charles Schwabfather', type: 'Asset Manager · Risk Platform',
@@ -55,7 +55,7 @@ const UCS = [
     ],
     desc: 'Long-only asset managers do not short, but they do hedge concentrated positions with put options or VIX exposure. The drawdown score is a natural input for sizing those hedges: a stock with a high predicted drawdown deserves more protection than one with a low score.',
     use: 'Allocate the hedge budget for each holding proportional to its predicted forward drawdown. A position with a -50% score gets roughly four times the put exposure of a position with a -12% score. Reweight at every earnings season.',
-    quote: '"Allocate put-option budget proportional to each holding\'s drawdown signal."',
+    quote: '"Allocate put-option budget proportional to each holding\'s drawdown signal."'
   },
 ]
 
@@ -63,7 +63,7 @@ export default function UseCases() {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Use Cases</div>
-      <h1 className="page-title">Who uses<br />a drawdown signal?</h1>
+      <h1 className="page-title">Use Cases</h1>
       <p className="page-sub">Four contexts where a calibrated forward-drawdown score plugs into existing risk processes: banks, venture, quant, and asset management.</p>
 
       <div className="uc-grid">
@@ -95,7 +95,7 @@ export default function UseCases() {
             </div>
             <div className="uc-desc">{desc}</div>
             <div style={{ padding: '0 var(--sp-5) var(--sp-2)' }}>
-              <div style={{ fontSize: 'var(--text-2xs)', fontWeight: 600, color: 'var(--blue-500)', textTransform: 'uppercase', letterSpacing: 'var(--ls-wider)', marginBottom: 'var(--sp-1)' }}>
+              <div style={{ fontSize: 'var(--text-2xs)', fontWeight: 600, color: 'var(--blue-500)', marginBottom: 'var(--sp-1)' }}>
                 How they would use the signal
               </div>
               <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>{use}</div>

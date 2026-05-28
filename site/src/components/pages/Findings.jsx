@@ -25,21 +25,21 @@ const MAIN_FINDINGS = [
     title: 'Financial LSTM beats Vol-Only on the primary triad',
     body: 'On the brief\'s three headline metrics, the fusion model beats the volatility-only baseline by +1.7 pp on MAE (0.121 vs 0.139), +2.9 pp on within-year Spearman (0.666 vs 0.637), and +5.7 pp on top-decile precision (0.487 vs 0.430). Modest but real lifts that meet two of three locked success criteria.',
     stat: '+1.7 pp',
-    statLabel: 'MAE lift',
+    statLabel: 'MAE lift'
   },
   {
     color: 'amber',
     title: 'Crash probability calibration improves by 54%',
     body: 'Brier score drops from 0.494 on the vol-only baseline to 0.226 on the Financial LSTM (the gradient boosted model gets to 0.207). The model\'s probability estimates are sharper, which matters for downstream sizing decisions where you need a real probability, not just a ranking.',
     stat: '-54%',
-    statLabel: 'Brier improvement',
+    statLabel: 'Brier improvement'
   },
   {
     color: 'blue',
     title: 'Fundamentals + price together beat either alone',
     body: 'Price-only fusion gets to PR-AUC 0.835 (close to vol-only at 0.829). Financials-only gets to 0.818. The full Financial LSTM, which combines both streams, reaches 0.852. The lift over price alone is small (+1.7 pp) but real: fundamentals encode structural distress that takes years to develop and that recent prices have not yet absorbed.',
     stat: '+1.7 pp',
-    statLabel: 'over price-only',
+    statLabel: 'over price-only'
   },
 ]
 
@@ -70,7 +70,7 @@ function ModelChart({ data, domain, label, higherBetter }) {
               fontSize: 12,
               fontFamily: 'var(--mono)',
               color: 'var(--text-2)',
-              boxShadow: 'var(--shadow-md)',
+              boxShadow: 'var(--shadow-md)'
             }}
           />
           <Bar dataKey="val" radius={[4, 4, 0, 0]}>
@@ -99,18 +99,18 @@ const COL_WINNERS = {
   prauc:    bestIndex(RESULTS, 'prauc', true),
   brier:    bestIndex(RESULTS, 'brier', false),
   spearman: bestIndex(RESULTS, 'spearman', true),
-  topDec:   bestIndex(RESULTS, 'topDec', true),
+  topDec:   bestIndex(RESULTS, 'topDec', true)
 }
 
 export default function Findings({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Findings</div>
-      <h1 className="page-title">Findings.</h1>
+      <h1 className="page-title">Findings</h1>
       <p className="page-sub">Test fold, fyear 2020 to 2023, 15,311 firm-years. Numbers are the seed-ensemble row from our final pipeline run. The Financial LSTM (full fusion) wins the primary metrics; baselines hold their own on a few individual rank measures within seed noise.</p>
 
       {/* Metric legend */}
-      <div className="section-label">Metric Legend · what each number means</div>
+      <div className="section-label">Metric legend</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '.6rem', marginBottom: '2rem' }}>
         {METRIC_LEGEND.map(m => (
           <div className="card" key={m.name} style={{ padding: '.85rem 1rem' }}>
@@ -128,7 +128,7 @@ export default function Findings({ navigate }) {
       </div>
 
       {/* Main Findings */}
-      <div className="section-label">Main Findings · top three</div>
+      <div className="section-label">Main findings</div>
       <div className="finding-grid">
         {MAIN_FINDINGS.map((f) => (
           <div key={f.title} className={`finding-card ${f.color}`}>
@@ -143,7 +143,7 @@ export default function Findings({ navigate }) {
       </div>
 
       {/* Results table with per-metric winners */}
-      <div className="section-label">Results Table · best score per metric is highlighted</div>
+      <div className="section-label">Results table</div>
       <div style={{ border: '1px solid var(--slate-200)', borderRadius: 8, overflow: 'auto', marginBottom: '1.5rem' }}>
         <table className="data-table">
           <thead>
@@ -182,7 +182,7 @@ export default function Findings({ navigate }) {
       </p>
 
       {/* Bar charts */}
-      <div className="section-label">Per-Metric Comparison</div>
+      <div className="section-label">Per-metric comparison</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.85rem', marginBottom: '2rem' }}>
         <ModelChart data={MAE_DATA}   domain={[.11, .15]}   label="MAE"             higherBetter={false} />
         <ModelChart data={PRAUC_DATA} domain={[.80, .86]}   label="PR-AUC @ -30%"   higherBetter={true}  />
@@ -193,7 +193,7 @@ export default function Findings({ navigate }) {
       <div className="divider" />
 
       {/* Diagnostic plots */}
-      <div className="section-label">Diagnostic Plots · Precision-Recall and Calibration</div>
+      <div className="section-label">Diagnostic plots</div>
       <PRCalibration />
 
       {/* Error distribution gives texture to the MAE / RMSE headlines */}
@@ -208,7 +208,7 @@ export default function Findings({ navigate }) {
       <div className="divider" />
 
       {/* Real-world impact */}
-      <div className="section-label">What this means in practice</div>
+      <div className="section-label">In practice</div>
       <p style={{ fontSize: '.9rem', color: 'var(--slate-700)', lineHeight: 1.75, marginBottom: '1rem' }}>
         A 12 pp average error on forward drawdown is small enough to size positions against. A 0.67 within-year Spearman rank correlation means the model ranks firms by drawdown risk reliably, year over year, controlling for the macro regime. A 0.22 Brier score means crash probabilities are usable as probabilities, not just rankings.
       </p>

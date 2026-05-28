@@ -14,7 +14,7 @@ const MODELS = [
     ],
     pros: ['Two parameters, fully interpretable.', 'No training pipeline needed.', 'Volatility itself is a strong forward drawdown predictor.'],
     cons: ['Ignores fundamentals entirely.', 'Cannot beat firm-specific distress patterns.', 'No way to incorporate accounting history.'],
-    verdict: 'Solid floor. Beats Ridge on PR-AUC headline at the locked threshold because vol is genuinely informative.',
+    verdict: 'Solid floor. Beats Ridge on PR-AUC headline at the locked threshold because vol is genuinely informative.'
   },
   {
     id: 'B1', name: 'Ridge Regression', kind: 'Baseline',
@@ -26,7 +26,7 @@ const MODELS = [
     ],
     pros: ['Fast, deterministic, single hyperparameter.', 'Handles correlated features well via L2.', 'Best CV alpha selected on training fold.'],
     cons: ['Linear, no interactions.', 'Treats year lags independently.', 'No temporal structure.'],
-    verdict: 'Strong baseline. Beats vol-only on MAE, R², and rank metrics. Loses on calibration.',
+    verdict: 'Strong baseline. Beats vol-only on MAE, R², and rank metrics. Loses on calibration.'
   },
   {
     id: 'B2', name: 'Gradient-Boosted Trees', kind: 'Baseline',
@@ -38,7 +38,7 @@ const MODELS = [
     ],
     pros: ['Captures nonlinearity and feature interactions.', 'Handles raw tabular features, no scaling needed.', 'Feature importance is easy to extract.'],
     cons: ['No notion of time order across year lags.', 'No clean uncertainty estimate.', 'Single-threaded fit, slow on large grids.'],
-    verdict: 'Competitive with the deep model on MAE. Loses on rank precision and Brier calibration.',
+    verdict: 'Competitive with the deep model on MAE. Loses on rank precision and Brier calibration.'
   },
   {
     id: 'N1', name: 'Financial LSTM (Full Fusion)', kind: 'Neural · Winner',
@@ -54,7 +54,7 @@ const MODELS = [
     ],
     pros: ['Respects 5-year sequence structure of accounting data.', 'Fuses two structurally different inputs cleanly.', 'Multi-seed ensemble reduces selection noise.', 'Auxiliary BCE head sharpens binary discrimination.'],
     cons: ['More parameters than baselines.', 'Slower training (CPU runs take 1-3 min per seed).', 'Single-seed runs are noisier than the ensemble.'],
-    verdict: 'Best on MAE, Spearman within-year, and top-decile precision. Our headline model.',
+    verdict: 'Best on MAE, Spearman within-year, and top-decile precision. Our headline model.'
   },
   {
     id: 'N2', name: 'MLP Fusion', kind: 'Ablation',
@@ -66,7 +66,7 @@ const MODELS = [
     ],
     pros: ['Simpler, faster.', 'No recurrent dependencies.', 'Loses none of the financial information.'],
     cons: ['Drops the explicit time-order inductive bias.', 'Slightly behind the LSTM on rank metrics.'],
-    verdict: 'Statistically tied with N1. 5 timesteps is too short for sequential modeling to dominate.',
+    verdict: 'Statistically tied with N1. 5 timesteps is too short for sequential modeling to dominate.'
   },
   {
     id: 'N3', name: 'Financials Only', kind: 'Ablation',
@@ -77,7 +77,7 @@ const MODELS = [
     ],
     pros: ['Clean test of pure fundamentals signal.', 'Smaller model, easier to overfit-check.'],
     cons: ['Ignores the strongest single predictor (recent vol).', 'No price-derived momentum or beta context.'],
-    verdict: 'Worst of the neural models. Confirms price features carry real information.',
+    verdict: 'Worst of the neural models. Confirms price features carry real information.'
   },
   {
     id: 'N4', name: 'Price Only', kind: 'Ablation',
@@ -88,7 +88,7 @@ const MODELS = [
     ],
     pros: ['Isolates the market-derived signal.', 'Trains in under a minute.'],
     cons: ['Ignores accounting fundamentals.', 'Cannot distinguish firms with similar recent price action but different balance sheets.'],
-    verdict: 'Surprisingly competitive on PR-AUC. Price features alone almost match Ridge.',
+    verdict: 'Surprisingly competitive on PR-AUC. Price features alone almost match Ridge.'
   },
   {
     id: 'N5', name: 'Cross-Attention Fusion', kind: 'Ablation',
@@ -101,7 +101,7 @@ const MODELS = [
     ],
     pros: ['Adds Week 7 attention coverage (instructor priority).', 'Lets price context select temporally relevant accounting state.', 'Sound modern architecture.'],
     cons: ['No statistical improvement at 5 timesteps.', 'Extra parameters with no payoff.'],
-    verdict: 'Ties N1 within seed noise. Honest negative ablation: attention is unnecessary at short sequences.',
+    verdict: 'Ties N1 within seed noise. Honest negative ablation: attention is unnecessary at short sequences.'
   },
 ]
 
@@ -153,7 +153,7 @@ const STEPS = [
 function ArchDiagram({ model }) {
   return (
     <div className="arch-block" style={{ minHeight: 360 }}>
-      <div style={{ fontSize: '.68rem', color: 'var(--blue-500)', fontFamily: 'var(--sans)', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: '.85rem' }}>
+      <div style={{ fontSize: '.68rem', color: 'var(--blue-500)', fontFamily: 'var(--sans)', fontWeight: 600, letterSpacing: '.08em', marginBottom: '.85rem' }}>
         {model.name} · {model.kind}
       </div>
       <div style={{ marginBottom: '1rem', fontFamily: 'var(--sans)', fontSize: '.82rem', color: 'var(--slate-600)', lineHeight: 1.55 }}>
@@ -161,7 +161,7 @@ function ArchDiagram({ model }) {
       </div>
       {model.arch.map((row, i) => (
         <div key={i} style={{ marginBottom: '.45rem' }}>
-          <span className="cmt" style={{ fontFamily: 'var(--sans)', fontSize: '.7rem', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+          <span className="cmt" style={{ fontFamily: 'var(--sans)', fontSize: '.7rem', letterSpacing: '.06em' }}>
             {row.label}
           </span>
           <div style={{ paddingLeft: '1rem' }}>
@@ -171,16 +171,16 @@ function ArchDiagram({ model }) {
       ))}
       <div className="divider" style={{ background: 'var(--slate-200)', margin: '1rem 0' }} />
       <div style={{ fontFamily: 'var(--sans)' }}>
-        <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--green)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: '.3rem' }}>Pros</div>
+        <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--green)', letterSpacing: '.08em', marginBottom: '.3rem' }}>Pros</div>
         <ul style={{ paddingLeft: '1.1rem', fontSize: '.78rem', color: 'var(--slate-600)', lineHeight: 1.6, marginBottom: '.85rem' }}>
           {model.pros.map((p, i) => <li key={i}>{p}</li>)}
         </ul>
-        <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: '.3rem' }}>Cons</div>
+        <div style={{ fontSize: '.7rem', fontWeight: 600, color: 'var(--red)', letterSpacing: '.08em', marginBottom: '.3rem' }}>Cons</div>
         <ul style={{ paddingLeft: '1.1rem', fontSize: '.78rem', color: 'var(--slate-600)', lineHeight: 1.6, marginBottom: '.85rem' }}>
           {model.cons.map((c, i) => <li key={i}>{c}</li>)}
         </ul>
         <div style={{ fontSize: '.78rem', color: 'var(--slate-700)', background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.3)', borderRadius: 6, padding: '.55rem .75rem', lineHeight: 1.5 }}>
-          <span style={{ fontSize: '.65rem', fontWeight: 600, color: '#92400E', textTransform: 'uppercase', letterSpacing: '.08em', marginRight: '.4rem' }}>Verdict</span>
+          <span style={{ fontSize: '.65rem', fontWeight: 600, color: '#92400E', letterSpacing: '.08em', marginRight: '.4rem' }}>Verdict</span>
           {model.verdict}
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function Models() {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Models</div>
-      <h1 className="page-title">Eight models.<br />One winner.</h1>
+      <h1 className="page-title">Models</h1>
       <p className="page-sub">Three baselines, four ablations, and one full fusion model. Click any model to see its architecture, tradeoffs, and verdict for our use case.</p>
 
       <ArchitectureFlow />
@@ -218,7 +218,7 @@ export default function Models() {
                 style={{
                   width: '100%', cursor: 'pointer', textAlign: 'left',
                   background: isSel ? (m.winner ? 'rgba(245,158,11,.1)' : 'var(--blue-50)') : (m.winner ? 'rgba(245,158,11,.04)' : 'var(--white)'),
-                  borderColor: isSel ? (m.winner ? 'var(--amber)' : 'var(--blue-500)') : (m.winner ? 'var(--amber)' : 'var(--slate-200)'),
+                  borderColor: isSel ? (m.winner ? 'var(--amber)' : 'var(--blue-500)') : (m.winner ? 'var(--amber)' : 'var(--slate-200)')
                 }}
               >
                 <div className="model-num">{m.id}</div>
@@ -263,7 +263,7 @@ export default function Models() {
               cursor: featPage === 0 ? 'not-allowed' : 'pointer',
               opacity: featPage === 0 ? .4 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--slate-600)',
+              color: 'var(--slate-600)'
             }}
           >
             <ChevronLeft size={14} />
@@ -280,7 +280,7 @@ export default function Models() {
               cursor: featPage === totalPages - 1 ? 'not-allowed' : 'pointer',
               opacity: featPage === totalPages - 1 ? .4 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--slate-600)',
+              color: 'var(--slate-600)'
             }}
           >
             <ChevronRight size={14} />
@@ -316,7 +316,7 @@ export default function Models() {
                 width: 30, height: 30, borderRadius: '50%',
                 background: i === STEPS.length - 1 ? 'var(--amber)' : 'var(--blue-700)',
                 color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'var(--mono)', fontSize: '.78rem', fontWeight: 700,
+                fontFamily: 'var(--mono)', fontSize: '.78rem', fontWeight: 700
               }}>
                 {s.num}
               </div>

@@ -34,7 +34,7 @@ export default function ScrollProgress({ scrollRef }) {
         height: 2,
         zIndex: 41,
         background: 'transparent',
-        pointerEvents: 'none',
+        pointerEvents: 'none'
       }}
     >
       <div
@@ -43,7 +43,7 @@ export default function ScrollProgress({ scrollRef }) {
           width: `${pct * 100}%`,
           background: 'linear-gradient(90deg, var(--blue-500), var(--blue-700))',
           transition: 'width .08s linear',
-          boxShadow: pct > 0.02 ? '0 0 6px rgba(59,130,246,.4)' : 'none',
+          boxShadow: pct > 0.02 ? '0 0 6px rgba(59,130,246,.4)' : 'none'
         }}
       />
     </div>

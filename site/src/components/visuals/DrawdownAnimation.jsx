@@ -67,7 +67,7 @@ export default function DrawdownAnimation() {
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-8)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--sp-3)' }}>
-        <div className="section-label" style={{ margin: 0 }}>Stock price over 12 months, illustrative</div>
+        <div className="section-label" style={{ margin: 0 }}>Sample price path</div>
         <button
           onClick={() => setVersion(v => v + 1)}
           style={{
@@ -77,7 +77,7 @@ export default function DrawdownAnimation() {
             borderRadius: 'var(--r-md)',
             fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', fontWeight: 600,
             color: 'var(--text-2)', cursor: 'pointer',
-            transition: 'border-color .15s, color .15s',
+            transition: 'border-color .15s, color .15s'
           }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--blue-500)'; e.currentTarget.style.color = 'var(--blue-700)' }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)' }}
