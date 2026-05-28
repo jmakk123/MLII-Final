@@ -5,6 +5,7 @@
 
 **Instructor:** Batuhan Gundogdu, Gregory Green
 **Term:** Spring 2026
+**Live Site:** https://jmakk123.github.io/MLII-Final/
 
 ---
 
