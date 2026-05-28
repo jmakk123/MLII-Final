@@ -600,6 +600,62 @@ The live site lets a visitor:
 
 **Financial sector ratio coverage.** Inventory turnover and receivables turnover are not meaningful for banks and insurers. We impute these via industry-year medians, which weakens the model's discrimination on financial-sector firms compared to industrials and consumer firms.
 
+**Test horizon is only four years.** The headline metrics are computed on fiscal years 2020 through 2023. Four years is a short evaluation window in macro time and cannot be claimed as decade-scale evidence of generalization. The model's performance across additional future years should be tracked as ground truth accumulates.
+
+**US-only scope.** Training and evaluation are restricted to US-listed public firms (NYSE and NASDAQ). The model has no calibration on European, Asian, or emerging-market firms, and no calibration on private companies. Direct deployment outside the US universe is not supported by these numbers.
+
+**Single forward horizon.** The model predicts the 12-month max drawdown only. Investors operating on 3-month, 6-month, or multi-year horizons need a different target. Retraining with a different forward window is straightforward but not included in this release.
+
+**Soft output bound.** The fusion head uses a tanh activation, which bounds the output in (-1, 1) but does not strictly enforce the (-1, 0] drawdown domain. In rare cases (under 0.1% of test predictions) the model emits a small positive value; we treat these as zero risk in practice.
+
+**Data quality dependence.** The model's inputs are filed 10-K accounting items and CRSP-adjusted prices. Restated financials, late filings, or corporate-action mishandling in the source data propagate into the predictions and are not corrected for downstream.
+
+**No causal interpretation.** This is a predictive model, not a structural one. A firm with a -50% predicted drawdown is one the model expects to perform badly; the model offers no claim about why or what policy intervention would change that outcome.
+
+---
+
+# Future Work
+
+The current release is a complete end-to-end implementation of the original brief, but several directions remain open. They are grouped by what they would change in the pipeline.
+
+## Architectural Extensions
+
+- **Longer financial sequences.** Five years of fundamentals is short for a sequence model. Extending to 10 or 15 years of history could let a deeper LSTM or Transformer encoder capture long-cycle effects (slow-burning structural distress, lifecycle stage). The trade-off is that fewer firms survive a 15-year history requirement.
+- **Transformer with proper hyperparameter search.** Cross-attention fusion tied LSTM fusion in our ablation but with minimal tuning. A larger Transformer encoder trained on a longer history, with attention regularization, may unlock additional gains that the 5-step LSTM ceiling masks.
+- **Mixture-of-experts by sector.** Financial firms have fundamentally different ratios from industrials. A small gating network over sector-specific expert heads could improve discrimination on under-served sectors without growing model size dramatically.
+- **Multi-task learning with delisting.** Jointly predicting forward drawdown and delisting probability could partially mitigate the survivorship bias by giving the model an explicit signal about which firms drop out of the evaluable test set.
+
+## Feature Set Expansion
+
+- **10-K narrative encoding.** The Management Discussion and Analysis section of the 10-K filing contains forward-looking statements not captured in the numeric ratios. A FinBERT-style encoder over the MD&A text, fused into the existing model, is a natural next feature.
+- **Earnings call transcripts.** Sentiment and topic features from quarterly earnings calls update at a higher frequency than 10-Ks and could fill the gap between annual filings.
+- **Daily price sequence.** The seven price features are summary statistics over the trailing year. Encoding the raw daily price sequence with a 1D CNN or small Transformer could capture intra-year regime shifts the summary features lose.
+- **Macro conditioning features.** Adding VIX, term structure slope, and high-yield credit spreads as conditioning inputs could let the model adapt its risk estimates to the macro regime in a more explicit way than relying on time-blocked validation alone.
+
+## Uncertainty Quantification
+
+- **Prediction intervals.** The current model outputs a single point estimate. A quantile regression head or a conformal-prediction wrapper would produce calibrated 90% or 95% intervals, which would be more useful for risk-sizing decisions than a point estimate.
+- **Beta-binomial output.** For the binary headline metric (>30% drop), parameterizing the output as a beta-binomial distribution rather than a single Bernoulli probability would give downstream users an explicit uncertainty band.
+- **Ensemble variance as a feature.** The cross-seed variance is already a usable uncertainty signal. Exposing it on the live site alongside the point estimate would help users distinguish high-confidence predictions from borderline ones.
+
+## Out-of-Sample Validation
+
+- **International markets.** Replicating the pipeline on European or Asian fundamentals plus local price data would test whether the architecture is US-specific or genuinely captures the universal accounting-stress signal.
+- **Decade-scale tracking.** Once 2024 and 2025 drawdowns realize, the headline metrics should be recomputed on the extended test fold. This will reveal whether the model's performance is structural or specific to the 2020 to 2023 macro regime.
+- **Industry-conditional evaluation.** Reporting metrics per GICS sector would expose where the model is strongest and weakest, and would inform the sector-specific architecture discussion above.
+
+## Production Deployment
+
+- **Monthly batch scoring API.** A small batch-inference service that scores the full active universe monthly and exposes the results via an authenticated API would make the model directly usable by downstream credit and risk teams.
+- **Drift monitoring.** Comparing the distribution of predicted scores month-over-month would catch macro regime shifts and signal when a retraining pass is needed earlier than the annual cadence.
+- **Live ground-truth backfill.** As realized drawdowns accumulate, the test-fold metrics can be recomputed automatically and surfaced on the live site as a tracking dashboard rather than a static snapshot.
+
+## Open Questions
+
+- **Reflexivity.** If a drawdown score becomes widely used in credit and hedge sizing, does the score itself influence the underlying drawdown? This is the standard reflexivity problem in financial signals and would require a separate study.
+- **Recovery dynamics.** The current target is the maximum drawdown only. Predicting both magnitude and recovery time (how long it takes to climb back to the prior peak) would be more useful for some downstream uses.
+- **Adverse selection.** Firms that know they are being watched by a drawdown model may shift their reporting or hedging behavior. A natural-experiment-style evaluation on firms that newly become widely held by users of this model would test for this.
+
 ---
 
 # Technologies Used
