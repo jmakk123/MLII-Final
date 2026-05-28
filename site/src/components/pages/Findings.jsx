@@ -181,15 +181,6 @@ export default function Findings({ navigate }) {
         Overall winner = Financial LSTM because it tops the brief\&apos;s primary triad (MAE, Spearman, top-decile) and tracks within seed noise on PR-AUC and Brier.
       </p>
 
-      {/* Bar charts */}
-      <div className="section-label">Per-metric model comparison</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.85rem', marginBottom: '2rem' }}>
-        <ModelChart data={MAE_DATA}   domain={[.11, .15]}   label="MAE"             higherBetter={false} />
-        <ModelChart data={PRAUC_DATA} domain={[.80, .86]}   label="PR-AUC @ -30%"   higherBetter={true}  />
-        <ModelChart data={SPEAR_DATA} domain={[.60, .68]}   label="Spearman (within-year)" higherBetter={true} />
-        <ModelChart data={BRIER_DATA} domain={[0, .55]}     label="Brier"           higherBetter={false} />
-      </div>
-
       <div className="divider" />
 
       {/* Diagnostic plots */}
@@ -207,25 +198,8 @@ export default function Findings({ navigate }) {
 
       <div className="divider" />
 
-      {/* Real-world impact */}
-      <div className="section-label">What this means in practice</div>
-      <p style={{ fontSize: '.9rem', color: 'var(--slate-700)', lineHeight: 1.75, marginBottom: '1rem' }}>
-        A 12 pp average error on forward drawdown is small enough to size positions against. A 0.67 within-year Spearman rank correlation means the model ranks firms by drawdown risk reliably, year over year, controlling for the macro regime. A 0.22 Brier score means crash probabilities are usable as probabilities, not just rankings.
-      </p>
-
-      <div className="info-box" style={{ marginBottom: '1rem' }}>
-        <strong style={{ color: 'var(--blue-900)' }}>How the signal works alongside existing metrics.</strong>{' '}
-        Forward drawdown is not a replacement for the standard risk toolkit. It complements it.
-        <ul style={{ marginTop: '.65rem', marginBottom: 0, paddingLeft: '1.1rem', fontSize: '.84rem', lineHeight: 1.7 }}>
-          <li><strong>vs Volatility:</strong> vol tells you how bumpy the ride is; drawdown tells you how deep the worst dip will be. Use together for sizing.</li>
-          <li><strong>vs VaR:</strong> VaR is a short-horizon, distribution-based estimate. Forward drawdown is a 12-month peak-to-trough realization, calibrated on actual outcomes.</li>
-          <li><strong>vs Credit Ratings:</strong> ratings move slowly and react to public events. The drawdown score updates every annual filing and reflects firm-level structure.</li>
-          <li><strong>vs Altman Z-Score:</strong> Z-Score is a static formula from 1968. Our model is a learned, time-aware extension of the same idea, calibrated on 25 years of outcomes.</li>
-        </ul>
-      </div>
-
-      <p style={{ fontSize: '.85rem', color: 'var(--slate-600)', lineHeight: 1.7 }}>
-        Concrete uses include credit-risk monitoring (banks flag rising drawdown as a watchlist signal), portfolio hedging (size puts proportional to drawdown score), VC screening (gate follow-on capital on worsening comps), and quant strategies (long the best decile, short the worst within sector). Detail in <span onClick={() => navigate && navigate('usecases')} style={{ color: 'var(--blue-700)', cursor: 'pointer', textDecoration: 'underline' }}>Use Cases</span>.
+      <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)' }}>
+        A 12 pp average error is small enough to size positions against, the rank correlation says we order firms reliably year over year, and the Brier score says the crash probabilities are usable as probabilities. Concrete deployments are in <span onClick={() => navigate && navigate('usecases')} style={{ color: 'var(--blue-700)', cursor: 'pointer', textDecoration: 'underline' }}>Use Cases</span>.
       </p>
     </div>
   )

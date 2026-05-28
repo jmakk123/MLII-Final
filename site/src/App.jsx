@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu } from 'lucide-react'
 import Sidebar from './components/Sidebar'
-import StickyHeader from './components/StickyHeader'
 import ShortcutsOverlay from './components/ShortcutsOverlay'
 import ScrollProgress from './components/visuals/ScrollProgress'
 import Footer from './components/Footer'
@@ -168,7 +167,9 @@ export default function App() {
 
       <div className="main-content" ref={scrollRef}>
         <ScrollProgress scrollRef={scrollRef} />
-        <StickyHeader page={page} scrollRef={scrollRef} />
+        <div className="context-strip">
+          Test fold &middot; n = 15,311 anchors &middot; 3-seed ensemble &middot; fyear 2020 to 2023
+        </div>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={page}

@@ -80,44 +80,56 @@ const FE_BOXES = [
   },
 ]
 
-function HoverBox({ box, color, hi }) {
-  const [open, setOpen] = useState(false)
+function ClickBox({ box, hi, isOpen, onToggle }) {
   return (
-    <div
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      style={{ position: 'relative' }}
-    >
-      <div
+    <div style={{ position: 'relative', flex: 1, minWidth: 110 }}>
+      <button
+        onClick={onToggle}
+        aria-expanded={isOpen}
         className={hi ? 'pipe-node hi' : 'pipe-node'}
-        style={{ cursor: 'help', userSelect: 'none' }}
+        style={{
+          cursor: 'pointer', userSelect: 'none', width: '100%',
+          background: isOpen ? (hi ? 'var(--blue-50)' : 'var(--bg-2)') : undefined,
+          borderColor: isOpen ? 'var(--text-3)' : undefined,
+          font: 'inherit', textAlign: 'center',
+        }}
       >
         {box.name}
         <small>{box.sub}</small>
-      </div>
+      </button>
       <AnimatePresence>
-        {open && (
+        {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: .14 }}
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 6px)',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 260,
-              background: 'var(--white)',
-              border: '1px solid var(--slate-200)',
-              borderRadius: 8,
-              padding: '.7rem .85rem',
-              boxShadow: '0 4px 16px rgba(0,0,0,.08)',
-              zIndex: 10
-            }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: .18 }}
+            style={{ overflow: 'hidden', marginTop: 6 }}
           >
-            <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '.74rem', color: 'var(--slate-600)', lineHeight: 1.55 }}>
-              {box.facets.map((f, i) => <li key={i} style={{ marginBottom: i < box.facets.length - 1 ? '.3rem' : 0 }}>{f}</li>)}
+            <ul style={{
+              margin: 0,
+              padding: 'var(--sp-3) var(--sp-4)',
+              listStyle: 'none',
+              background: 'var(--bg-2)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--r-md)',
+              fontSize: 'var(--text-xs)',
+              color: 'var(--text-2)',
+              lineHeight: 'var(--lh-relaxed)',
+            }}>
+              {box.facets.map((f, i) => (
+                <li key={i} style={{
+                  position: 'relative',
+                  paddingLeft: 'var(--sp-4)',
+                  marginBottom: i < box.facets.length - 1 ? 'var(--sp-2)' : 0,
+                }}>
+                  <span style={{
+                    position: 'absolute', left: 0, top: '.55em',
+                    width: 4, height: 4, borderRadius: '50%', background: 'var(--text-4)',
+                  }} />
+                  {f}
+                </li>
+              ))}
             </ul>
           </motion.div>
         )}
@@ -127,9 +139,10 @@ function HoverBox({ box, color, hi }) {
 }
 
 export default function Data() {
+  const [openId, setOpenId] = useState(null)
+  const toggle = (id) => setOpenId(curr => curr === id ? null : id)
   return (
     <div className="page-wrap">
-      <div className="eyebrow">Project · Data</div>
       <h1 className="page-title">Data and Methodology</h1>
       <p className="page-sub">
         Two databases, one pipeline. 76,990 anchor rows across fyear 2003 to 2024, each with five years of accounting history and one year of price context. Strict time-blocked train, validation, and test folds. Train-fold-only scaling. No information leaks from the future.
@@ -139,28 +152,28 @@ export default function Data() {
       <div className="section-label">Data pipeline, from raw sources to model input</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
         <div>
-          <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', letterSpacing: '.1em', marginBottom: '.5rem' }}>
-            Raw Sources · hover for details
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', marginBottom: 'var(--sp-2)' }}>
+            Raw sources, click any block to expand
           </div>
-          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--sp-2)', flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {SOURCES.map((s, i) => (
-              <span key={s.name} style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem' }}>
-                <HoverBox box={s} />
-                {i < SOURCES.length - 1 && <span className="pipe-arrow">→</span>}
+              <span key={s.name} style={{ display: 'inline-flex', alignItems: 'flex-start', gap: 'var(--sp-2)', flex: 1, minWidth: 0 }}>
+                <ClickBox box={s} isOpen={openId === `s${i}`} onToggle={() => toggle(`s${i}`)} />
+                {i < SOURCES.length - 1 && <span className="pipe-arrow" style={{ marginTop: 14 }}>→</span>}
               </span>
             ))}
           </div>
         </div>
         <div style={{ textAlign: 'center', color: 'var(--slate-300)', fontSize: '1.1rem' }}>↓</div>
         <div>
-          <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', letterSpacing: '.1em', marginBottom: '.5rem' }}>
-            Feature Engineering · hover for details
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', marginBottom: 'var(--sp-2)' }}>
+            Feature engineering, click any block to expand
           </div>
-          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--sp-2)', flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {FE_BOXES.map((b, i) => (
-              <span key={b.name} style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem' }}>
-                <HoverBox box={b} hi />
-                {i < FE_BOXES.length - 1 && <span className="pipe-arrow">{i === FE_BOXES.length - 2 ? '=' : '+'}</span>}
+              <span key={b.name} style={{ display: 'inline-flex', alignItems: 'flex-start', gap: 'var(--sp-2)', flex: 1, minWidth: 0 }}>
+                <ClickBox box={b} hi isOpen={openId === `f${i}`} onToggle={() => toggle(`f${i}`)} />
+                {i < FE_BOXES.length - 1 && <span className="pipe-arrow" style={{ marginTop: 14 }}>{i === FE_BOXES.length - 2 ? '=' : '+'}</span>}
               </span>
             ))}
           </div>
@@ -207,10 +220,34 @@ export default function Data() {
 
       <div className="divider" />
 
-      <div className="section-label">The 18 financial ratios, hover any tag for the definition</div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.4rem', marginBottom: 'var(--sp-3)' }}>
-        {RATIOS.map(r => <RatioTag key={r.name} ratio={r} />)}
+      <div className="section-label">The 18 financial ratios, click any tag for the definition</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--sp-2)', marginBottom: 'var(--sp-3)' }}>
+        {RATIOS.map(r => (
+          <RatioTag
+            key={r.name}
+            ratio={r}
+            isOpen={openId === `r-${r.name}`}
+            onToggle={() => toggle(`r-${r.name}`)}
+          />
+        ))}
       </div>
+      {(() => {
+        const opened = RATIOS.find(r => openId === `r-${r.name}`)
+        return opened ? (
+          <div style={{
+            padding: 'var(--sp-3) var(--sp-4)',
+            background: 'var(--bg-2)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--r-md)',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--text-2)',
+            lineHeight: 'var(--lh-relaxed)',
+            marginBottom: 'var(--sp-3)',
+          }}>
+            <strong style={{ fontFamily: 'var(--mono)', color: 'var(--text-1)' }}>{opened.name}</strong> &nbsp;{opened.desc}
+          </div>
+        ) : null
+      })()}
       <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', lineHeight: 'var(--lh-relaxed)' }}>
         Drawn from Altman 1968, Ohlson 1980, Zmijewski 1984, plus standard margin, turnover, and leverage ratios from Lombardo et al. 2022 and Pellegrino et al. 2024. The same five-year sequence per anchor feeds both the recurrent and feed-forward financial encoders.
       </p>
@@ -239,46 +276,21 @@ const RATIOS = [
   { name: 'r_recv_turn',      desc: 'Sales divided by receivables. Collection efficiency; NaN for financial firms, imputed similarly.' },
 ]
 
-function RatioTag({ ratio }) {
-  const [open, setOpen] = useState(false)
+function RatioTag({ ratio, isOpen, onToggle }) {
   return (
-    <span
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      style={{ position: 'relative', display: 'inline-block' }}
+    <button
+      onClick={onToggle}
+      aria-expanded={isOpen}
+      className="tag"
+      style={{
+        cursor: 'pointer',
+        background: isOpen ? 'var(--blue-50)' : undefined,
+        borderColor: isOpen ? 'var(--blue-500)' : undefined,
+        color: isOpen ? 'var(--blue-700)' : undefined,
+        font: 'inherit',
+      }}
     >
-      <span className="tag" style={{ cursor: 'help' }}>{ratio.name}</span>
-      <AnimatePresence>
-        {open && (
-          <motion.span
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: .12 }}
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 6px)',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 260,
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              padding: 'var(--sp-2) var(--sp-3)',
-              boxShadow: 'var(--shadow-md)',
-              zIndex: 20,
-              fontSize: 'var(--text-xs)',
-              color: 'var(--text-2)',
-              lineHeight: 'var(--lh-relaxed)',
-              fontFamily: 'var(--sans)',
-              whiteSpace: 'normal',
-              textAlign: 'left'
-            }}
-          >
-            {ratio.desc}
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </span>
+      {ratio.name}
+    </button>
   )
 }

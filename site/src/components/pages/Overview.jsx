@@ -306,30 +306,6 @@ export default function Overview({ navigate }) {
         />
         <IntroCard
           num="02"
-          accent="var(--blue-500)"
-          eyebrow="The Team"
-          title="Machine Learning II, UChicago MS-ADS"
-          bullets={[
-            'Four-person team: Nick Dhaliwal, Jared Maksoud, Nicholas Mikhail, Yung Chyi Yang.',
-            'Final project for the Spring 2026 cohort. Built end-to-end over four weeks.',
-            'Architecture, training loop, and evaluation discipline match the methodology submission.',
-            'Methodology was graded "strongest in the cohort" by the instructor.',
-          ]}
-        />
-        <IntroCard
-          num="03"
-          accent="var(--amber)"
-          eyebrow="The EDA Journey"
-          title="Three findings that reshaped the project"
-          bullets={[
-            'Realized base rate at -30% was 51.7% (vs the 10-20% the brief expected); CRSP is small-cap heavy. Pushed us to rank metrics.',
-            'COVID-era anchors had mean drawdowns near 50%, dominating any pooled metric. Forced validation = the COVID window by design.',
-            'Newly public firms lacked 5 years of accounting history. Forced a clean drop-not-impute policy on partial windows.',
-            'Bankruptcies almost never appear in the anchor set (firms delist before the forward window). The model is drawdown-among-survivors.',
-          ]}
-        />
-        <IntroCard
-          num="04"
           accent="var(--green)"
           eyebrow="The Deliverable"
           title="The model is the product"
@@ -365,35 +341,6 @@ export default function Overview({ navigate }) {
         <strong style={{ color: 'var(--blue-900)' }}>How we built the metric.</strong>{' '}
         For every company-year, we anchor at fiscal-year-end plus 90 days (the realistic 10-K filing date), then take 12 months of adjusted CRSP daily prices and compute the worst close-to-peak decline.
         Delisted firms get full-loss treatment for bankruptcy or liquidation, terminal-value treatment for mergers. Every prediction uses only data available before the anchor date, so there is no look-ahead leakage.
-      </div>
-
-      {/* Reading the number in context */}
-      <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-1)', marginBottom: 'var(--sp-2)' }}>
-        Reading the number in context
-      </h2>
-      <p style={{ fontSize: 'var(--text-base)', color: 'var(--text-2)', lineHeight: 'var(--lh-relaxed)', maxWidth: '65ch', marginBottom: 'var(--sp-4)' }}>
-        Drawdown is one risk number among several. Practitioners typically read it alongside:
-      </p>
-      <div className="concept-grid" style={{ marginBottom: 'var(--sp-4)' }}>
-        <div className="concept-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', color: 'var(--blue-500)' }}>〜</span>
-            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-1)' }}>Volatility</span>
-          </div>
-          <div className="concept-def">Day-to-day price variability. High vol firms can have high drawdowns even without a true distress event. Drawdown tells you how deep the worst dip got; vol tells you how bumpy the ride was.</div>
-        </div>
-        <div className="concept-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-base)', color: 'var(--blue-500)' }}>%</span>
-            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--text-1)' }}>Value at Risk (VaR)</span>
-          </div>
-          <div className="concept-def">The worst loss expected at a given confidence level over a short horizon (a day, a week). Drawdown extends the same idea to a full year and to peak-to-trough, which is what actually triggers margin calls and stop-outs.</div>
-        </div>
-      </div>
-      <div className="info-box" style={{ marginBottom: 'var(--sp-10)' }}>
-        <strong style={{ color: 'var(--blue-900)' }}>How to use the score.</strong>{' '}
-        A predicted -10% is a quiet year. A predicted -30% means the model expects a material drawdown, the same threshold the brief uses for the binary headline flag. Below -50% is in the genuine-distress range.
-        Combine with volatility for sizing, with leverage for solvency context, and with sector trends for the macro picture.
       </div>
 
       {/* Sample drawdowns chart */}

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import ArchitectureFlow from '../visuals/ArchitectureFlow'
 
 const MODELS = [
@@ -190,11 +189,7 @@ function ArchDiagram({ model }) {
 
 export default function Models() {
   const [selected, setSelected] = useState('N1')
-  const [featPage, setFeatPage] = useState(0)
   const model = MODELS.find(m => m.id === selected) ?? MODELS[3]
-  const pageSize = 5
-  const totalPages = Math.ceil(FEATURES.length / pageSize)
-  const visibleFeats = FEATURES.slice(featPage * pageSize, (featPage + 1) * pageSize)
 
   return (
     <div className="page-wrap">
@@ -248,88 +243,9 @@ export default function Models() {
         </div>
       </div>
 
-      <div className="divider" />
-
-      {/* Features carousel */}
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '.85rem' }}>
-        <div className="section-label" style={{ margin: 0 }}>Feature glossary · 97 features total</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-          <button
-            onClick={() => setFeatPage(p => Math.max(0, p - 1))}
-            disabled={featPage === 0}
-            style={{
-              width: 28, height: 28, borderRadius: 5,
-              border: '1px solid var(--slate-200)', background: 'var(--white)',
-              cursor: featPage === 0 ? 'not-allowed' : 'pointer',
-              opacity: featPage === 0 ? .4 : 1,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--slate-600)'
-            }}
-          >
-            <ChevronLeft size={14} />
-          </button>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: '.74rem', color: 'var(--slate-500)' }}>
-            {featPage + 1} / {totalPages}
-          </span>
-          <button
-            onClick={() => setFeatPage(p => Math.min(totalPages - 1, p + 1))}
-            disabled={featPage === totalPages - 1}
-            style={{
-              width: 28, height: 28, borderRadius: 5,
-              border: '1px solid var(--slate-200)', background: 'var(--white)',
-              cursor: featPage === totalPages - 1 ? 'not-allowed' : 'pointer',
-              opacity: featPage === totalPages - 1 ? .4 : 1,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--slate-600)'
-            }}
-          >
-            <ChevronRight size={14} />
-          </button>
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem', marginBottom: '1.25rem' }}>
-        {visibleFeats.map((f) => (
-          <div key={f.name} className="card" style={{ padding: '.85rem 1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '.75rem', marginBottom: '.3rem' }}>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: '.82rem', fontWeight: 600, color: 'var(--blue-700)' }}>{f.name}</span>
-            </div>
-            <div style={{ fontSize: '.78rem', color: 'var(--slate-600)', lineHeight: 1.6 }}>{f.desc}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="info-box" style={{ marginBottom: '2rem' }}>
+      <div className="info-box">
         <strong style={{ color: 'var(--blue-900)' }}>Where the signal comes from.</strong>{' '}
-        The features split cleanly into market signals (volatility, prior drawdown, dollar volume, beta) and balance-sheet stress signals (operating margin, leverage, profitability). Neither side dominates: that is exactly why the dual-stream design works. The financial branch captures structural stress that takes years to develop; the price branch captures recent regime shifts that the accounting data has not yet absorbed.
-      </div>
-
-      <div className="divider" />
-
-      {/* EDA process timeline */}
-      <div className="section-label" style={{ marginBottom: '1rem' }}>Process timeline · how we got to the winner</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-        {STEPS.map((s, i) => (
-          <div key={s.num} style={{ display: 'flex', alignItems: 'flex-start', gap: '.85rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-              <div style={{
-                width: 30, height: 30, borderRadius: '50%',
-                background: i === STEPS.length - 1 ? 'var(--amber)' : 'var(--blue-700)',
-                color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'var(--mono)', fontSize: '.78rem', fontWeight: 700
-              }}>
-                {s.num}
-              </div>
-              {i < STEPS.length - 1 && (
-                <div style={{ width: 2, flex: 1, background: 'var(--slate-200)', minHeight: 22, marginTop: 2 }} />
-              )}
-            </div>
-            <div className="card" style={{ flex: 1, padding: '.7rem 1rem', marginBottom: '.25rem' }}>
-              <div style={{ fontSize: '.85rem', fontWeight: 600, color: 'var(--slate-900)', marginBottom: '.2rem' }}>{s.label}</div>
-              <div style={{ fontSize: '.78rem', color: 'var(--slate-500)', lineHeight: 1.6 }}>{s.body}</div>
-            </div>
-          </div>
-        ))}
+        The features split cleanly into market signals (volatility, prior drawdown, dollar volume, beta) and balance-sheet stress signals (operating margin, leverage, profitability). Neither side dominates, which is why the dual-stream design works: the financial branch captures structural stress that takes years to develop, and the price branch captures recent regime shifts that the accounting data has not yet absorbed.
       </div>
     </div>
   )
