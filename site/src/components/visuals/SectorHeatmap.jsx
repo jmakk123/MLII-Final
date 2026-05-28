@@ -52,7 +52,7 @@ export default function SectorHeatmap() {
 
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Sector hit rate</div>
+      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Sector hit rate by year, top 10% riskiest per cell</div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '180px repeat(4, 1fr)', gap: 4 }}>
         {/* Header row */}

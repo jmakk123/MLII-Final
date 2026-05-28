@@ -130,13 +130,13 @@ export default function Data() {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Data</div>
-      <h1 className="page-title">Data</h1>
+      <h1 className="page-title">Data and Methodology</h1>
       <p className="page-sub">
         Two databases, one pipeline. 76,990 anchor rows across fyear 2003 to 2024, each with five years of accounting history and one year of price context. Strict time-blocked train, validation, and test folds. Train-fold-only scaling. No information leaks from the future.
       </p>
 
       {/* Pipeline */}
-      <div className="section-label">Pipeline</div>
+      <div className="section-label">Data pipeline, from raw sources to model input</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
         <div>
           <div style={{ fontSize: '.68rem', fontFamily: 'var(--mono)', color: 'var(--slate-400)', letterSpacing: '.1em', marginBottom: '.5rem' }}>
@@ -174,7 +174,7 @@ export default function Data() {
       {/* Target construction + leakage */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', alignItems: 'start', marginBottom: '2rem' }}>
         <div>
-          <div className="section-label">Target</div>
+          <div className="section-label">Target construction</div>
           <ul style={{ fontSize: '.82rem', color: 'var(--slate-600)', lineHeight: 1.7, paddingLeft: '1.1rem', margin: 0 }}>
             <li>Anchor date is fiscal-year-end plus 90 days, modeling the realistic 10-K filing lag.</li>
             <li>Forward window is 365 calendar days of CRSP adjusted prices, requiring at least 60 trading days of data.</li>
@@ -183,7 +183,7 @@ export default function Data() {
           </ul>
         </div>
         <div>
-          <div className="section-label">Leakage controls</div>
+          <div className="section-label">Leakage controls and train-only scaling</div>
           <div className="info-box">
             <strong style={{ color: 'var(--blue-900)' }}>Train-only scaling.</strong> Winsorize cutoffs and z-score means and stds are computed on training rows only, then frozen and applied to validation and test.
             <br /><br />
@@ -193,7 +193,7 @@ export default function Data() {
       </div>
 
       {/* COVID + post-COVID handling */}
-      <div className="section-label">COVID handling</div>
+      <div className="section-label">COVID and post-COVID handling</div>
       <div className="info-box" style={{ marginBottom: '1rem' }}>
         <strong style={{ color: 'var(--blue-900)' }}>The validation fold is the COVID stress fold by design.</strong>{' '}
         Fyear 2018 anchors land at March 2019 with a forward window running into March 2020. Fyear 2019 anchors run into March 2021. The COVID crash sits inside validation, so any model that overfits to calm regimes gets killed during model selection.
@@ -207,7 +207,7 @@ export default function Data() {
 
       <div className="divider" />
 
-      <div className="section-label">Financial ratios</div>
+      <div className="section-label">The 18 financial ratios, hover any tag for the definition</div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.4rem', marginBottom: 'var(--sp-3)' }}>
         {RATIOS.map(r => <RatioTag key={r.name} ratio={r} />)}
       </div>

@@ -38,7 +38,7 @@ export default function Backtest({ init }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Backtest</div>
-      <h1 className="page-title">Backtest</h1>
+      <h1 className="page-title">Year-by-Year Backtest</h1>
       <p className="page-sub">
         Pick a year. We pull the model&apos;s 10 most-pessimistic forecasts anchored at that fiscal-year-end, then reveal what actually happened over the following 12 months. The cleanest read of whether the model would have helped you avoid the worst names.
       </p>

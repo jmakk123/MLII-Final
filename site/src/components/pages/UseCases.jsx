@@ -63,7 +63,7 @@ export default function UseCases() {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Use Cases</div>
-      <h1 className="page-title">Use Cases</h1>
+      <h1 className="page-title">Use Cases and Deployment</h1>
       <p className="page-sub">Four contexts where a calibrated forward-drawdown score plugs into existing risk processes: banks, venture, quant, and asset management.</p>
 
       <div className="uc-grid">

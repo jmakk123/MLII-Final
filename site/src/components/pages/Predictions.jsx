@@ -109,7 +109,7 @@ export default function Predictions({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Predictions</div>
-      <h1 className="page-title">Predictions</h1>
+      <h1 className="page-title">Test Fold Predictions</h1>
       <p className="page-sub">
         Every prediction the model made on the test fold. 15,311 firm-years across 2020 to 2023, 4,561 unique firms. Search a company, filter by sector or year, click any row for detail.
       </p>

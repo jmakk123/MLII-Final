@@ -36,7 +36,7 @@ export default function TopRisks({ init, navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Top Risks</div>
-      <h1 className="page-title">Top Risks</h1>
+      <h1 className="page-title">Top Risks by Year</h1>
       <p className="page-sub">
         The firms our model flagged as the deepest forecast drawdowns going into the next 12 months, for the fyear you select below. This is the watchlist a risk team would walk through at a morning meeting.
       </p>

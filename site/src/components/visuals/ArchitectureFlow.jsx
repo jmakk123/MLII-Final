@@ -61,7 +61,7 @@ export default function ArchitectureFlow() {
 
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-6)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Architecture</div>
+      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Fusion model architecture and data flow</div>
       <svg viewBox={`0 0 ${W} ${H + 20}`} width="100%" style={{ display: 'block' }}>
         <defs>
           <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5"

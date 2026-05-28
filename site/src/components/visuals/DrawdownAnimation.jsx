@@ -67,7 +67,7 @@ export default function DrawdownAnimation() {
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-8)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--sp-3)' }}>
-        <div className="section-label" style={{ margin: 0 }}>Sample price path</div>
+        <div className="section-label" style={{ margin: 0 }}>Sample 12-month price path with peak and trough</div>
         <button
           onClick={() => setVersion(v => v + 1)}
           style={{

@@ -106,11 +106,11 @@ export default function Findings({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Findings</div>
-      <h1 className="page-title">Findings</h1>
+      <h1 className="page-title">Results and Findings</h1>
       <p className="page-sub">Test fold, fyear 2020 to 2023, 15,311 firm-years. Numbers are the seed-ensemble row from our final pipeline run. The Financial LSTM (full fusion) wins the primary metrics; baselines hold their own on a few individual rank measures within seed noise.</p>
 
       {/* Metric legend */}
-      <div className="section-label">Metric legend</div>
+      <div className="section-label">Metric definitions</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '.6rem', marginBottom: '2rem' }}>
         {METRIC_LEGEND.map(m => (
           <div className="card" key={m.name} style={{ padding: '.85rem 1rem' }}>
@@ -128,7 +128,7 @@ export default function Findings({ navigate }) {
       </div>
 
       {/* Main Findings */}
-      <div className="section-label">Main findings</div>
+      <div className="section-label">Top three findings</div>
       <div className="finding-grid">
         {MAIN_FINDINGS.map((f) => (
           <div key={f.title} className={`finding-card ${f.color}`}>
@@ -143,7 +143,7 @@ export default function Findings({ navigate }) {
       </div>
 
       {/* Results table with per-metric winners */}
-      <div className="section-label">Results table</div>
+      <div className="section-label">Full results table</div>
       <div style={{ border: '1px solid var(--slate-200)', borderRadius: 8, overflow: 'auto', marginBottom: '1.5rem' }}>
         <table className="data-table">
           <thead>
@@ -182,7 +182,7 @@ export default function Findings({ navigate }) {
       </p>
 
       {/* Bar charts */}
-      <div className="section-label">Per-metric comparison</div>
+      <div className="section-label">Per-metric model comparison</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.85rem', marginBottom: '2rem' }}>
         <ModelChart data={MAE_DATA}   domain={[.11, .15]}   label="MAE"             higherBetter={false} />
         <ModelChart data={PRAUC_DATA} domain={[.80, .86]}   label="PR-AUC @ -30%"   higherBetter={true}  />
@@ -193,7 +193,7 @@ export default function Findings({ navigate }) {
       <div className="divider" />
 
       {/* Diagnostic plots */}
-      <div className="section-label">Diagnostic plots</div>
+      <div className="section-label">Diagnostic plots: precision-recall and calibration</div>
       <PRCalibration />
 
       {/* Error distribution gives texture to the MAE / RMSE headlines */}
@@ -208,7 +208,7 @@ export default function Findings({ navigate }) {
       <div className="divider" />
 
       {/* Real-world impact */}
-      <div className="section-label">In practice</div>
+      <div className="section-label">What this means in practice</div>
       <p style={{ fontSize: '.9rem', color: 'var(--slate-700)', lineHeight: 1.75, marginBottom: '1rem' }}>
         A 12 pp average error on forward drawdown is small enough to size positions against. A 0.67 within-year Spearman rank correlation means the model ranks firms by drawdown risk reliably, year over year, controlling for the macro regime. A 0.22 Brier score means crash probabilities are usable as probabilities, not just rankings.
       </p>

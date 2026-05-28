@@ -23,7 +23,7 @@ export default function SurvivorshipFunnel() {
 
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Survivorship funnel</div>
+      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Survivorship funnel, raw universe to test fold</div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
         {STAGES.map((s, i) => {

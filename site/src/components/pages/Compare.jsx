@@ -35,7 +35,7 @@ export default function Compare({ init }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Model · Compare</div>
-      <h1 className="page-title">Compare</h1>
+      <h1 className="page-title">Compare Two Firms</h1>
       <p className="page-sub">
         Pick any two firm-year anchors from our test set and see the model&apos;s prediction next to the realized outcome for each. Useful for sanity-checking the model&apos;s contrasts: a leveraged retailer vs a cash-rich enterprise software firm, an airline before COVID vs a defensive stock.
       </p>

@@ -60,7 +60,7 @@ function PRPanel({ curve, baseRate, prauc = 0.852 }) {
   return (
     <div className="card card-p">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-        <div className="section-label" style={{ margin: 0 }}>Precision-recall curve</div>
+        <div className="section-label" style={{ margin: 0 }}>Precision-recall curve, drop greater than 30%</div>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           PR-AUC <strong style={{ color: 'var(--blue-700)' }}>{prauc.toFixed(3)}</strong>
         </span>
@@ -191,7 +191,7 @@ function CalibrationPanel({ calib }) {
   return (
     <div className="card card-p">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-        <div className="section-label" style={{ margin: 0 }}>Calibration</div>
+        <div className="section-label" style={{ margin: 0 }}>Regression calibration, predicted vs realized</div>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           12 equal-frequency bins
         </span>

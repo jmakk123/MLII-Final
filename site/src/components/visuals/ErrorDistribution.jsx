@@ -58,7 +58,7 @@ export default function ErrorDistribution() {
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--sp-3)', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
-        <div className="section-label" style={{ margin: 0 }}>Error distribution</div>
+        <div className="section-label" style={{ margin: 0 }}>Residual distribution, predicted minus realized</div>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           MAE <strong style={{ color: 'var(--blue-700)' }}>{mae.toFixed(3)}</strong>
           {'  ·  '}mean <strong style={{ color: 'var(--text-2)' }}>{(mean >= 0 ? '+' : '') + mean.toFixed(3)}</strong>

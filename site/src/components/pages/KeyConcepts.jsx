@@ -21,7 +21,7 @@ export default function KeyConcepts({ navigate }) {
   return (
     <div className="page-wrap">
       <div className="eyebrow">Project · Concepts</div>
-      <h1 className="page-title">Concepts</h1>
+      <h1 className="page-title">Background Concepts</h1>
       <p className="page-sub">Everything you need to follow along, defined in plain English.</p>
 
       {/* What is a drawdown */}

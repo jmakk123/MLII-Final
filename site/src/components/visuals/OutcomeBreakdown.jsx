@@ -93,7 +93,7 @@ export default function OutcomeBreakdown() {
   return (
     <div className="card card-p" style={{ marginBottom: 'var(--sp-5)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 'var(--sp-3)', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
-        <div className="section-label" style={{ margin: 0 }}>Outcome breakdown</div>
+        <div className="section-label" style={{ margin: 0 }}>Outcome breakdown, model call vs reality</div>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 'var(--text-xs)', color: 'var(--text-3)' }}>
           {total.toLocaleString()} test predictions · accuracy{' '}
           <span style={{ color: 'var(--blue-700)', fontWeight: 700 }}>{(accuracy * 100).toFixed(1)}%</span>
