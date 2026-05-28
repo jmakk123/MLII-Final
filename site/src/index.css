@@ -23,7 +23,7 @@
      cohesive. Bulletproof: no external CDN dependency, no privacy concern,
      works behind firewalls and with ad blockers. */
   --sans:    'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --display: 'Instrument Serif', 'Iowan Old Style', 'Charter', Georgia, serif;
+  --display: 'Geist Variable', system-ui, -apple-system, sans-serif;
   --mono:    'Geist Mono Variable', 'SF Mono', Consolas, ui-monospace, monospace;
 
   /* Type scale (base 16px) */
@@ -319,11 +319,11 @@ body {
 }
 .page-title {
   font-family: var(--display);
-  font-size: clamp(var(--text-4xl), 5.2vw, 64px);
-  font-weight: 400;          /* Instrument Serif is meant to be set light */
+  font-size: clamp(var(--text-4xl), 5.2vw, 60px);
+  font-weight: 600;
   color: var(--text-1);
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  letter-spacing: -0.035em;     /* tight Geist with negative tracking carries display weight */
+  line-height: 1.04;
   margin-bottom: var(--sp-4);
   max-width: 22ch;
 }

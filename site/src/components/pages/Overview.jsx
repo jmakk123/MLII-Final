@@ -272,7 +272,7 @@ export default function Overview({ navigate }) {
             <HeroWord word="Predicting" delay={0.05} />
             <br />
             <HeroWord word="the" delay={0.15} />{' '}
-            <em><HeroWord word="Fall." delay={0.25} color="var(--blue-700)" /></em>
+            <HeroWord word="Fall." delay={0.25} color="var(--blue-700)" />
           </h1>
         </div>
         <div className="hero-meta">
