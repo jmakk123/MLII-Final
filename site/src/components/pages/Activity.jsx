@@ -65,7 +65,7 @@ const CHIPS = [
 const TEAMS = [
   { id: 'A', name: 'Team A',    Icon: Users,         color: 'var(--blue-500)' },
   { id: 'B', name: 'Team B',    Icon: Users,         color: 'var(--amber)' },
-  { id: 'P', name: 'Professor', Icon: GraduationCap, color: 'var(--green)' },
+  { id: 'P', name: 'Dr. Green & Professor Batu', Icon: GraduationCap, color: 'var(--green)' },
 ]
 
 function fmt$(n) { return '$' + Math.max(0, Math.round(n)).toLocaleString() }
