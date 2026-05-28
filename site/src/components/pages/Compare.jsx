@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { Search, X, ArrowRight } from 'lucide-react'
 import predictions from '../../data/predictions.json'
 
@@ -258,10 +258,7 @@ function CompareSummary({ a, b }) {
   const actualDelta = a.a - b.a
   return (
     <div className="card" style={{ padding: 'var(--sp-5)' }}>
-      <div className="section-label" style={{ marginBottom: 'var(--sp-3)' }}>Side by side</div>
-      <Row label="Predicted forward 12m drawdown" a={a.p} b={b.p} />
-      <Row label="Realized forward 12m drawdown" a={a.a} b={b.a} />
-      <div style={{ marginTop: 'var(--sp-4)', paddingTop: 'var(--sp-3)', borderTop: '1px solid var(--border)', fontSize: 'var(--text-xs)', color: 'var(--text-3)', lineHeight: 'var(--lh-relaxed)' }}>
+      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', lineHeight: 'var(--lh-relaxed)' }}>
         <strong style={{ color: 'var(--text-1)' }}>Model verdict.</strong>{' '}
         The model rated <strong>{a.n}</strong> as {a.p <= -0.30 ? 'higher-risk' : 'lower-risk'} ({pctFmt(a.p)}), and <strong>{b.n}</strong> as {b.p <= -0.30 ? 'higher-risk' : 'lower-risk'} ({pctFmt(b.p)}). The realized difference was {pctFmt(actualDelta)}; the model&apos;s predicted difference was {pctFmt(predDelta)}.
       </div>
@@ -269,52 +266,3 @@ function CompareSummary({ a, b }) {
   )
 }
 
-function Row({ label, a, b }) {
-  return (
-    <div style={{ marginBottom: 'var(--sp-3)' }}>
-      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-3)', marginBottom: 6 }}>{label}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 1fr', alignItems: 'center', gap: 'var(--sp-2)' }}>
-        <Bar value={a} side="right" color="var(--blue-500)" />
-        <div style={{ textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 'var(--text-2xs)', color: 'var(--text-4)' }}>
-          {pctFmt(a)} vs {pctFmt(b)}
-        </div>
-        <Bar value={b} side="left" color="var(--amber)" />
-      </div>
-    </div>
-  )
-}
-
-function Bar({ value, side, color }) {
-  const pct = Math.min(100, Math.abs(value) * 100)
-  return (
-    <div style={{
-      position: 'relative', height: 18,
-      background: 'var(--bg-2)', borderRadius: 'var(--r-sm)', overflow: 'hidden'
-    }}>
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: `${pct}%` }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={{
-          position: 'absolute', top: 0, bottom: 0,
-          [side]: 0,
-          background: color,
-          borderRadius: 'var(--r-sm)'
-        }}
-      />
-      <div style={{
-        position: 'relative', height: '100%',
-        display: 'flex', alignItems: 'center',
-        padding: side === 'right' ? '0 6px 0 0' : '0 0 0 6px',
-        justifyContent: side === 'right' ? 'flex-end' : 'flex-start',
-        fontFamily: 'var(--mono)',
-        fontSize: 'var(--text-2xs)',
-        fontWeight: 600,
-        color: '#fff',
-        textShadow: '0 0 4px rgba(0,0,0,.3)'
-      }}>
-        {pctFmt(value)}
-      </div>
-    </div>
-  )
-}
